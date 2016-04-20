@@ -1,7 +1,6 @@
 package com.sccomponents.widgets;
 
 import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -16,9 +15,15 @@ import android.widget.RelativeLayout;
 
 
 /**
- * Sliding Panel
+ * ScSlidingPanel
+ * This class create and manage a sliding panel and the movement will be decided automatically
+ * by the inner alignment of the components inside his parent container.
+ *
+ * v1.0.0
  */
-public class ScSlidingPanel extends RelativeLayout {
+public class ScSlidingPanel
+        extends RelativeLayout
+        implements Animator.AnimatorListener {
 
     /**
      * Private attributes
@@ -113,37 +118,10 @@ public class ScSlidingPanel extends RelativeLayout {
         if (this.mHandleSize < 0) this.mHandleSize = 0;
 
         // Inflate layout resource if have
-        if (this.mLayout != -1) {
-            this.inflateLayout(context, this.mLayout);
-        }
+        if (this.mLayout != -1) this.inflateLayout(context, this.mLayout);
 
-        // After the first state attach event open/close to doAnimate listener.
-        // This to avoid the first nonsense open/close calling event.
-        this.animate().setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                // Call super
-                super.onAnimationEnd(animation);
-                // Recalculate all
-                ScSlidingPanel.this.requestLayout();
-
-                // Status
-                if (ScSlidingPanel.this.mIsOpen) {
-                    // Open
-                    if (ScSlidingPanel.this.mOnChangeListener != null)
-                        ScSlidingPanel.this.mOnChangeListener.onOpened(ScSlidingPanel.this);
-
-                } else {
-                    // Hide the panel is necessary
-                    if (ScSlidingPanel.this.mHideOnClose && ScSlidingPanel.this.mHandleSize <= 0)
-                        ScSlidingPanel.this.setVisibility(GONE);
-
-                    // Close
-                    if (ScSlidingPanel.this.mOnChangeListener != null)
-                        ScSlidingPanel.this.mOnChangeListener.onClosed(ScSlidingPanel.this);
-                }
-            }
-        });
+        // The animation listener
+        this.animate().setListener(this);
     }
 
     // Find the layout alignments
@@ -154,7 +132,7 @@ public class ScSlidingPanel extends RelativeLayout {
             RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) this.getLayoutParams();
             int[] rules = lp.getRules();
 
-            // Simplify
+            // Simplify using the holder global variable
             this.mTopAlignment = rules[RelativeLayout.ALIGN_PARENT_TOP] == RelativeLayout.TRUE;
             this.mLeftAlignment = rules[RelativeLayout.ALIGN_PARENT_LEFT] == RelativeLayout.TRUE;
             this.mBottomAlignment = rules[RelativeLayout.ALIGN_PARENT_BOTTOM] == RelativeLayout.TRUE;
@@ -162,36 +140,38 @@ public class ScSlidingPanel extends RelativeLayout {
         }
     }
 
-    // Animate
+    // Animate the panel by the current status
     private void doAnimate(int duration, boolean withEvent) {
         // Find alignments
         this.findLayoutAlignments();
 
-        // Check if panel is visibile in the open phase
-        if (this.mIsOpen && this.getVisibility() != VISIBLE)
-            this.setVisibility(VISIBLE);
+        // Check if panel is visible in the open phase
+        if (this.mIsOpen && this.getVisibility() != View.VISIBLE)
+            this.setVisibility(View.VISIBLE);
 
         // Get the animator
         ViewPropertyAnimator animator = this.animate();
 
         // If need to raise the event execute the animation
-        if (withEvent)
+        if (withEvent) {
             // Set duration of animation. Always at the end of animation raise the event.
             // The duration is passed as params because need to make an open/close without animation.
             // For example when the panel start opened or closed.
             animator.setDuration(duration);
+        }
 
         // Start alpha animation if needed
         if (this.mAnimateAlpha) {
             // Calc alpha value
             float toAlpha = this.mIsOpen ? 1f : 0f;
             // Apply the alpha
-            if (withEvent)
+            if (withEvent) {
                 // raise event at the end of animation
                 animator.alpha(toAlpha);
-            else
+            } else {
                 // Apply the new alpha direct to this object and not raise event
                 this.setAlpha(toAlpha);
+            }
         }
 
         // Start translate animation if needed
@@ -199,43 +179,54 @@ public class ScSlidingPanel extends RelativeLayout {
             // Measure the view
             this.measure(0, 0);
 
-            // Calc values
+            // Calc the horizontal and vertical values
             int toX = (this.mIsOpen ? 0 : this.getMeasuredWidth()) * (this.mLeftAlignment ? -1 : 1);
             int toY = (this.mIsOpen ? 0 : this.getMeasuredHeight()) * (this.mTopAlignment ? -1 : 1);
 
-            // Add handle
+            // Add the handle size to the calc position.
+            // The size can be sum or dec depend from the alignment of the component respect
+            // the container.
             if (!this.mIsOpen) {
                 toX += (this.mLeftAlignment ? 1 : -1) * this.mHandleSize;
                 toY += (this.mTopAlignment ? 1 : -1) * this.mHandleSize;
             }
 
-            // Fix the values with offset
+            // Fix the values with offset.
+            // In this case the offset can be positive or negative by the user setting so
+            // don't need to do distinction between the component alignments.
             toX -= this.mOffset;
             toY -= this.mOffset;
 
-            // Apply the new coordinates
+            // Apply the new horizontal coordinates
             if (this.mLeftAlignment || this.mRightAlignment) {
-                if (withEvent)
+                // Check if need to call the linked events.
+                if (withEvent) {
                     // Apply using the animator and raise event at the end of animation
                     animator.translationX(toX);
-                else
+                } else {
                     // Apply directly to this object and not raise event.
                     this.setTranslationX(toX);
+                }
             }
+
+            // Apply the new vertical coordinates
             if (this.mTopAlignment || this.mBottomAlignment) {
-                if (withEvent)
+                // Check if need to call the linked events.
+                if (withEvent) {
                     // Apply using the animator and raise event at the end of animation
                     animator.translationY(toY);
-                else
+                } else {
                     // Apply directly to this object and not raise event.
                     this.setTranslationY(toY);
+                }
             }
         }
 
         // If do any animation check is must hide the panel
-        if (!this.mIsOpen && !withEvent && this.mHideOnClose && this.getVisibility() == VISIBLE) {
+        if (!this.mIsOpen && !withEvent && this.mHideOnClose &&
+                this.getVisibility() == View.VISIBLE) {
             // Hide the panel
-            this.setVisibility(GONE);
+            this.setVisibility(View.GONE);
         }
     }
 
@@ -243,7 +234,7 @@ public class ScSlidingPanel extends RelativeLayout {
     private void toggleVisibility(int duration, boolean withEvent) {
         // Toggle status
         this.mIsOpen = !this.mIsOpen;
-        // Animate
+        // Animate the panel
         this.doAnimate(duration, withEvent);
     }
 
@@ -252,7 +243,7 @@ public class ScSlidingPanel extends RelativeLayout {
         // Check for have
         if (this.mHandleSize == 0) return false;
 
-        // Get dimensions
+        // Get the dimensions
         int width = this.getWidth();
         int height = this.getHeight();
 
@@ -386,12 +377,13 @@ public class ScSlidingPanel extends RelativeLayout {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 // Long click
-                boolean isScrolled = ((this.mLeftAlignment || this.mRightAlignment) && this.mStartX != event.getX()) ||
+                boolean isScrolled =
+                        ((this.mLeftAlignment || this.mRightAlignment) && this.mStartX != event.getX()) ||
                         ((this.mTopAlignment || this.mBottomAlignment) && this.mStartY != event.getY());
 
                 // Finish drag
                 if (this.mDrag && isScrolled) {
-                    // Fix the position
+                    // Fix the last position
                     this.checkForPendingPosition();
 
                     // Listener
@@ -481,6 +473,51 @@ public class ScSlidingPanel extends RelativeLayout {
         this.mDuration = savedState.getInt("mDuration");
         this.mHandleSize = savedState.getInt("mHandleSize");
         this.mOffset = savedState.getInt("mOffset");
+    }
+
+
+    /**
+     * Override
+     */
+
+    @Override
+    public void onAnimationStart(Animator animation) {
+        // Do nothing
+    }
+
+    @Override
+    public void onAnimationEnd(Animator animation) {
+        // Call super
+        super.onAnimationEnd();
+
+        // Recalculate all
+        this.requestLayout();
+
+        // Check the status
+        if (this.mIsOpen) {
+            // Call the open event
+            if (this.mOnChangeListener != null)
+                this.mOnChangeListener.onOpened(this);
+
+        } else {
+            // Hide the panel if necessary
+            if (this.mHideOnClose && this.mHandleSize <= 0)
+                this.setVisibility(GONE);
+
+            // Call the close event
+            if (this.mOnChangeListener != null)
+                this.mOnChangeListener.onClosed(this);
+        }
+    }
+
+    @Override
+    public void onAnimationCancel(Animator animation) {
+        // Do nothing
+    }
+
+    @Override
+    public void onAnimationRepeat(Animator animation) {
+        // Do nothing
     }
 
 
@@ -580,7 +617,7 @@ public class ScSlidingPanel extends RelativeLayout {
 
 
     /**
-     * Pubblic methods
+     * Public methods
      */
 
     // Close panel
@@ -633,7 +670,7 @@ public class ScSlidingPanel extends RelativeLayout {
 
 
     /**
-     * Pubblic listener
+     * Public listener
      */
 
     // Set the listener
