@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Sliding panel -->
+    <declare-styleable name="ScSlidingPanel">
+        <attr name="scsl_layout" format="reference" />
+        <attr name="scsl_start_open" format="boolean" />
+        <attr name="scsl_toggle_ontouch" format="boolean" />
+        <attr name="scsl_animate_alpha" format="boolean" />
+        <attr name="scsl_animate_translation" format="boolean" />
+        <attr name="scsl_duration" format="integer" />
+        <attr name="scsl_handle_size" format="dimension" />
+        <attr name="scsl_offset" format="dimension" />
+        <attr name="scsl_hide_onclose" format="boolean" />
+    </declare-styleable>
+
+    <!-- Circular Seek Bar -->
+    <declare-styleable name="ScCirclularSeekBar">
+        <attr name="sccsb_start_angle" format="integer" />
+        <attr name="sccsb_sweep_angle" format="integer" />
+        <attr name="sccsb_min" format="integer" />
+        <attr name="sccsb_max" format="integer" />
+        <attr name="sccsb_value" format="integer" />
+        <attr name="sccsb_notch_size" format="dimension" />
+        <attr name="sccsb_pointer_radius" format="dimension" />
+        <attr name="sccsb_halo_size" format="dimension" />
+        <attr name="sccsb_stroke_size" format="dimension" />
+        <attr name="sccsb_stroke_color" format="color" />
+        <attr name="sccsb_pointer_color" format="color" />
+        <attr name="sccsb_show_progress" format="boolean" />
+        <attr name="sccsb_max_width" format="dimension" />
+        <attr name="sccsb_max_height" format="dimension" />
+    </declare-styleable>
+
+</resources>
