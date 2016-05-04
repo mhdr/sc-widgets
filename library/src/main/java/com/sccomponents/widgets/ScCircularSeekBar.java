@@ -19,7 +19,7 @@ import android.view.WindowManager;
 
 
 /**
- * SC Circular Seek Bar
+ * ScCircularSeekBar
  */
 public class ScCircularSeekBar extends View {
 
@@ -251,7 +251,7 @@ public class ScCircularSeekBar extends View {
         // Degrees to rad
         double rad = Math.toRadians(angle);
 
-        // Trova le coordinate nello spazio
+        // Find the coordinates in the space
         int x = Math.round((this.mDrawArea.width() / 2 + offset) * (float) Math.cos(rad));
         int y = Math.round((this.mDrawArea.height() / 2 + offset) * (float) Math.sin(rad));
 

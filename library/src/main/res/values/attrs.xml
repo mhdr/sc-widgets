@@ -32,4 +32,21 @@
         <attr name="sccsb_max_height" format="dimension" />
     </declare-styleable>
 
+    <!-- Circular Seek Bar -->
+    <declare-styleable name="ScArc">
+        <attr name="sca_start_angle" format="integer" />
+        <attr name="sca_sweep_angle" format="integer" />
+        <attr name="sca_stroke_size" format="dimension" />
+        <attr name="sca_stroke_color" format="color" />
+        <attr name="sca_stroke_position" />
+        <attr name="sca_max_width" format="dimension" />
+        <attr name="sca_max_height" format="dimension" />
+    </declare-styleable>
+
+    <attr name="sca_stroke_position" format="enum">
+        <enum name="inside" value="0" />
+        <enum name="center" value="1" />
+        <enum name="outside" value="2" />
+    </attr>
+
 </resources>
