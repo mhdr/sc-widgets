@@ -42,10 +42,9 @@ public class ScArc extends View {
      * Private variables
      */
 
-    private Rect mDrawArea = null;
-    private Paint mPaint = null;
+    protected Rect mDrawArea = null;
+    private Paint mStrokePaint = null;
 
-    private OnCustomPaintListener mOnCustomPaintListener = null;
     private OnArcEventListener mOnArcEventListener = null;
 
 
@@ -56,19 +55,16 @@ public class ScArc extends View {
     public ScArc(Context context) {
         super(context);
         this.init(context, null, 0);
-        this.createPaints();
     }
 
     public ScArc(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.init(context, attrs, 0);
-        this.createPaints();
     }
 
     public ScArc(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context, attrs, defStyleAttr);
-        this.createPaints();
+        this.init(context, attrs, defStyleAttr);
     }
 
 
@@ -77,12 +73,12 @@ public class ScArc extends View {
      */
 
     // Check all input values
-    private void checkValues() {
+    protected void checkValues() {
         // Size
         if (this.mStrokeSize < 0) this.mStrokeSize = 0;
 
         // Angle
-        if (this.mSweepAngle > 360) this.mSweepAngle = this.mSweepAngle % 360;
+        if (Math.abs(this.mSweepAngle) > 360) this.mSweepAngle = this.mSweepAngle % 360;
 
         // Dimension
         if (this.mMaxWidth < 0) this.mMaxWidth = 0;
@@ -98,7 +94,7 @@ public class ScArc extends View {
     }
 
     // Convert Dip to Pixel
-    public int dpToPixel(Context context, int dp) {
+    private int dpToPixel(Context context, int dp) {
         DisplayMetrics metrics = this.getDisplayMetrics(context);
         return (int) (dp * metrics.density);
     }
@@ -109,18 +105,18 @@ public class ScArc extends View {
         // ATTRIBUTES
 
         // Get the attributes list
-        final TypedArray attrArray = context.obtainStyledAttributes(attrs, R.styleable.ScArc, defStyle, 0);
+        final TypedArray attrArray = context.obtainStyledAttributes(attrs, R.styleable.ScComponents, defStyle, 0);
 
         // Read all attributes from xml and assign the value to linked variables
-        this.mStartAngle = attrArray.getInt(R.styleable.ScArc_sca_start_angle, 0);
-        this.mSweepAngle = attrArray.getInt(R.styleable.ScArc_sca_sweep_angle, 360);
+        this.mStartAngle = attrArray.getInt(R.styleable.ScComponents_scc_start_angle, 0);
+        this.mSweepAngle = attrArray.getInt(R.styleable.ScComponents_scc_sweep_angle, 360);
 
-        this.mStrokeSize = attrArray.getDimensionPixelSize(R.styleable.ScArc_sca_stroke_size, this.dpToPixel(context, 3));
-        this.mStrokeColor = attrArray.getColor(R.styleable.ScArc_sca_stroke_color, Color.BLACK);
-        this.mStrokePosition = Stroke.values()[attrArray.getInt(R.styleable.ScArc_sca_stroke_position, 0)];
+        this.mStrokeSize = attrArray.getDimensionPixelSize(R.styleable.ScComponents_scc_stroke_size, this.dpToPixel(context, 3));
+        this.mStrokeColor = attrArray.getColor(R.styleable.ScComponents_scc_stroke_color, Color.BLACK);
+        this.mStrokePosition = Stroke.values()[attrArray.getInt(R.styleable.ScComponents_scc_stroke_position, 0)];
 
-        this.mMaxWidth = attrArray.getDimensionPixelSize(R.styleable.ScArc_sca_max_width, 0);
-        this.mMaxHeight = attrArray.getDimensionPixelSize(R.styleable.ScArc_sca_max_height, 0);
+        this.mMaxWidth = attrArray.getDimensionPixelSize(R.styleable.ScComponents_scc_max_width, 0);
+        this.mMaxHeight = attrArray.getDimensionPixelSize(R.styleable.ScComponents_scc_max_height, 0);
 
         // Recycle
         attrArray.recycle();
@@ -131,6 +127,17 @@ public class ScArc extends View {
         this.checkValues();
 
         //--------------------------------------------------
+        // PAINTS
+
+        this.mStrokePaint = new Paint();
+        this.mStrokePaint.setColor(this.mStrokeColor);
+        this.mStrokePaint.setAntiAlias(true);
+        this.mStrokePaint.setStrokeWidth(this.mStrokeSize);
+        this.mStrokePaint.setStyle(Paint.Style.STROKE);
+        this.mStrokePaint.setStrokeJoin(Paint.Join.ROUND);
+        this.mStrokePaint.setStrokeCap(Paint.Cap.ROUND);
+
+        //--------------------------------------------------
         // EVENTS
 
         // Enable for touch
@@ -138,22 +145,10 @@ public class ScArc extends View {
         this.setFocusableInTouchMode(true);
     }
 
-    // Create the paints
-    private void createPaints() {
-        // Create arc paint
-        this.mPaint = new Paint();
-        this.mPaint.setColor(this.mStrokeColor);
-        this.mPaint.setAntiAlias(true);
-        this.mPaint.setStrokeWidth(this.mStrokeSize);
-        this.mPaint.setStyle(Paint.Style.STROKE);
-        this.mPaint.setStrokeJoin(Paint.Join.ROUND);
-        this.mPaint.setStrokeCap(Paint.Cap.ROUND);
-    }
-
     // Get the stroke increment by the his position
-    float getStrokeIncrement() {
+    protected float getStrokeIncrement(float size) {
         // Find the middle
-        double middle = Math.ceil(this.mStrokeSize / 2);
+        double middle = Math.ceil(size / 2);
 
         // Return the right value
         if (this.mStrokePosition == Stroke.INSIDE) return (float) +middle;
@@ -165,12 +160,10 @@ public class ScArc extends View {
     private Point getPositionFromAngle(float angle) {
         // Degrees to rad
         double rad = Math.toRadians(angle);
-        // Find the stroke position increment
-        float increment = this.getStrokeIncrement();
 
         // Find the arc dimensions
-        float width = this.mDrawArea.width() / 2 + increment;
-        float height = this.mDrawArea.height() / 2 + increment;
+        float width = this.mDrawArea.width() / 2;
+        float height = this.mDrawArea.height() / 2;
 
         // Find the coordinates in the space
         int x = Math.round(width * (float) Math.cos(rad));
@@ -209,11 +202,13 @@ public class ScArc extends View {
     private boolean mouseOnArc(double angle, float x, float y) {
         // Find the point on arc from angle
         Point pointOnArc = this.getPositionFromAngle((float) angle);
+        // Find the stroke position increment
+        float increment = this.getStrokeIncrement(this.mStrokeSize);
 
         // Find the distance between the points and check it
         return this.pointInsideCircle(
-                x - pointOnArc.x,
-                y - pointOnArc.y,
+                x - pointOnArc.x - increment,
+                y - pointOnArc.y - increment,
                 this.mStrokeSize
         );
     }
@@ -227,7 +222,7 @@ public class ScArc extends View {
     @SuppressWarnings("all")
     private Rect calcDrawArea(int width, int height) {
         // Find layout and create a empty area
-        ViewGroup.LayoutParams params = getLayoutParams();
+        ViewGroup.LayoutParams params = this.getLayoutParams();
 
         // Check if width and height is wrapped
         if (params.width == ViewGroup.LayoutParams.WRAP_CONTENT &&
@@ -300,23 +295,27 @@ public class ScArc extends View {
 
     // Draw arc
     private void drawArc(Canvas canvas) {
-        // Apply the stroke increment to the area
-        float increment = this.getStrokeIncrement();
-        RectF fixedArea = new RectF(
-                this.mDrawArea.left + increment,
-                this.mDrawArea.top + increment,
-                this.mDrawArea.right - increment,
-                this.mDrawArea.bottom - increment
-        );
+        // Check for  null value
+        if (this.mDrawArea != null) {
+            // Find stroke increment
+            float increment = this.getStrokeIncrement(this.mStrokeSize);
 
-        // Draw the arc
-        canvas.drawArc(
-                fixedArea,
-                this.mStartAngle,
-                this.mSweepAngle,
-                false,
-                this.mPaint
-        );
+            // Apply the stroke increment to the area
+            RectF fixedArea = new RectF(
+                    this.mDrawArea.left + increment,
+                    this.mDrawArea.top + increment,
+                    this.mDrawArea.right - increment,
+                    this.mDrawArea.bottom - increment
+            );
+
+            // Draw the arc
+            canvas.drawArc(
+                    fixedArea,
+                    this.mStartAngle,
+                    this.mSweepAngle,
+                    false,
+                    this.mStrokePaint);
+        }
     }
 
 
@@ -327,21 +326,16 @@ public class ScArc extends View {
     // On draw
     @Override
     protected void onDraw(Canvas canvas) {
-        // Call custom paint event
-        if (this.mOnCustomPaintListener != null) {
-            this.mOnCustomPaintListener.onCustomPaint(this, this.mPaint);
-        }
-
-            // Draw an arc
-            this.drawArc(canvas);
+        // Draw an arc
+        this.drawArc(canvas);
     }
 
     // On measure
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // Get suggested dimensions
-        int width = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
-        int height = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
+        int width = View.getDefaultSize(this.getSuggestedMinimumWidth(), widthMeasureSpec);
+        int height = View.getDefaultSize(this.getSuggestedMinimumHeight(), heightMeasureSpec);
 
         // Check the dimensions limits
         if (this.mMaxWidth > 0 && width > this.mMaxWidth) width = this.mMaxWidth;
@@ -352,7 +346,7 @@ public class ScArc extends View {
         Rect trimmedArea = this.calcTrimmedArea();
 
         // Trim by layout params
-        ViewGroup.LayoutParams params = getLayoutParams();
+        ViewGroup.LayoutParams params = this.getLayoutParams();
 
         // Check horizontal wrap content
         if (params.width == ViewGroup.LayoutParams.WRAP_CONTENT) {
@@ -409,11 +403,14 @@ public class ScArc extends View {
                         this.mOnArcEventListener.onSlide(angle);
                         break;
                 }
+
+                // Block event propagation
+                return true;
             }
         }
 
-        // Block event propagation
-        return true;
+        // Not block the event propagation
+        return false;
     }
 
 
@@ -461,18 +458,6 @@ public class ScArc extends View {
      * Public listener
      */
 
-    // Custom draw
-    public interface OnCustomPaintListener {
-
-        void onCustomPaint(ScArc source, Paint paint);
-
-    }
-
-    @SuppressWarnings("unused")
-    public void setOnCustomPaintListener(OnCustomPaintListener listener) {
-        this.mOnCustomPaintListener = listener;
-    }
-
     // Events on arc
     public interface OnArcEventListener {
 
@@ -487,6 +472,17 @@ public class ScArc extends View {
     @SuppressWarnings("unused")
     public void setOnArcEventListener(OnArcEventListener listener) {
         this.mOnArcEventListener = listener;
+    }
+
+
+    /**
+     * Public methods
+     */
+
+    // Get the arc painter
+    @SuppressWarnings("unused")
+    public Paint getStrokePaint() {
+        return this.mStrokePaint;
     }
 
 
@@ -543,8 +539,8 @@ public class ScArc extends View {
         this.mStrokeSize = value;
         this.checkValues();
 
-        this.mPaint.setStrokeWidth(this.mStrokeSize);
-        this.requestLayout();
+        this.mStrokePaint.setStrokeWidth(this.mStrokeSize);
+        this.invalidate();
     }
 
     // Stroke color
@@ -556,8 +552,8 @@ public class ScArc extends View {
     @SuppressWarnings("unused")
     public void setStrokeColor(int color) {
         this.mStrokeColor = color;
-        this.mPaint.setColor(this.mStrokeColor);
-        this.requestLayout();
+        this.mStrokePaint.setColor(this.mStrokeColor);
+        this.invalidate();
     }
 
     // Max width
