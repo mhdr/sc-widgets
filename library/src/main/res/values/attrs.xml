@@ -40,6 +40,7 @@
         <attr name="scc_stroke_size" format="dimension" />
         <attr name="scc_stroke_color" format="color" />
         <attr name="scc_stroke_position" />
+        <attr name="scc_fill_area" />
         <attr name="scc_progress_show" format="boolean" />
         <attr name="scc_progress_margin" format="dimension" />
         <attr name="scc_progress_color" format="color" />
@@ -53,6 +54,13 @@
         <enum name="inside" value="0" />
         <enum name="center" value="1" />
         <enum name="outside" value="2" />
+    </attr>
+
+    <attr name="scc_fill_area" format="enum">
+        <enum name="none" value="0" />
+        <enum name="both" value="1" />
+        <enum name="horizontal" value="2" />
+        <enum name="vertical" value="3" />
     </attr>
 
 </resources>

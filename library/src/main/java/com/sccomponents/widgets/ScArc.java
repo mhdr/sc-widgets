@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -19,7 +18,7 @@ import android.view.WindowManager;
 
 /**
  * Create an arc.
- * v1.0
+ * v2.0
  */
 public class ScArc extends View {
 
@@ -32,17 +31,19 @@ public class ScArc extends View {
 
     private int mStrokeSize = 0;
     private int mStrokeColor = Color.BLACK;
-    private Stroke mStrokePosition = Stroke.INSIDE;
 
     private int mMaxWidth = 0;
     private int mMaxHeight = 0;
+
+    private AreaFilling mAreaFilling = AreaFilling.BOTH;
 
 
     /**
      * Private variables
      */
 
-    protected Rect mDrawArea = null;
+    private RectF mTrimmedArea = null;
+    private RectF mDrawingArea = null;
     private Paint mStrokePaint = null;
 
     private OnArcEventListener mOnArcEventListener = null;
@@ -72,7 +73,7 @@ public class ScArc extends View {
      * Privates methods
      */
 
-    // Check all input values
+    // Check all input values if over the limits
     protected void checkValues() {
         // Size
         if (this.mStrokeSize < 0) this.mStrokeSize = 0;
@@ -85,21 +86,30 @@ public class ScArc extends View {
         if (this.mMaxHeight < 0) this.mMaxHeight = 0;
     }
 
-    // Get the display metric
+    // Get the display metric.
+    // This method is used for screen measure conversion.
     private DisplayMetrics getDisplayMetrics(Context context) {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
+        // Get the window manager from the window service
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        // Create the variable holder and inject the values
+        DisplayMetrics displayMetrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(displayMetrics);
+        // Return
         return displayMetrics;
     }
 
     // Convert Dip to Pixel
     private int dpToPixel(Context context, int dp) {
+        // Get the display metrics
         DisplayMetrics metrics = this.getDisplayMetrics(context);
+        // Calc the conversion by the screen density
         return (int) (dp * metrics.density);
     }
 
-    // Init the component
+    // Init the component.
+    // Retrieve all attributes with the default values if needed.
+    // Check the values for internal use.
+    // Create the painter and enable the touch event response.
     private void init(Context context, AttributeSet attrs, int defStyle) {
         //--------------------------------------------------
         // ATTRIBUTES
@@ -113,10 +123,11 @@ public class ScArc extends View {
 
         this.mStrokeSize = attrArray.getDimensionPixelSize(R.styleable.ScComponents_scc_stroke_size, this.dpToPixel(context, 3));
         this.mStrokeColor = attrArray.getColor(R.styleable.ScComponents_scc_stroke_color, Color.BLACK);
-        this.mStrokePosition = Stroke.values()[attrArray.getInt(R.styleable.ScComponents_scc_stroke_position, 0)];
 
         this.mMaxWidth = attrArray.getDimensionPixelSize(R.styleable.ScComponents_scc_max_width, 0);
         this.mMaxHeight = attrArray.getDimensionPixelSize(R.styleable.ScComponents_scc_max_height, 0);
+
+        this.mAreaFilling = AreaFilling.values()[attrArray.getInt(R.styleable.ScComponents_scc_fill_area, 1)];
 
         // Recycle
         attrArray.recycle();
@@ -134,7 +145,6 @@ public class ScArc extends View {
         this.mStrokePaint.setAntiAlias(true);
         this.mStrokePaint.setStrokeWidth(this.mStrokeSize);
         this.mStrokePaint.setStyle(Paint.Style.STROKE);
-        this.mStrokePaint.setStrokeJoin(Paint.Join.ROUND);
         this.mStrokePaint.setStrokeCap(Paint.Cap.ROUND);
 
         //--------------------------------------------------
@@ -145,48 +155,28 @@ public class ScArc extends View {
         this.setFocusableInTouchMode(true);
     }
 
-    // Get the stroke increment by the his position
-    protected float getStrokeIncrement(float size) {
-        // Find the middle
-        double middle = Math.ceil(size / 2);
-
-        // Return the right value
-        if (this.mStrokePosition == Stroke.INSIDE) return (float) +middle;
-        if (this.mStrokePosition == Stroke.OUTSIDE) return (float) -middle;
-        return 0;
-    }
-
-    // Calc point position from angle and offset
+    // Calc point position from angle.
+    // Gived an angle this method calc the relative point on the arc.
     private Point getPositionFromAngle(float angle) {
-        // Degrees to rad
+        // Find the arc radius
+        float xRadius = this.mDrawingArea.width() / 2;
+        float yRadius = this.mDrawingArea.height() / 2;
+
+        // Convert the radius in radiant and find the coordinates in the space
         double rad = Math.toRadians(angle);
+        int x = Math.round(xRadius * (float) Math.cos(rad));
+        int y = Math.round(yRadius * (float) Math.sin(rad));
 
-        // Find the arc dimensions
-        float width = this.mDrawArea.width() / 2;
-        float height = this.mDrawArea.height() / 2;
-
-        // Find the coordinates in the space
-        int x = Math.round(width * (float) Math.cos(rad));
-        int y = Math.round(height * (float) Math.sin(rad));
-
-        // Find the drawable area center
-        int xCenter = this.mDrawArea.left + this.mDrawArea.width() / 2;
-        int yCenter = this.mDrawArea.top + this.mDrawArea.height() / 2;
-
-        // Create the point and fix center
-        return new Point(x + xCenter, y + yCenter);
+        // Create the point and return it
+        return new Point(x, y);
     }
 
-    // Find the angle from position on screen
+    // Find the angle from position on screen.
     private double getAngleFromPosition(float x, float y) {
-        // Calc the center of area
-        int xCenter = this.mDrawArea.left + this.mDrawArea.width() / 2;
-        int yCenter = this.mDrawArea.top + this.mDrawArea.height() / 2;
-
         // Get angle from position
         double angle = Math.atan2(
-                (y - yCenter) / this.mDrawArea.height(),
-                (x - xCenter) / this.mDrawArea.width()
+                (y - this.mDrawingArea.centerY()) / this.mDrawingArea.height(),
+                (x - this.mDrawingArea.centerX()) / this.mDrawingArea.width()
         );
         // Convert to degree and fix over number
         return (Math.toDegrees(angle) + 360) % 360;
@@ -198,17 +188,15 @@ public class ScArc extends View {
         return Math.pow(x, 2) + Math.pow(y, 2) < Math.pow(radius, 2);
     }
 
-    // Check if mouse is on arc
+    // Check if user pressed on the arc
     private boolean mouseOnArc(double angle, float x, float y) {
         // Find the point on arc from angle
         Point pointOnArc = this.getPositionFromAngle((float) angle);
-        // Find the stroke position increment
-        float increment = this.getStrokeIncrement(this.mStrokeSize);
 
         // Find the distance between the points and check it
         return this.pointInsideCircle(
-                x - pointOnArc.x - increment,
-                y - pointOnArc.y - increment,
+                x - pointOnArc.x,
+                y - pointOnArc.y,
                 this.mStrokeSize
         );
     }
@@ -218,72 +206,113 @@ public class ScArc extends View {
      * Area methods
      */
 
-    // Calc draw area
-    @SuppressWarnings("all")
-    private Rect calcDrawArea(int width, int height) {
-        // Find layout and create a empty area
-        ViewGroup.LayoutParams params = this.getLayoutParams();
+    // Calc the trimmed area.
+    // This is only an image of the arc dimensions inside the space, not contains the real arc
+    // dimensions but only a proportional representation.
+    // This method essentially hold the left/top padding and the arc width/height.
+    private RectF calcTrimmedArea() {
+        // Check for sweep angle.
+        // If 0 return and empty rectangle
+        if (this.mSweepAngle == 0) return new RectF();
 
-        // Check if width and height is wrapped
-        if (params.width == ViewGroup.LayoutParams.WRAP_CONTENT &&
-                params.height == ViewGroup.LayoutParams.WRAP_CONTENT) {
-            // Return empty
-            return new Rect();
-        }
+        // Init the area rectangle with the inverted values that will be replaced with the real
+        // values.
+        RectF area = new RectF(1, 1, 0, 0);
 
-        // If vertical is WRAP_CONTENT use same circle
-        if (params.height == ViewGroup.LayoutParams.WRAP_CONTENT) {
-            height = width;
-        }
-
-        // If horizontal is WRAP_CONTENT use same circle
-        if (params.width == ViewGroup.LayoutParams.WRAP_CONTENT) {
-            width = height;
-        }
-
-        // Check the dimensions limits
-        if (this.mMaxWidth > 0 && width > this.mMaxWidth) width = this.mMaxWidth;
-        if (this.mMaxHeight > 0 && height > this.mMaxHeight) height = this.mMaxHeight;
-
-        // Create the area rectangle
-        return new Rect(
-                this.getPaddingLeft(),
-                this.getPaddingTop(),
-                width - this.getPaddingRight(),
-                height - this.getPaddingBottom()
-        );
-    }
-
-    // Calc the trimmed area
-    private Rect calcTrimmedArea() {
-        // Check for sweep angle
-        if (this.mSweepAngle == 0) return new Rect();
-
-        // Calc the start and end
+        // Calc the start and end angles in degrees.
+        // We still use the degrees for cycle all the angles because the range could be positive
+        // or negative and using the double values we could be have some comparing issue for
+        // determinate when the cycle is finished.
         int endAngle = this.mStartAngle + this.mSweepAngle;
         int currAngle = this.mStartAngle;
 
-        // Find the first point
-        Point startPoint = this.getPositionFromAngle(this.mStartAngle);
-        // Init area rectangle
-        Rect area = new Rect(startPoint.x, startPoint.y, startPoint.x, startPoint.y);
-
-        // Cycle all angles
+        // Cycle all angles and compare the found sin and cos values for find the bounds of the
+        // area.
         while (currAngle != endAngle) {
-            // Calc current point
-            Point current = this.getPositionFromAngle(currAngle);
+            // Convert the current angle in radiant and find the sin and cos values
+            double radAngle = Math.toRadians(currAngle);
+            float sin = (float) Math.sin(radAngle);
+            float cos = (float) Math.cos(radAngle);
 
-            // Compare and hold the better value is needed
-            if (current.x < area.left) area.left = current.x;
-            if (current.x > area.right) area.right = current.x;
+            // Check the the precedents limits and update they if needed
+            if (cos < area.left) area.left = cos;
+            if (cos > area.right) area.right = cos;
 
-            if (current.y < area.top) area.top = current.y;
-            if (current.y > area.bottom) area.bottom = current.y;
+            if (sin < area.top) area.top = sin;
+            if (sin > area.bottom) area.bottom = sin;
 
-            // Increment angle
+            // Increment angle by the sweep angle sign
             currAngle += this.mSweepAngle > 0 ? 1 : -1;
         }
 
+        // Return the area.
+        // Inside this could have an image of the trimmed area used to draw this arc.
+        return area;
+    }
+
+    // Calc complete circle drawing area.
+    // This methods calc the virtual drawing area not taking into consideration the many adjustments
+    // like the stroke size or the area padding.
+    private RectF calcVirtualArea(int width, int height) {
+        // Check for empty values
+        if (this.mTrimmedArea == null || this.mTrimmedArea.isEmpty()) return new RectF();
+
+        // Default working area
+        RectF area = new RectF(0, 0, width, height);
+
+        // Layout wrapping
+        boolean hWrap = this.getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT;
+        boolean vWrap = this.getLayoutParams().height == ViewGroup.LayoutParams.WRAP_CONTENT;
+
+        // If fill the area expand the area to have the full filling working space with the arc.
+        // In the wrapping case the horizontal filling it is executed in anyway while the component
+        // dimension will be elaborated before inside the component measuring.
+        if (hWrap ||
+                this.mAreaFilling == AreaFilling.BOTH || this.mAreaFilling == AreaFilling.HORIZONTAL) {
+            // Find the multiplier based on the trimmed area and apply the proportion to the
+            // horizontal dimensions.
+            float hMultiplier = width / this.mTrimmedArea.width();
+            float left = this.mTrimmedArea.left * hMultiplier;
+
+            // Apply the new values to the area and modify the horizontal offset
+            area.left = -hMultiplier - left;
+            area.right = hMultiplier - left;
+        }
+
+        // If fill the area expand the area to have the full filling working space with the arc
+        // In the wrapping case the vertical filling it is executed in anyway while the component
+        // dimension will be elaborated before inside the component measuring.
+        if (vWrap ||
+                this.mAreaFilling == AreaFilling.BOTH || this.mAreaFilling == AreaFilling.VERTICAL) {
+            // Find the multiplier based on the trimmed area and apply the proportion to the
+            // vertical dimensions.
+            float vMultiplier = height / this.mTrimmedArea.height();
+            float top = this.mTrimmedArea.top * vMultiplier;
+
+            // Apply the new values to the area and modify the vertical offset
+            area.top = -vMultiplier - top;
+            area.bottom = vMultiplier - top;
+        }
+
+        // Return the calc area
+        return area;
+    }
+
+    // Calc the real drawing area.
+    // This methods can be use to find the real area for drawing the arc.
+    private RectF calcDrawingArea(int width, int height) {
+        // Get the virtual area and the half stroke size
+        RectF area = this.calcVirtualArea(width, height);
+        float halfStroke = this.mStrokeSize / 2;
+
+        // Check for area empty values
+        if (!area.isEmpty()) {
+            // Adjust the padding and the stroke size
+            area.left += this.getPaddingLeft() + halfStroke;
+            area.top += this.getPaddingTop() + halfStroke;
+            area.right -= this.getPaddingRight() + halfStroke;
+            area.bottom -= this.getPaddingBottom() + halfStroke;
+        }
         // Return the area
         return area;
     }
@@ -293,24 +322,16 @@ public class ScArc extends View {
      * Draw methods
      */
 
-    // Draw arc
+    // Draw arc on the canvas.
+    // NB: In this methods will be calc the drawing area for reuse it in other methods.
     private void drawArc(Canvas canvas) {
-        // Check for  null value
-        if (this.mDrawArea != null) {
-            // Find stroke increment
-            float increment = this.getStrokeIncrement(this.mStrokeSize);
-
-            // Apply the stroke increment to the area
-            RectF fixedArea = new RectF(
-                    this.mDrawArea.left + increment,
-                    this.mDrawArea.top + increment,
-                    this.mDrawArea.right - increment,
-                    this.mDrawArea.bottom - increment
-            );
-
+        // Calc the drawing area
+        this.mDrawingArea = this.calcDrawingArea(canvas.getWidth(), canvas.getHeight());
+        // Check for area empty value
+        if (!this.mDrawingArea.isEmpty()) {
             // Draw the arc
             canvas.drawArc(
-                    fixedArea,
+                    this.mDrawingArea,
                     this.mStartAngle,
                     this.mSweepAngle,
                     false,
@@ -332,37 +353,30 @@ public class ScArc extends View {
 
     // On measure
     @Override
+    @SuppressWarnings("all")
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // Get suggested dimensions
         int width = View.getDefaultSize(this.getSuggestedMinimumWidth(), widthMeasureSpec);
         int height = View.getDefaultSize(this.getSuggestedMinimumHeight(), heightMeasureSpec);
 
+        // Layout wrapping
+        boolean hWrap = this.getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT;
+        boolean vWrap = this.getLayoutParams().height == ViewGroup.LayoutParams.WRAP_CONTENT;
+
+        // If have some wrap content create a perfected square before trim it.
+        if (hWrap) width = height;
+        if (vWrap) height = width;
+
         // Check the dimensions limits
         if (this.mMaxWidth > 0 && width > this.mMaxWidth) width = this.mMaxWidth;
         if (this.mMaxHeight > 0 && height > this.mMaxHeight) height = this.mMaxHeight;
 
-        // Calc areas
-        this.mDrawArea = this.calcDrawArea(width, height);
-        Rect trimmedArea = this.calcTrimmedArea();
+        // Calc the areas
+        this.mTrimmedArea = this.calcTrimmedArea();
 
-        // Trim by layout params
-        ViewGroup.LayoutParams params = this.getLayoutParams();
-
-        // Check horizontal wrap content
-        if (params.width == ViewGroup.LayoutParams.WRAP_CONTENT) {
-            // Adjust draw area offset
-            this.mDrawArea.offset(-trimmedArea.left + this.getPaddingLeft(), 0);
-            // Fix global width
-            width = this.getPaddingLeft() + trimmedArea.width() + this.getPaddingRight();
-        }
-
-        // Check vertical wrap content
-        if (params.height == ViewGroup.LayoutParams.WRAP_CONTENT) {
-            // Adjust draw area dimension and offset
-            this.mDrawArea.offset(0, -trimmedArea.top + this.getPaddingTop());
-            // Fix global height
-            height = this.getPaddingTop() + trimmedArea.height() + this.getPaddingBottom();
-        }
+        // Check for wrapping the dimensions
+        if (hWrap) width = (int) (width * this.mTrimmedArea.width() / 2);
+        if (vWrap) height = (int) (height * this.mTrimmedArea.height() / 2);
 
         // Set dimensions
         this.setMeasuredDimension(width, height);
@@ -371,7 +385,7 @@ public class ScArc extends View {
     // Check the touch
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        // Recalc layout
+        // Calc the layout
         this.requestLayout();
 
         // Store the touch position
@@ -421,36 +435,43 @@ public class ScArc extends View {
     // Save
     @Override
     protected Parcelable onSaveInstanceState() {
+        // Call the super and get the parent state
         Parcelable superState = super.onSaveInstanceState();
 
+        // Create a new bundle for store all the variables
         Bundle state = new Bundle();
+        // Save all starting from the parent state
         state.putParcelable("PARENT", superState);
         state.putInt("mStartAngle", this.mStartAngle);
         state.putInt("mSweepAngle", this.mSweepAngle);
         state.putInt("mStrokeSize", this.mStrokeSize);
         state.putInt("mStrokeColor", this.mStrokeColor);
-        state.putInt("mStrokePosition", this.mStrokePosition.ordinal());
         state.putInt("mMaxWidth", this.mMaxWidth);
         state.putInt("mMaxHeight", this.mMaxHeight);
+        state.putInt("mAreaFilling", this.mAreaFilling.ordinal());
 
+        // Return the new state
         return state;
     }
 
     // Restore
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
+        // Implicit conversion in a bundle
         Bundle savedState = (Bundle) state;
 
+        // Recover the parent class state and restore it
         Parcelable superState = savedState.getParcelable("PARENT");
         super.onRestoreInstanceState(superState);
 
+        // Now can restore all the saved variables values
         this.mStartAngle = savedState.getInt("mStartAngle");
         this.mSweepAngle = savedState.getInt("mSweepAngle");
         this.mStrokeSize = savedState.getInt("mStrokeSize");
         this.mStrokeColor = savedState.getInt("mStrokeColor");
-        this.mStrokePosition = Stroke.values()[savedState.getInt("mStrokePosition")];
         this.mMaxWidth = savedState.getInt("mMaxWidth");
         this.mMaxHeight = savedState.getInt("mMaxHeight");
+        this.mAreaFilling = AreaFilling.values()[savedState.getInt("mAreaFilling")];
     }
 
 
@@ -481,7 +502,7 @@ public class ScArc extends View {
 
     // Get the arc painter
     @SuppressWarnings("unused")
-    public Paint getStrokePaint() {
+    public Paint getPainter() {
         return this.mStrokePaint;
     }
 
@@ -490,11 +511,13 @@ public class ScArc extends View {
      * Public enum
      */
 
-    // The stroke position
-    public enum Stroke {
-        INSIDE,
-        CENTER,
-        OUTSIDE
+    // The area filling types
+    @SuppressWarnings("unused")
+    public enum AreaFilling {
+        NONE,
+        BOTH,
+        HORIZONTAL,
+        VERTICAL
     }
 
 
@@ -580,6 +603,18 @@ public class ScArc extends View {
         this.mMaxHeight = value;
         this.checkValues();
         this.requestLayout();
+    }
+
+    // Area filling
+    @SuppressWarnings("unused")
+    public AreaFilling getAreaFilling() {
+        return this.mAreaFilling;
+    }
+
+    @SuppressWarnings("unused")
+    public void setAreaFilling(AreaFilling value) {
+        this.mAreaFilling = value;
+        this.invalidate();
     }
 
 }
