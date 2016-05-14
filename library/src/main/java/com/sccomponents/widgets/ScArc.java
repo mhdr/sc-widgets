@@ -26,10 +26,11 @@ public class ScArc extends View {
      * Private attributes
      */
 
-    private int mStartAngle = 0;
-    private int mSweepAngle = 360;
+    private float mAngleStart = 0.0f;
+    private float mAngleSweep = 360.0f;
+    private float mAngleDraw = 360.0f;
 
-    private int mStrokeSize = 0;
+    private float mStrokeSize = 0.0f;
     private int mStrokeColor = Color.BLACK;
 
     private int mMaxWidth = 0;
@@ -43,7 +44,6 @@ public class ScArc extends View {
      */
 
     private RectF mTrimmedArea = null;
-    private RectF mDrawingArea = null;
     private Paint mStrokePaint = null;
 
     private OnArcEventListener mOnArcEventListener = null;
@@ -73,17 +73,29 @@ public class ScArc extends View {
      * Privates methods
      */
 
+    // Limit number within a range
+    private float valueRangeLimit(float value, float startValue, float endValue) {
+        // If is over the limit return the normalized value
+        if (value < Math.min(startValue, endValue)) return Math.min(startValue, endValue);
+        if (value > Math.max(startValue, endValue)) return Math.max(startValue, endValue);
+        // Else return the original value
+        return value;
+    }
+
     // Check all input values if over the limits
-    protected void checkValues() {
+    private void checkValues() {
         // Size
-        if (this.mStrokeSize < 0) this.mStrokeSize = 0;
+        if (this.mStrokeSize < 0.0f) this.mStrokeSize = 0.0f;
 
         // Angle
-        if (Math.abs(this.mSweepAngle) > 360) this.mSweepAngle = this.mSweepAngle % 360;
+        if (Math.abs(this.mAngleSweep) > 360.0f) this.mAngleSweep = this.mAngleSweep % 360.0f;
 
         // Dimension
         if (this.mMaxWidth < 0) this.mMaxWidth = 0;
         if (this.mMaxHeight < 0) this.mMaxHeight = 0;
+
+        // Check the draw angle limits
+        this.mAngleDraw = this.valueRangeLimit(this.mAngleDraw, 0, this.mAngleSweep);
     }
 
     // Get the display metric.
@@ -99,11 +111,11 @@ public class ScArc extends View {
     }
 
     // Convert Dip to Pixel
-    private int dpToPixel(Context context, int dp) {
+    private float dpToPixel(Context context, float dp) {
         // Get the display metrics
         DisplayMetrics metrics = this.getDisplayMetrics(context);
         // Calc the conversion by the screen density
-        return (int) (dp * metrics.density);
+        return dp * metrics.density;
     }
 
     // Init the component.
@@ -118,16 +130,25 @@ public class ScArc extends View {
         final TypedArray attrArray = context.obtainStyledAttributes(attrs, R.styleable.ScComponents, defStyle, 0);
 
         // Read all attributes from xml and assign the value to linked variables
-        this.mStartAngle = attrArray.getInt(R.styleable.ScComponents_scc_start_angle, 0);
-        this.mSweepAngle = attrArray.getInt(R.styleable.ScComponents_scc_sweep_angle, 360);
+        this.mAngleStart = attrArray.getFloat(
+                R.styleable.ScComponents_scc_angle_start, 0.0f);
+        this.mAngleSweep = attrArray.getFloat(
+                R.styleable.ScComponents_scc_angle_sweep, 360.0f);
+        this.mAngleDraw = attrArray.getFloat(
+                R.styleable.ScComponents_scc_angle_draw, 360.0f);
 
-        this.mStrokeSize = attrArray.getDimensionPixelSize(R.styleable.ScComponents_scc_stroke_size, this.dpToPixel(context, 3));
-        this.mStrokeColor = attrArray.getColor(R.styleable.ScComponents_scc_stroke_color, Color.BLACK);
+        this.mStrokeSize = attrArray.getDimension(
+                R.styleable.ScComponents_scc_stroke_size, this.dpToPixel(context, 3.0f));
+        this.mStrokeColor = attrArray.getColor(
+                R.styleable.ScComponents_scc_stroke_color, Color.BLACK);
 
-        this.mMaxWidth = attrArray.getDimensionPixelSize(R.styleable.ScComponents_scc_max_width, 0);
-        this.mMaxHeight = attrArray.getDimensionPixelSize(R.styleable.ScComponents_scc_max_height, 0);
+        this.mMaxWidth = attrArray.getDimensionPixelSize(
+                R.styleable.ScComponents_scc_max_width, 0);
+        this.mMaxHeight = attrArray.getDimensionPixelSize(
+                R.styleable.ScComponents_scc_max_height, 0);
 
-        this.mAreaFilling = AreaFilling.values()[attrArray.getInt(R.styleable.ScComponents_scc_fill_area, 1)];
+        this.mAreaFilling =
+                AreaFilling.values()[attrArray.getInt(R.styleable.ScComponents_scc_fill_area, 1)];
 
         // Recycle
         attrArray.recycle();
@@ -145,7 +166,8 @@ public class ScArc extends View {
         this.mStrokePaint.setAntiAlias(true);
         this.mStrokePaint.setStrokeWidth(this.mStrokeSize);
         this.mStrokePaint.setStyle(Paint.Style.STROKE);
-        this.mStrokePaint.setStrokeCap(Paint.Cap.ROUND);
+        this.mStrokePaint.setStrokeJoin(Paint.Join.ROUND);
+        this.mStrokePaint.setStrokeCap(Paint.Cap.BUTT);
 
         //--------------------------------------------------
         // EVENTS
@@ -155,33 +177,6 @@ public class ScArc extends View {
         this.setFocusableInTouchMode(true);
     }
 
-    // Calc point position from angle.
-    // Gived an angle this method calc the relative point on the arc.
-    private Point getPositionFromAngle(float angle) {
-        // Find the arc radius
-        float xRadius = this.mDrawingArea.width() / 2;
-        float yRadius = this.mDrawingArea.height() / 2;
-
-        // Convert the radius in radiant and find the coordinates in the space
-        double rad = Math.toRadians(angle);
-        int x = Math.round(xRadius * (float) Math.cos(rad));
-        int y = Math.round(yRadius * (float) Math.sin(rad));
-
-        // Create the point and return it
-        return new Point(x, y);
-    }
-
-    // Find the angle from position on screen.
-    private double getAngleFromPosition(float x, float y) {
-        // Get angle from position
-        double angle = Math.atan2(
-                (y - this.mDrawingArea.centerY()) / this.mDrawingArea.height(),
-                (x - this.mDrawingArea.centerX()) / this.mDrawingArea.width()
-        );
-        // Convert to degree and fix over number
-        return (Math.toDegrees(angle) + 360) % 360;
-    }
-
     // Check if point is inside a circle (Pitagora)
     @SuppressWarnings("all")
     private boolean pointInsideCircle(float x, float y, float radius) {
@@ -189,9 +184,9 @@ public class ScArc extends View {
     }
 
     // Check if user pressed on the arc
-    private boolean mouseOnArc(double angle, float x, float y) {
+    private boolean pressedOnArc(float angle, float x, float y) {
         // Find the point on arc from angle
-        Point pointOnArc = this.getPositionFromAngle((float) angle);
+        Point pointOnArc = this.getPointFromAngle(angle);
 
         // Find the distance between the points and check it
         return this.pointInsideCircle(
@@ -213,26 +208,26 @@ public class ScArc extends View {
     private RectF calcTrimmedArea() {
         // Check for sweep angle.
         // If 0 return and empty rectangle
-        if (this.mSweepAngle == 0) return new RectF();
+        if (this.mAngleSweep == 0.0f) return new RectF();
 
         // Init the area rectangle with the inverted values that will be replaced with the real
         // values.
-        RectF area = new RectF(1, 1, 0, 0);
+        RectF area = new RectF(1.0f, 1.0f, -1.0f, -1.0f);
 
-        // Calc the start and end angles in degrees.
-        // We still use the degrees for cycle all the angles because the range could be positive
-        // or negative and using the double values we could be have some comparing issue for
-        // determinate when the cycle is finished.
-        int endAngle = this.mStartAngle + this.mSweepAngle;
-        int currAngle = this.mStartAngle;
+        // Calc the start and end angles in radians.
+        double startAngle = Math.toRadians(this.mAngleStart);
+        double endAngle = startAngle + Math.toRadians(this.mAngleSweep);
+
+        // Sort the angles to find the min and the max
+        double minAngle = startAngle < endAngle ? startAngle : endAngle;
+        double maxAngle = startAngle > endAngle ? startAngle : endAngle;
 
         // Cycle all angles and compare the found sin and cos values for find the bounds of the
         // area.
-        while (currAngle != endAngle) {
+        while (minAngle <= maxAngle) {
             // Convert the current angle in radiant and find the sin and cos values
-            double radAngle = Math.toRadians(currAngle);
-            float sin = (float) Math.sin(radAngle);
-            float cos = (float) Math.cos(radAngle);
+            float sin = (float) Math.sin(minAngle);
+            float cos = (float) Math.cos(minAngle);
 
             // Check the the precedents limits and update they if needed
             if (cos < area.left) area.left = cos;
@@ -241,8 +236,8 @@ public class ScArc extends View {
             if (sin < area.top) area.top = sin;
             if (sin > area.bottom) area.bottom = sin;
 
-            // Increment angle by the sweep angle sign
-            currAngle += this.mSweepAngle > 0 ? 1 : -1;
+            // Increment the current angle
+            minAngle += 0.01;
         }
 
         // Return the area.
@@ -323,17 +318,17 @@ public class ScArc extends View {
      */
 
     // Draw arc on the canvas.
-    // NB: In this methods will be calc the drawing area for reuse it in other methods.
+    // In this method will be calc the drawing area for reuse it in other methods.
     private void drawArc(Canvas canvas) {
         // Calc the drawing area
-        this.mDrawingArea = this.calcDrawingArea(canvas.getWidth(), canvas.getHeight());
+        RectF drawingArea = this.calcDrawingArea(canvas.getWidth(), canvas.getHeight());
         // Check for area empty value
-        if (!this.mDrawingArea.isEmpty()) {
+        if (!drawingArea.isEmpty()) {
             // Draw the arc
             canvas.drawArc(
-                    this.mDrawingArea,
-                    this.mStartAngle,
-                    this.mSweepAngle,
+                    drawingArea,
+                    this.mAngleStart,
+                    this.mAngleDraw,
                     false,
                     this.mStrokePaint);
         }
@@ -395,10 +390,10 @@ public class ScArc extends View {
         // Check if press on arc
         if (this.mOnArcEventListener != null) {
             // Get the angle from touch position
-            double angle = this.getAngleFromPosition(x, y);
+            float angle = this.getAngleFromPoint(x, y);
 
             // Check if the pressure is on the arc
-            if (this.mouseOnArc(angle, x, y)) {
+            if (this.pressedOnArc(angle, x, y)) {
                 // Select action
                 switch (event.getAction()) {
                     // Press
@@ -442,9 +437,10 @@ public class ScArc extends View {
         Bundle state = new Bundle();
         // Save all starting from the parent state
         state.putParcelable("PARENT", superState);
-        state.putInt("mStartAngle", this.mStartAngle);
-        state.putInt("mSweepAngle", this.mSweepAngle);
-        state.putInt("mStrokeSize", this.mStrokeSize);
+        state.putFloat("mAngleStart", this.mAngleStart);
+        state.putFloat("mAngleSweep", this.mAngleSweep);
+        state.putFloat("mAngleDraw", this.mAngleDraw);
+        state.putFloat("mStrokeSize", this.mStrokeSize);
         state.putInt("mStrokeColor", this.mStrokeColor);
         state.putInt("mMaxWidth", this.mMaxWidth);
         state.putInt("mMaxHeight", this.mMaxHeight);
@@ -465,13 +461,223 @@ public class ScArc extends View {
         super.onRestoreInstanceState(superState);
 
         // Now can restore all the saved variables values
-        this.mStartAngle = savedState.getInt("mStartAngle");
-        this.mSweepAngle = savedState.getInt("mSweepAngle");
-        this.mStrokeSize = savedState.getInt("mStrokeSize");
+        this.mAngleStart = savedState.getFloat("mAngleStart");
+        this.mAngleSweep = savedState.getFloat("mAngleSweep");
+        this.mAngleDraw = savedState.getFloat("mAngleDraw");
+        this.mStrokeSize = savedState.getFloat("mStrokeSize");
         this.mStrokeColor = savedState.getInt("mStrokeColor");
         this.mMaxWidth = savedState.getInt("mMaxWidth");
         this.mMaxHeight = savedState.getInt("mMaxHeight");
         this.mAreaFilling = AreaFilling.values()[savedState.getInt("mAreaFilling")];
+    }
+
+
+    /**
+     * Public methods
+     */
+
+    // The area filling types
+    @SuppressWarnings("unused")
+    public enum AreaFilling {
+        NONE,
+        BOTH,
+        HORIZONTAL,
+        VERTICAL
+    }
+
+    // Calc point position from angle in degrees.
+    // Given an angle this method calc the relative point on the arc.
+    @SuppressWarnings("unused")
+    public Point getPointFromAngle(float degrees) {
+        return this.getPointFromAngle(degrees, 0.0f);
+    }
+
+    @SuppressWarnings("unused")
+    public Point getPointFromAngle(float degrees, float radiusAdjust) {
+        // Get the drawing area
+        RectF area = this.calcDrawingArea(this.getMeasuredWidth(), this.getMeasuredHeight());
+
+        // Find the default arc radius
+        float xRadius = area.width() / 2  + radiusAdjust;
+        float yRadius = area.height() / 2 +  + radiusAdjust;
+
+        // Convert the radius in radiant and find the coordinates in the space
+        double rad = Math.toRadians(degrees);
+        int x = Math.round(xRadius * (float) Math.cos(rad) + area.centerX());
+        int y = Math.round(yRadius * (float) Math.sin(rad) + area.centerY());
+
+        // Create the point and return it
+        return new Point(x, y);
+    }
+
+    // Find the angle from position on screen.
+    @SuppressWarnings("unused")
+    public float getAngleFromPoint(float x, float y) {
+        // Get the drawing area
+        RectF area = this.calcDrawingArea(this.getMeasuredWidth(), this.getMeasuredHeight());
+
+        // Get angle from position
+        double angle = Math.atan2(
+                (y - area.centerY()) / area.height(),
+                (x - area.centerX()) / area.width()
+        );
+        // Convert to degree and fix over number
+        return ((float) Math.toDegrees(angle) + 360.0f) % 360.0f;
+    }
+
+    // Get the arc painter
+    @SuppressWarnings("unused")
+    public Paint getPainter() {
+        return this.mStrokePaint;
+    }
+
+
+    /**
+     * Public properties
+     */
+
+    // Start angle
+    @SuppressWarnings("unused")
+    public float getAngleStart() {
+        return this.mAngleStart;
+    }
+
+    @SuppressWarnings("unused")
+    public void setAngleStart(float value) {
+        // Check if value is changed
+        if (this.mAngleStart != value) {
+            // Store the new value
+            this.mAngleStart = value;
+            // Check and refresh the component
+            this.checkValues();
+            this.requestLayout();
+        }
+    }
+
+    // Sweep angle
+    @SuppressWarnings("unused")
+    public float getAngleSweep() {
+        return this.mAngleSweep;
+    }
+
+    @SuppressWarnings("unused")
+    public void setAngleSweep(float value) {
+        // Check if value is changed
+        if (this.mAngleSweep != value) {
+            // Store the new value
+            this.mAngleDraw = this.mAngleSweep == this.mAngleDraw ? value : this.mAngleDraw;
+            this.mAngleSweep = value;
+            // Check and refresh
+            this.checkValues();
+            this.requestLayout();
+        }
+    }
+
+    // Draw angle
+    @SuppressWarnings("unused")
+    public float getAngleDraw() {
+        return this.mAngleDraw;
+    }
+
+    @SuppressWarnings("unused")
+    public void setAngleDraw(float value) {
+        // Check if value is changed
+        if (this.mAngleDraw != value) {
+            // Store the new value
+            this.mAngleDraw = value;
+            // Check and refresh
+            this.checkValues();
+            this.invalidate();
+        }
+    }
+
+    // Stroke size
+    @SuppressWarnings("unused")
+    public float getStrokeSize() {
+        return this.mStrokeSize;
+    }
+
+    @SuppressWarnings("unused")
+    public void setStrokeSize(float value) {
+        // Check if value is changed
+        if (this.mStrokeSize != value) {
+            // Store the new value and check it
+            this.mStrokeSize = value;
+            this.checkValues();
+            // Fix the painter and refresh the component
+            this.mStrokePaint.setStrokeWidth(this.mStrokeSize);
+            this.requestLayout();
+        }
+    }
+
+    // Stroke color
+    @SuppressWarnings("unused")
+    public int getStrokeColor() {
+        return this.mStrokeColor;
+    }
+
+    @SuppressWarnings("unused")
+    public void setStrokeColor(int value) {
+        // Check if value is changed
+        if (this.mStrokeColor != value) {
+            // Store the new value
+            this.mStrokeColor = value;
+            // Fix the painter and refresh the component
+            this.mStrokePaint.setColor(this.mStrokeColor);
+            this.invalidate();
+        }
+    }
+
+    // Max width
+    @SuppressWarnings("unused")
+    public int getMaxWidth() {
+        return this.mMaxWidth;
+    }
+
+    @SuppressWarnings("unused")
+    public void setMaxWidth(int value) {
+        // Check if value is changed
+        if (this.mMaxWidth != value) {
+            // Store the new value
+            this.mMaxWidth = value;
+            // Check and refresh the component
+            this.checkValues();
+            this.requestLayout();
+        }
+    }
+
+    // Max height
+    @SuppressWarnings("unused")
+    public int getMaxHeight() {
+        return this.mMaxHeight;
+    }
+
+    @SuppressWarnings("unused")
+    public void setMaxHeight(int value) {
+        // Check if value is changed
+        if (this.mMaxHeight != value) {
+            // Store the new value
+            this.mMaxHeight = value;
+            // Check and refresh the component
+            this.checkValues();
+            this.requestLayout();
+        }
+    }
+
+    // Area filling
+    @SuppressWarnings("unused")
+    public AreaFilling getAreaFilling() {
+        return this.mAreaFilling;
+    }
+
+    @SuppressWarnings("unused")
+    public void setAreaFilling(AreaFilling value) {
+        // Check if value is changed
+        if (this.mAreaFilling != value) {
+            // Store the new value and refresh the component
+            this.mAreaFilling = value;
+            this.invalidate();
+        }
     }
 
 
@@ -493,128 +699,6 @@ public class ScArc extends View {
     @SuppressWarnings("unused")
     public void setOnArcEventListener(OnArcEventListener listener) {
         this.mOnArcEventListener = listener;
-    }
-
-
-    /**
-     * Public methods
-     */
-
-    // Get the arc painter
-    @SuppressWarnings("unused")
-    public Paint getPainter() {
-        return this.mStrokePaint;
-    }
-
-
-    /**
-     * Public enum
-     */
-
-    // The area filling types
-    @SuppressWarnings("unused")
-    public enum AreaFilling {
-        NONE,
-        BOTH,
-        HORIZONTAL,
-        VERTICAL
-    }
-
-
-    /**
-     * Public properties
-     */
-
-    // Start angle
-    @SuppressWarnings("unused")
-    public int getStartAngle() {
-        return this.mStartAngle;
-    }
-
-    @SuppressWarnings("unused")
-    public void setStartAngle(int value) {
-        this.mStartAngle = value;
-        this.checkValues();
-        this.requestLayout();
-    }
-
-    // Sweep angle
-    @SuppressWarnings("unused")
-    public int getSweepAngle() {
-        return this.mSweepAngle;
-    }
-
-    @SuppressWarnings("unused")
-    public void setSweepAngle(int value) {
-        this.mSweepAngle = value;
-        this.checkValues();
-        this.requestLayout();
-    }
-
-    // Stroke size
-    @SuppressWarnings("unused")
-    public int getStrokeSize() {
-        return this.mStrokeSize;
-    }
-
-    @SuppressWarnings("unused")
-    public void setStrokeSize(int value) {
-        this.mStrokeSize = value;
-        this.checkValues();
-
-        this.mStrokePaint.setStrokeWidth(this.mStrokeSize);
-        this.invalidate();
-    }
-
-    // Stroke color
-    @SuppressWarnings("unused")
-    public int getStrokeColor() {
-        return this.mStrokeColor;
-    }
-
-    @SuppressWarnings("unused")
-    public void setStrokeColor(int color) {
-        this.mStrokeColor = color;
-        this.mStrokePaint.setColor(this.mStrokeColor);
-        this.invalidate();
-    }
-
-    // Max width
-    @SuppressWarnings("unused")
-    public int getMaxWidth() {
-        return this.mMaxWidth;
-    }
-
-    @SuppressWarnings("unused")
-    public void setMaxWidth(int value) {
-        this.mMaxWidth = value;
-        this.checkValues();
-        this.requestLayout();
-    }
-
-    // Max height
-    @SuppressWarnings("unused")
-    public int getMaxHeight() {
-        return this.mMaxHeight;
-    }
-
-    @SuppressWarnings("unused")
-    public void setMaxHeight(int value) {
-        this.mMaxHeight = value;
-        this.checkValues();
-        this.requestLayout();
-    }
-
-    // Area filling
-    @SuppressWarnings("unused")
-    public AreaFilling getAreaFilling() {
-        return this.mAreaFilling;
-    }
-
-    @SuppressWarnings("unused")
-    public void setAreaFilling(AreaFilling value) {
-        this.mAreaFilling = value;
-        this.invalidate();
     }
 
 }

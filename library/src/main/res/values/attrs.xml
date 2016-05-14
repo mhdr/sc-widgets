@@ -34,27 +34,20 @@
 
     <!-- Circular Seek Bar -->
     <declare-styleable name="ScComponents">
-        <attr name="scc_start_angle" format="integer" />
-        <attr name="scc_sweep_angle" format="integer" />
-        <attr name="scc_stroke_show" format="boolean" />
+        <attr name="scc_angle_start" format="float" />
+        <attr name="scc_angle_sweep" format="float" />
+        <attr name="scc_angle_draw" format="float" />
         <attr name="scc_stroke_size" format="dimension" />
         <attr name="scc_stroke_color" format="color" />
-        <attr name="scc_stroke_position" />
-        <attr name="scc_fill_area" />
-        <attr name="scc_progress_show" format="boolean" />
-        <attr name="scc_progress_margin" format="dimension" />
+        <attr name="scc_progress_size" format="dimension" />
         <attr name="scc_progress_color" format="color" />
-        <attr name="scc_value" format="integer" />
+        <attr name="scc_value" format="float" />
+        <attr name="scc_fill_area" />
+        <attr name="scc_notchs" format="integer" />
+        <attr name="scc_notchs_length" format="dimension" />
         <attr name="scc_max_width" format="dimension" />
         <attr name="scc_max_height" format="dimension" />
-        <attr name="scc_animation_duration" format="integer" />
     </declare-styleable>
-
-    <attr name="scc_stroke_position" format="enum">
-        <enum name="inside" value="0" />
-        <enum name="center" value="1" />
-        <enum name="outside" value="2" />
-    </attr>
 
     <attr name="scc_fill_area" format="enum">
         <enum name="none" value="0" />
