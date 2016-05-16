@@ -36,7 +36,8 @@ public class ScArc extends View {
     private int mMaxWidth = 0;
     private int mMaxHeight = 0;
 
-    private AreaFilling mAreaFilling = AreaFilling.BOTH;
+    private FillingArea mFillingArea = FillingArea.BOTH;
+    private FillingMode mFillingMode = FillingMode.STRETCH;
 
 
     /**
@@ -89,6 +90,7 @@ public class ScArc extends View {
 
         // Angle
         if (Math.abs(this.mAngleSweep) > 360.0f) this.mAngleSweep = this.mAngleSweep % 360.0f;
+        if (Math.abs(this.mAngleDraw) > 360.0f) this.mAngleDraw = this.mAngleDraw % 360.0f;
 
         // Dimension
         if (this.mMaxWidth < 0) this.mMaxWidth = 0;
@@ -108,14 +110,6 @@ public class ScArc extends View {
         wm.getDefaultDisplay().getMetrics(displayMetrics);
         // Return
         return displayMetrics;
-    }
-
-    // Convert Dip to Pixel
-    private float dpToPixel(Context context, float dp) {
-        // Get the display metrics
-        DisplayMetrics metrics = this.getDisplayMetrics(context);
-        // Calc the conversion by the screen density
-        return dp * metrics.density;
     }
 
     // Init the component.
@@ -147,8 +141,10 @@ public class ScArc extends View {
         this.mMaxHeight = attrArray.getDimensionPixelSize(
                 R.styleable.ScComponents_scc_max_height, 0);
 
-        this.mAreaFilling =
-                AreaFilling.values()[attrArray.getInt(R.styleable.ScComponents_scc_fill_area, 1)];
+        this.mFillingArea =
+                FillingArea.values()[attrArray.getInt(R.styleable.ScComponents_scc_fill_area, 1)];
+        this.mFillingMode =
+                FillingMode.values()[attrArray.getInt(R.styleable.ScComponents_scc_fill_mode, 0)];
 
         // Recycle
         attrArray.recycle();
@@ -245,15 +241,24 @@ public class ScArc extends View {
         return area;
     }
 
+    // Calc starting area from a width and height and apply padding and stroke size.
+    // The origin of the rectangle is always 0,0 you must remember to apply an offset for
+    // balance the area.
+    private RectF calcCanvasArea(int width, int height) {
+        width -= this.getPaddingLeft() + this.getPaddingRight() + this.mStrokeSize;
+        height -= this.getPaddingTop() + this.getPaddingBottom() + this.mStrokeSize;
+        return new RectF(0, 0, width, height);
+    }
+
     // Calc complete circle drawing area.
     // This methods calc the virtual drawing area not taking into consideration the many adjustments
     // like the stroke size or the area padding.
-    private RectF calcVirtualArea(int width, int height) {
+    private RectF calcDrawingArea(RectF startingArea) {
         // Check for empty values
         if (this.mTrimmedArea == null || this.mTrimmedArea.isEmpty()) return new RectF();
 
-        // Default working area
-        RectF area = new RectF(0, 0, width, height);
+        // Default working area calculated consider the padding and the stroke size
+        RectF area = new RectF(startingArea);
 
         // Layout wrapping
         boolean hWrap = this.getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -263,10 +268,10 @@ public class ScArc extends View {
         // In the wrapping case the horizontal filling it is executed in anyway while the component
         // dimension will be elaborated before inside the component measuring.
         if (hWrap ||
-                this.mAreaFilling == AreaFilling.BOTH || this.mAreaFilling == AreaFilling.HORIZONTAL) {
+                this.mFillingArea == FillingArea.BOTH || this.mFillingArea == FillingArea.HORIZONTAL) {
             // Find the multiplier based on the trimmed area and apply the proportion to the
             // horizontal dimensions.
-            float hMultiplier = width / this.mTrimmedArea.width();
+            float hMultiplier = area.width() / this.mTrimmedArea.width();
             float left = this.mTrimmedArea.left * hMultiplier;
 
             // Apply the new values to the area and modify the horizontal offset
@@ -278,10 +283,10 @@ public class ScArc extends View {
         // In the wrapping case the vertical filling it is executed in anyway while the component
         // dimension will be elaborated before inside the component measuring.
         if (vWrap ||
-                this.mAreaFilling == AreaFilling.BOTH || this.mAreaFilling == AreaFilling.VERTICAL) {
+                this.mFillingArea == FillingArea.BOTH || this.mFillingArea == FillingArea.VERTICAL) {
             // Find the multiplier based on the trimmed area and apply the proportion to the
             // vertical dimensions.
-            float vMultiplier = height / this.mTrimmedArea.height();
+            float vMultiplier = area.height() / this.mTrimmedArea.height();
             float top = this.mTrimmedArea.top * vMultiplier;
 
             // Apply the new values to the area and modify the vertical offset
@@ -289,26 +294,13 @@ public class ScArc extends View {
             area.bottom = vMultiplier - top;
         }
 
+        // Adjust the offset
+        area.offset(
+                this.getPaddingLeft() + this.mStrokeSize / 2,
+                this.getPaddingTop() + this.mStrokeSize / 2
+        );
+
         // Return the calc area
-        return area;
-    }
-
-    // Calc the real drawing area.
-    // This methods can be use to find the real area for drawing the arc.
-    private RectF calcDrawingArea(int width, int height) {
-        // Get the virtual area and the half stroke size
-        RectF area = this.calcVirtualArea(width, height);
-        float halfStroke = this.mStrokeSize / 2;
-
-        // Check for area empty values
-        if (!area.isEmpty()) {
-            // Adjust the padding and the stroke size
-            area.left += this.getPaddingLeft() + halfStroke;
-            area.top += this.getPaddingTop() + halfStroke;
-            area.right -= this.getPaddingRight() + halfStroke;
-            area.bottom -= this.getPaddingBottom() + halfStroke;
-        }
-        // Return the area
         return area;
     }
 
@@ -317,20 +309,48 @@ public class ScArc extends View {
      * Draw methods
      */
 
-    // Draw arc on the canvas.
-    // In this method will be calc the drawing area for reuse it in other methods.
-    private void drawArc(Canvas canvas) {
-        // Calc the drawing area
-        RectF drawingArea = this.calcDrawingArea(canvas.getWidth(), canvas.getHeight());
-        // Check for area empty value
-        if (!drawingArea.isEmpty()) {
-            // Draw the arc
-            canvas.drawArc(
-                    drawingArea,
-                    this.mAngleStart,
-                    this.mAngleDraw,
-                    false,
-                    this.mStrokePaint);
+    // Draw arc on the canvas using the passed area reference
+    protected void internalDraw(Canvas canvas, RectF area) {
+        canvas.drawArc(
+                area,
+                this.mAngleStart,
+                this.mAngleDraw,
+                false,
+                this.mStrokePaint);
+    }
+
+    // This method is used to calc the area by the filling mode case and call/set the right
+    // draw method.
+    protected void internalDraw(Canvas canvas) {
+        // Find the canvas and drawing area
+        RectF canvasArea = this.calcCanvasArea(canvas.getWidth(), canvas.getHeight());
+        RectF drawingArea = this.calcDrawingArea(canvasArea);
+
+        // Select the drawing mode by the case
+        switch (this.mFillingMode) {
+            // Draw
+            case DRAW:
+                // Draw the arc on the calculated drawing area
+                this.internalDraw(canvas, drawingArea);
+                break;
+
+            // Stretch
+            case STRETCH:
+                // Save the current canvas status
+                canvas.save();
+
+                // Translate and scale the canvas
+                canvas.translate(drawingArea.left, drawingArea.top);
+                canvas.scale(
+                        drawingArea.width() / canvasArea.width(),
+                        drawingArea.height() / canvasArea.height()
+                );
+
+                // Draw the arc on the canvas
+                this.internalDraw(canvas, canvasArea);
+                // Restore the last saved canvas status
+                canvas.restore();
+                break;
         }
     }
 
@@ -343,7 +363,7 @@ public class ScArc extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         // Draw an arc
-        this.drawArc(canvas);
+        this.internalDraw(canvas);
     }
 
     // On measure
@@ -444,7 +464,8 @@ public class ScArc extends View {
         state.putInt("mStrokeColor", this.mStrokeColor);
         state.putInt("mMaxWidth", this.mMaxWidth);
         state.putInt("mMaxHeight", this.mMaxHeight);
-        state.putInt("mAreaFilling", this.mAreaFilling.ordinal());
+        state.putInt("mFillingArea", this.mFillingArea.ordinal());
+        state.putInt("mFillingMode", this.mFillingMode.ordinal());
 
         // Return the new state
         return state;
@@ -468,7 +489,8 @@ public class ScArc extends View {
         this.mStrokeColor = savedState.getInt("mStrokeColor");
         this.mMaxWidth = savedState.getInt("mMaxWidth");
         this.mMaxHeight = savedState.getInt("mMaxHeight");
-        this.mAreaFilling = AreaFilling.values()[savedState.getInt("mAreaFilling")];
+        this.mFillingArea = FillingArea.values()[savedState.getInt("mFillingArea")];
+        this.mFillingMode = FillingMode.values()[savedState.getInt("mFillingMode")];
     }
 
 
@@ -476,50 +498,70 @@ public class ScArc extends View {
      * Public methods
      */
 
-    // The area filling types
+    // The area filling types.
+    // Decide what filling in drawing area.
     @SuppressWarnings("unused")
-    public enum AreaFilling {
+    public enum FillingArea {
         NONE,
         BOTH,
         HORIZONTAL,
         VERTICAL
     }
 
+    // The area filling mode.
+    // STRETCH action on the canvas scale instead DRAW draw all the points respect the
+    // the drawing area.
+    @SuppressWarnings("unused")
+    public enum FillingMode {
+        STRETCH,
+        DRAW
+    }
+
+    // Convert Dip to Pixel
+    public float dpToPixel(Context context, float dp) {
+        // Get the display metrics
+        DisplayMetrics metrics = this.getDisplayMetrics(context);
+        // Calc the conversion by the screen density
+        return dp * metrics.density;
+    }
+
     // Calc point position from angle in degrees.
     // Given an angle this method calc the relative point on the arc.
     @SuppressWarnings("unused")
-    public Point getPointFromAngle(float degrees) {
-        return this.getPointFromAngle(degrees, 0.0f);
-    }
-
-    @SuppressWarnings("unused")
     public Point getPointFromAngle(float degrees, float radiusAdjust) {
         // Get the drawing area
-        RectF area = this.calcDrawingArea(this.getMeasuredWidth(), this.getMeasuredHeight());
+        RectF canvasArea = this.calcCanvasArea(this.getMeasuredWidth(), this.getMeasuredHeight());
+        RectF drawingArea = this.calcDrawingArea(canvasArea);
 
         // Find the default arc radius
-        float xRadius = area.width() / 2  + radiusAdjust;
-        float yRadius = area.height() / 2 +  + radiusAdjust;
+        float xRadius = drawingArea.width() / 2 + radiusAdjust;
+        float yRadius = drawingArea.height() / 2 + +radiusAdjust;
 
         // Convert the radius in radiant and find the coordinates in the space
         double rad = Math.toRadians(degrees);
-        int x = Math.round(xRadius * (float) Math.cos(rad) + area.centerX());
-        int y = Math.round(yRadius * (float) Math.sin(rad) + area.centerY());
+        int x = Math.round(xRadius * (float) Math.cos(rad) + drawingArea.centerX());
+        int y = Math.round(yRadius * (float) Math.sin(rad) + drawingArea.centerY());
 
         // Create the point and return it
         return new Point(x, y);
+    }
+
+    @SuppressWarnings("unused")
+    public Point getPointFromAngle(float degrees) {
+        return this.getPointFromAngle(degrees, 0.0f);
     }
 
     // Find the angle from position on screen.
     @SuppressWarnings("unused")
     public float getAngleFromPoint(float x, float y) {
         // Get the drawing area
-        RectF area = this.calcDrawingArea(this.getMeasuredWidth(), this.getMeasuredHeight());
+        RectF canvasArea = this.calcCanvasArea(this.getMeasuredWidth(), this.getMeasuredHeight());
+        RectF drawingArea = this.calcDrawingArea(canvasArea);
 
         // Get angle from position
         double angle = Math.atan2(
-                (y - area.centerY()) / area.height(),
-                (x - area.centerX()) / area.width()
+                (y - drawingArea.centerY()) / drawingArea.height(),
+                (x - drawingArea.centerX()) / drawingArea.width()
         );
         // Convert to degree and fix over number
         return ((float) Math.toDegrees(angle) + 360.0f) % 360.0f;
@@ -664,18 +706,34 @@ public class ScArc extends View {
         }
     }
 
-    // Area filling
+    // Area filling type
     @SuppressWarnings("unused")
-    public AreaFilling getAreaFilling() {
-        return this.mAreaFilling;
+    public FillingArea getFillingArea() {
+        return this.mFillingArea;
     }
 
     @SuppressWarnings("unused")
-    public void setAreaFilling(AreaFilling value) {
+    public void setFillingArea(FillingArea value) {
         // Check if value is changed
-        if (this.mAreaFilling != value) {
+        if (this.mFillingArea != value) {
             // Store the new value and refresh the component
-            this.mAreaFilling = value;
+            this.mFillingArea = value;
+            this.invalidate();
+        }
+    }
+
+    // Area filling mode
+    @SuppressWarnings("unused")
+    public FillingMode getFillingMode() {
+        return this.mFillingMode;
+    }
+
+    @SuppressWarnings("unused")
+    public void setAreaFilling(FillingMode value) {
+        // Check if value is changed
+        if (this.mFillingMode != value) {
+            // Store the new value and refresh the component
+            this.mFillingMode = value;
             this.invalidate();
         }
     }

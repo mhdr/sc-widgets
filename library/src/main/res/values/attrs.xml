@@ -43,6 +43,7 @@
         <attr name="scc_progress_color" format="color" />
         <attr name="scc_value" format="float" />
         <attr name="scc_fill_area" />
+        <attr name="scc_fill_mode" />
         <attr name="scc_notchs" format="integer" />
         <attr name="scc_notchs_length" format="dimension" />
         <attr name="scc_max_width" format="dimension" />
@@ -54,6 +55,11 @@
         <enum name="both" value="1" />
         <enum name="horizontal" value="2" />
         <enum name="vertical" value="3" />
+    </attr>
+
+    <attr name="scc_fill_mode" format="enum">
+        <enum name="stretch" value="0" />
+        <enum name="draw" value="1" />
     </attr>
 
 </resources>

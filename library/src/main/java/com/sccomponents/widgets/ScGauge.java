@@ -1,46 +1,40 @@
 package com.sccomponents.widgets;
 
-import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 
 /**
  * Create a Gauge
  */
 public class ScGauge
-        extends ScArc
-        implements ValueAnimator.AnimatorUpdateListener {
-
-    /**
-     * Private attributes
-     */
-
-    private boolean mStrokeShow = true;
-    private boolean mProgressShow = true;
-
-    private int mProgressMargin = 0;
-    private int mProgressColor = Color.BLACK;
-
-    private int mValue = 0;
-    private int mAnimationDuration = 0;
-
+        extends View
+        implements ValueAnimator.AnimatorUpdateListener, ScNotchs.OnDrawListener {
 
     /**
      * Private variables
      */
 
-    private Paint mProgressPaint = null;
+    private ScArc mArcBase = null;
+    private ScArc mArcProgress = null;
+    private ScNotchs mNotchs = null;
 
-    private int mAnimatedValue = 0;
     private ValueAnimator mAnimator = null;
+
+    private OnDrawListener mOnDrawListener = null;
+    private OnCustomPaddingListener mOnCustomPadding = null;
 
 
     /**
@@ -64,33 +58,46 @@ public class ScGauge
 
 
     /**
+     * Privates utils
+     */
+
+    // Get the display metric.
+    // This method is used for screen measure conversion.
+    private DisplayMetrics getDisplayMetrics(Context context) {
+        // Get the window manager from the window service
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        // Create the variable holder and inject the values
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(displayMetrics);
+        // Return
+        return displayMetrics;
+    }
+
+    // Convert Dip to Pixel
+    private float dpToPixel(Context context, float dp) {
+        // Get the display metrics
+        DisplayMetrics metrics = this.getDisplayMetrics(context);
+        // Calc the conversion by the screen density
+        return dp * metrics.density;
+    }
+
+    // Limit number within a range
+    private float valueRangeLimit(float value, float startValue, float endValue) {
+        // If is over the limit return the normalized value
+        if (value < Math.min(startValue, endValue)) return Math.min(startValue, endValue);
+        if (value > Math.max(startValue, endValue)) return Math.max(startValue, endValue);
+        // Else return the original value
+        return value;
+    }
+
+
+    /**
      * Privates methods
      */
 
-    // Get the progress arc stroke size
-    private float getProgressSize() {
-        return this.getPainter().getStrokeWidth() - this.mProgressMargin * 2;
-    }
-
-    // Limit the value within the angles range
-    private int limitAngle(int angle) {
-        // Find the limits
-        int startAngle = this.getStartAngle();
-        int endAngle = startAngle + this.getSweepAngle();
-
-        // Sort the limits
-        int min = startAngle < endAngle ? startAngle : endAngle;
-        int max = startAngle > endAngle ? startAngle : endAngle;
-
-        // Check
-        if (angle > max) angle = max;
-        if (angle < min) angle = min;
-
-        // Return
-        return angle;
-    }
-
-    // Init the component
+    // Init the component.
+    // Retrieve all attributes with the default values if needed and create the internal using
+    // objects.
     private void init(Context context, AttributeSet attrs, int defStyle) {
         //--------------------------------------------------
         // ATTRIBUTES
@@ -99,67 +106,148 @@ public class ScGauge
         final TypedArray attrArray = context.obtainStyledAttributes(attrs, R.styleable.ScComponents, defStyle, 0);
 
         // Read all attributes from xml and assign the value to linked variables
-        this.mStrokeShow = attrArray.getBoolean(R.styleable.ScComponents_scc_stroke_show, true);
+        float angleStart = attrArray.getFloat(
+                R.styleable.ScComponents_scc_angle_start, 0.0f);
+        float angleSweep = attrArray.getFloat(
+                R.styleable.ScComponents_scc_angle_sweep, 360.0f);
 
-        this.mProgressShow = attrArray.getBoolean(R.styleable.ScComponents_scc_progress_show, true);
-        this.mProgressMargin = attrArray.getDimensionPixelSize(R.styleable.ScComponents_scc_progress_margin, 0);
-        this.mProgressColor = attrArray.getColor(R.styleable.ScComponents_scc_progress_color, Color.BLACK);
+        float strokeSize = attrArray.getDimension(
+                R.styleable.ScComponents_scc_stroke_size, this.dpToPixel(context, 3.0f));
+        int strokeColor = attrArray.getColor(
+                R.styleable.ScComponents_scc_stroke_color, Color.BLACK);
 
-        this.mValue = attrArray.getInt(R.styleable.ScComponents_scc_value, this.getStartAngle());
-        this.mAnimationDuration = attrArray.getInt(R.styleable.ScComponents_scc_animation_duration, 0);
+        float progressSize = attrArray.getDimension(
+                R.styleable.ScComponents_scc_progress_size, this.dpToPixel(context, 1.0f));
+        int progressColor = attrArray.getColor(
+                R.styleable.ScComponents_scc_progress_color, Color.GRAY);
+
+        float value = attrArray.getFloat(
+                R.styleable.ScComponents_scc_value, angleStart);
+
+        int notchsCount = attrArray.getInt(
+                R.styleable.ScComponents_scc_notchs, 0);
+        float notchsLength = attrArray.getDimension(
+                R.styleable.ScComponents_scc_notchs_length, this.dpToPixel(context, 5.0f));
 
         // Recycle
         attrArray.recycle();
 
         //--------------------------------------------------
-        // INTERNAL
+        // ARCS
 
-        this.mValue = this.limitAngle(this.mValue);
-        this.mAnimatedValue = this.mValue;
+        // Base arc
+        this.mArcBase = new ScArc(context);
+        this.mArcBase.setAngleStart(angleStart);
+        this.mArcBase.setAngleSweep(angleSweep);
+        this.mArcBase.setStrokeSize(strokeSize);
+        this.mArcBase.setStrokeColor(strokeColor);
 
-        //--------------------------------------------------
-        // PAINTS
+        // Notchs
+        this.mNotchs = new ScNotchs(context);
+        this.mNotchs.setAngleStart(angleStart);
+        this.mNotchs.setAngleSweep(angleSweep);
+        this.mNotchs.setStrokeSize(strokeSize);
+        this.mNotchs.setStrokeColor(strokeColor);
+        this.mNotchs.setNotchs(notchsCount);
+        this.mNotchs.setNotchsLength(notchsLength);
 
-        this.mProgressPaint = new Paint();
-        this.mProgressPaint.setColor(this.mProgressColor);
-        this.mProgressPaint.setAntiAlias(true);
-        this.mProgressPaint.setStrokeWidth(this.getProgressSize());
-        this.mProgressPaint.setStyle(Paint.Style.STROKE);
-        this.mProgressPaint.setStrokeCap(Paint.Cap.ROUND);
+        // Progress arc
+        this.mArcProgress = new ScArc(context);
+        this.mArcProgress.setAngleStart(angleStart);
+        this.mArcProgress.setAngleSweep(angleSweep);
+        this.mArcProgress.setAngleDraw(value);
+        this.mArcProgress.setStrokeSize(progressSize);
+        this.mArcProgress.setStrokeColor(progressColor);
 
         //--------------------------------------------------
         // ANIMATOR
 
         this.mAnimator = new ValueAnimator();
-        this.mAnimator.setDuration(this.mAnimationDuration);
+        this.mAnimator.setDuration(500);
         this.mAnimator.setInterpolator(new DecelerateInterpolator());
         this.mAnimator.addUpdateListener(this);
     }
 
-    // Draw arc
-    private void drawArc(Canvas canvas, Paint paint, int margin, int sweepAngle) {
-//        // Check for  null value
-//        if (this.mDrawArea != null) {
-//            // Apply the stroke increment to the area
-//            float strokeSize = paint.getStrokeWidth() + margin * 2;
-//            float increment = 0;
-//
-//            RectF fixedArea = new RectF(
-//                    this.mDrawArea.left + increment,
-//                    this.mDrawArea.top + increment,
-//                    this.mDrawArea.right - increment,
-//                    this.mDrawArea.bottom - increment
-//            );
-//
-//            // Draw the arc
-//            canvas.drawArc(
-//                    fixedArea,
-//                    this.getStartAngle(),
-//                    sweepAngle,
-//                    false,
-//                    paint
-//            );
-//        }
+    // Find the max given a series of values
+    private float findMax(float... values) {
+        // Check for null values
+        if (values == null || values.length == 0) return 0;
+        // Save the first value inside the max holder
+        float max = values[0];
+
+        // Cycle all other values
+        for (int index = 1; index < values.length; index++) {
+            // Find the max
+            if (max < values[index]) max = values[index];
+        }
+        // Return
+        return max;
+    }
+
+    // Fix the arcs padding
+    private void fixArcsPadding() {
+        // Define the padding holder
+        Rect baseArc = new Rect();
+        Rect progressArc = new Rect();
+        Rect notchs = new Rect();
+
+        // If have instantiate the customer padding listener the padding will be decided by
+        // the final user inside the calling function
+        if (this.mOnCustomPadding != null) {
+            // Call the method
+            this.mOnCustomPadding.onCustomPadding(baseArc, progressArc, notchs);
+
+        } else {
+            // Find the middle of max stroke sizes
+            float maxSize = this.findMax(
+                    this.mArcBase.getStrokeSize(),
+                    this.mArcBase.getStrokeSize(),
+                    this.mNotchs.getNotchsLength()
+            );
+
+            // Calc the padding by the case for both arcs
+            int basePadding = Math.round((maxSize - this.mArcBase.getStrokeSize()) / 2);
+            int progressPadding = Math.round((maxSize - this.mArcProgress.getStrokeSize()) / 2);
+            int notchsPadding = Math.round((maxSize - this.mNotchs.getNotchsLength()) / 2);
+
+            // Fill the padding holder variables
+            baseArc = new Rect(
+                    this.getPaddingLeft() + basePadding, this.getPaddingTop() + basePadding,
+                    this.getPaddingRight() + basePadding, this.getPaddingBottom() + basePadding
+            );
+            progressArc = new Rect(
+                    this.getPaddingLeft() + progressPadding, this.getPaddingTop() + progressPadding,
+                    this.getPaddingRight() + progressPadding, this.getPaddingBottom() + progressPadding
+            );
+            notchs = new Rect(
+                    this.getPaddingLeft() + notchsPadding, this.getPaddingTop() + notchsPadding,
+                    this.getPaddingRight() + notchsPadding, this.getPaddingBottom() + notchsPadding
+            );
+        }
+
+        // Apply the padding to the related arc
+        this.mArcBase.setPadding(
+                baseArc.left, baseArc.top, baseArc.right, baseArc.bottom
+        );
+        this.mArcProgress.setPadding(
+                progressArc.left, progressArc.top, progressArc.right, progressArc.bottom
+        );
+        this.mNotchs.setPadding(
+                notchs.left, notchs.top, notchs.right, notchs.bottom
+        );
+    }
+
+    // Call the on before draw if needed
+    private void callOnBeforeDraw() {
+        // Check the listener
+        if (this.mOnDrawListener != null) {
+            // Call the method
+            this.mOnDrawListener.onBeforeDraw(
+                    this.mArcBase.getPainter(),
+                    this.mArcProgress.getPainter(),
+                    this.mNotchs.getPainter()
+            );
+        }
     }
 
 
@@ -167,49 +255,85 @@ public class ScGauge
      * Overrides
      */
 
-    // Check all input values
+    // On measure
     @Override
-    protected void checkValues() {
-        // Call the super
-        super.checkValues();
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        // Fix arcs the padding
+        this.fixArcsPadding();
 
-        // Fix the values
-        this.mValue = this.limitAngle(this.mValue);
-        this.mAnimatedValue = this.limitAngle(this.mAnimatedValue);
+        // Cycle all arcs and do the common operations like apply the parent layout and measure
+        // the arc.
+        // It is important to call measure for all arcs before draw in the onDraw method.
+        for (ScArc arc : this.getArcs()) {
+            // Apply the parent layout and measure the arc
+            arc.setLayoutParams(this.getLayoutParams());
+            arc.measure(widthMeasureSpec, heightMeasureSpec);
+        }
+
+        // Layout wrapping
+        boolean hWrap = this.getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT;
+        boolean vWrap = this.getLayoutParams().height == ViewGroup.LayoutParams.WRAP_CONTENT;
+
+        // If no have wrapping just call the super class method and finish the procedure
+        if (!hWrap && !vWrap) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        }
+        // Else determine the max dimensions of the gauge component measuring all arcs
+        else {
+            // Create the max dimensions holder
+            int maxWidth =
+                    hWrap ? 0 : View.getDefaultSize(this.getSuggestedMinimumWidth(), widthMeasureSpec);
+            int maxHeight =
+                    vWrap ? 0 : View.getDefaultSize(this.getSuggestedMinimumHeight(), heightMeasureSpec);
+
+            // Cycle all arcs and check for update the component dimensions
+            for (ScArc arc : this.getArcs()) {
+                // Horizontal wrap
+                if (hWrap && maxWidth < arc.getMeasuredWidth())
+                    maxWidth = arc.getMeasuredWidth();
+                // Vertical wrap
+                if (vWrap && maxHeight < arc.getMeasuredHeight())
+                    maxHeight = arc.getMeasuredHeight();
+            }
+
+            // Set the dimension
+            this.setMeasuredDimension(maxWidth, maxHeight);
+        }
     }
 
     // On draw
     @Override
     protected void onDraw(Canvas canvas) {
-        // Draw the base arc if needed
-        if (this.mStrokeShow) {
-            this.drawArc(
-                    canvas,
-                    this.getPainter(),
-                    0,
-                    this.getSweepAngle()
-            );
-        }
+        // Call the events if needed
+        this.callOnBeforeDraw();
 
-        // Draw the progress arc if needed
-        if (this.mProgressShow) {
-            this.drawArc(
-                    canvas,
-                    this.mProgressPaint,
-                    this.mProgressMargin,
-                    this.mAnimatedValue
-            );
-        }
+        // Draw
+        this.mArcBase.draw(canvas);
+        this.mNotchs.draw(canvas);
+        this.mArcProgress.draw(canvas);
     }
 
+    // On animation update
     @Override
     public void onAnimationUpdate(ValueAnimator animation) {
-        // Get the current animation value
-        int value = (int) animation.getAnimatedValue();
-
-        // Save the current animation value value
-        this.mAnimatedValue = this.limitAngle(value);
+        // Get the current value
+        float value = (float) animation.getAnimatedValue();
+        // Set and refresh
+        this.mArcProgress.setAngleDraw(value);
         this.invalidate();
+    }
+
+    // On before to draw the single notch for each notchs
+    @Override
+    public float onBeforeNotch(Paint painter, float angle, int count) {
+        // If have a listener linked
+        if (this.mOnDrawListener != null) {
+            // Forward the event
+            return this.mOnDrawListener.onBeforeNotch(painter, angle, count);
+        } else {
+            // Else return the standard notchs length
+            return this.mNotchs.getNotchsLength();
+        }
     }
 
 
@@ -220,36 +344,35 @@ public class ScGauge
     // Save
     @Override
     protected Parcelable onSaveInstanceState() {
+        // Call the super and get the parent state
         Parcelable superState = super.onSaveInstanceState();
 
+        // Create a new bundle for store all the variables
         Bundle state = new Bundle();
+        // Save all starting from the parent state
         state.putParcelable("PARENT", superState);
-        state.putBoolean("mStrokeShow", this.mStrokeShow);
-        state.putBoolean("mProgressShow", this.mProgressShow);
-        state.putInt("mProgressMargin", this.mProgressMargin);
-        state.putInt("mProgressColor", this.mProgressColor);
-        state.putInt("mValue", this.mValue);
-        state.putInt("mAnimationDuration", this.mAnimationDuration);
-        state.putInt("mAnimatedValue", this.mAnimatedValue);
+        state.putParcelable("mArcBase", this.mArcBase.onSaveInstanceState());
+        state.putParcelable("mArcProgress", this.mArcProgress.onSaveInstanceState());
+        state.putParcelable("mNotchs", this.mNotchs.onSaveInstanceState());
 
+        // Return the new state
         return state;
     }
 
     // Restore
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
+        // Implicit conversion in a bundle
         Bundle savedState = (Bundle) state;
 
+        // Recover the parent class state and restore it
         Parcelable superState = savedState.getParcelable("PARENT");
         super.onRestoreInstanceState(superState);
 
-        this.mStrokeShow = savedState.getBoolean("mStrokeShow");
-        this.mProgressShow = savedState.getBoolean("mProgressShow");
-        this.mProgressMargin = savedState.getInt("mProgressMargin");
-        this.mProgressColor = savedState.getInt("mProgressColor");
-        this.mValue = savedState.getInt("mValue");
-        this.mAnimationDuration = savedState.getInt("mAnimationDuration");
-        this.mAnimatedValue = savedState.getInt("mAnimatedValue");
+        // Now can restore all the saved variables values
+        this.mArcBase.onRestoreInstanceState(savedState.getParcelable("mArcBase"));
+        this.mArcProgress.onRestoreInstanceState(savedState.getParcelable("mArcProgress"));
+        this.mNotchs.onRestoreInstanceState(savedState.getParcelable("mNotchs"));
     }
 
 
@@ -257,16 +380,69 @@ public class ScGauge
      * Public methods
      */
 
-    // Set the animation interpolation
+    // Get the arcs.
+    // This method is implemented only for have an advanced management of this component.
+    // A wrong use of arcs can generate a malfunction of this component.
     @SuppressWarnings("unused")
-    public void setAnimationInterpolator(TimeInterpolator interpolator) {
-        // If null reset the interpolator
-        if (interpolator == null) {
-            this.mAnimator.setInterpolator(new DecelerateInterpolator());
+    public ScArc[] getArcs() {
+        return new ScArc[]{this.mArcBase, this.mArcProgress, this.mNotchs};
+    }
+
+    // Set stroke cap of painter for all arcs and notchs.
+    // Default value is BUTT from the ScArc settings.
+    @SuppressWarnings("unused")
+    public void setStrokesCap(Paint.Cap cap) {
+        // Cycle all arcs and set the stroke definition by painter
+        for (ScArc arc : this.getArcs()) {
+            arc.getPainter().setStrokeCap(cap);
         }
-        // Apply the new interpolator
-        else {
-            this.mAnimator.setInterpolator(interpolator);
+        // Refresh
+        this.invalidate();
+    }
+
+    // Set the start angle on every arcs
+    @SuppressWarnings("unused")
+    public void setAngleStart(int value) {
+        // Cycle all arcs and set the start angle
+        for (ScArc arc : this.getArcs()) {
+            arc.setAngleStart(value);
+        }
+        // Refresh
+        this.requestLayout();
+    }
+
+    // Set the sweep angle on every arcs
+    @SuppressWarnings("unused")
+    public void setAngleSweep(int value) {
+        // Cycle all arcs and set the start angle
+        for (ScArc arc : this.getArcs()) {
+            arc.setAngleSweep(value);
+        }
+        // Refresh
+        this.requestLayout();
+    }
+
+    // Set the arcs visibility.
+    // For a correct measure of the component it is better not use GONE.
+    @SuppressWarnings("unused")
+    public void show(boolean baseArc, boolean progressArc) {
+        // Apply the visibility status
+        this.mArcBase.setVisibility(baseArc ? View.VISIBLE : View.INVISIBLE);
+        this.mArcProgress.setVisibility(progressArc ? View.VISIBLE : View.INVISIBLE);
+        // Refresh
+        this.requestLayout();
+    }
+
+    // Translate the angle in a value within the passed range of values.
+    @SuppressWarnings("unused")
+    public float translateAngleToValue(float angle, float startRange, float endRange) {
+        // Limit the value within the range
+        angle = this.valueRangeLimit(angle, 0.0f, this.mArcProgress.getAngleSweep());
+        // Check for the division domain
+        if (this.mArcProgress.getAngleSweep() != 0.0f) {
+            return (angle / this.mArcProgress.getAngleSweep()) * (endRange - startRange);
+        } else {
+            return 0.0f;
         }
     }
 
@@ -275,82 +451,188 @@ public class ScGauge
      * Public properties
      */
 
-    // Show or hide the base arc
-    @SuppressWarnings("unused")
-    public boolean getStrokeShow() {
-        return this.mStrokeShow;
-    }
-
-    @SuppressWarnings("unused")
-    public void setStrokeShow(boolean value) {
-        this.mStrokeShow = value;
-        this.invalidate();
-    }
-
-    // Show or hide the progress arc
-    @SuppressWarnings("unused")
-    public boolean getProgressShow() {
-        return this.mProgressShow;
-    }
-
-    @SuppressWarnings("unused")
-    public void setProgressShow(boolean value) {
-        this.mProgressShow = value;
-        this.invalidate();
-    }
-
     // Stroke size
     @SuppressWarnings("unused")
-    public int getProgressMargin() {
-        return this.mProgressMargin;
+    public float getStrokeSize() {
+        return this.mArcBase.getStrokeSize();
     }
 
     @SuppressWarnings("unused")
-    public void setProgressMargin(int value) {
-        this.mProgressMargin = value;
-        this.invalidate();
+    public void setStrokeSize(float value) {
+        // Check if value is changed
+        if (this.getStrokeSize() != value) {
+            // Store the new value
+            this.mArcBase.setStrokeSize(value);
+            // Check if the notchs painter have the same value than the system maintain
+            // the values linked.
+            if (this.mNotchs.getStrokeSize() == value) {
+                this.mNotchs.setStrokeSize(value);
+            }
+            // Refresh the component
+            this.requestLayout();
+        }
     }
 
-    // Progress stroke color
+    // Stroke color
+    @SuppressWarnings("unused")
+    public int getStrokeColor() {
+        return this.mArcBase.getStrokeColor();
+    }
+
+    @SuppressWarnings("unused")
+    public void setStrokeColor(int value) {
+        // Check if value is changed
+        if (this.getStrokeColor() != value) {
+            // Store the new value
+            this.mArcBase.setStrokeColor(value);
+            // Check if the notchs painter have the same value than the system maintain
+            // the values linked.
+            if (this.mNotchs.getStrokeColor() == value) {
+                this.mNotchs.setStrokeColor(value);
+            }
+            // Refresh the component
+            this.invalidate();
+        }
+    }
+
+    // Progress size
+    @SuppressWarnings("unused")
+    public float getProgressSize() {
+        return this.mArcProgress.getStrokeSize();
+    }
+
+    @SuppressWarnings("unused")
+    public void setProgressSize(float value) {
+        // Check if value is changed
+        if (this.getProgressSize() != value) {
+            // Store the new value and refresh the component
+            this.mArcProgress.setStrokeSize(value);
+            this.requestLayout();
+        }
+    }
+
+    // Progress color
     @SuppressWarnings("unused")
     public int getProgressColor() {
-        return this.mProgressColor;
+        return this.mArcProgress.getStrokeColor();
     }
 
     @SuppressWarnings("unused")
-    public void setProgressColor(int color) {
-        this.mProgressColor = color;
-        this.mProgressPaint.setColor(this.mProgressColor);
-        this.invalidate();
+    public void setProgressColor(int value) {
+        // Check if value is changed
+        if (this.getProgressColor() != value) {
+            // Store the new value and refresh the component
+            this.mArcProgress.setStrokeColor(value);
+            this.invalidate();
+        }
     }
 
-    // Value
+    // Progress value in degrees
     @SuppressWarnings("unused")
-    public int getValue() {
-        return this.mValue;
+    public float getValue() {
+        return this.mArcProgress.getAngleDraw();
     }
 
     @SuppressWarnings("unused")
-    public void setValue(int value) {
-        // Hold and check
-        this.mValue = value;
-        this.checkValues();
+    public void setValue(float degrees) {
+        // Hold the sweep angle
+        float sweep = this.mArcProgress.getAngleSweep();
 
-        // Animate
-        this.mAnimator.setIntValues(this.mAnimatedValue, value);
+        // Set and start animation
+        this.mAnimator.setFloatValues(
+                this.mArcProgress.getAngleDraw(),
+                this.valueRangeLimit(degrees, 0, sweep)
+        );
         this.mAnimator.start();
     }
 
-    // The duration in milliseconds of the animation
+    // Progress value but based on a values range.
+    // Translate the reference value to the angle in degrees and call the base methods.
     @SuppressWarnings("unused")
-    public int getAnimationDuration() {
-        return this.mAnimationDuration;
+    public float getValue(float startRange, float endRange) {
+        // Return the translated value
+        return this.translateAngleToValue(
+                this.mArcProgress.getAngleDraw(),
+                startRange,
+                endRange
+        );
     }
 
     @SuppressWarnings("unused")
-    public void setAnimationDuration(int value) {
-        if (value < 0) value = 0;
-        this.mAnimationDuration = value;
+    public void setValue(float value, float startRange, float endRange) {
+        // Limit the value within the range
+        value = this.valueRangeLimit(value, startRange, endRange);
+        // Check for the division domain
+        if (endRange == startRange) {
+            value = 0;
+
+        } else {
+            // Convert the value in the relative angle respect the arc length
+            value = ((value - startRange) / (endRange - startRange)) *
+                    this.mArcProgress.getAngleSweep();
+        }
+        // Call the base method
+        this.setValue(value);
+    }
+
+    // Notchs count
+    @SuppressWarnings("unused")
+    public int getNotchs() {
+        return this.mNotchs.getNotchs();
+    }
+
+    @SuppressWarnings("unused")
+    public void setNotchs(int value) {
+        // Check if value is changed
+        if (this.mNotchs.getNotchs() != value) {
+            // Store the new value and refresh the component
+            this.mNotchs.setNotchsLength( value);
+            this.requestLayout();
+        }
+    }
+
+    // Progress size
+    @SuppressWarnings("unused")
+    public float getNotchsLength() {
+        return this.mNotchs.getNotchsLength();
+    }
+
+    @SuppressWarnings("unused")
+    public void setNotchsLength(float value) {
+        // Check if value is changed
+        if (this.mNotchs.getNotchsLength() != value) {
+            // Store the new value and refresh the component
+            this.mNotchs.setNotchsLength(value);
+            this.requestLayout();
+        }
+    }
+
+
+    /**
+     * Public listener and interface
+     */
+
+    // Before draw
+    @SuppressWarnings("unused")
+    public interface OnDrawListener {
+        void onBeforeDraw(Paint baseArc, Paint progressArc, Paint notchs);
+        float onBeforeNotch(Paint painter, float angle, int count);
+    }
+
+    @SuppressWarnings("unused")
+    public void setOnDrawListener(OnDrawListener listener) {
+        this.mOnDrawListener = listener;
+    }
+
+    // Custom padding
+    @SuppressWarnings("unused")
+    public interface OnCustomPaddingListener {
+        void onCustomPadding(Rect baseArc, Rect progressArc, Rect notchs);
+    }
+
+    @SuppressWarnings("unused")
+    public void setCustomPaddingListener(OnCustomPaddingListener listener) {
+        this.mOnCustomPadding = listener;
     }
 
 }
