@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -23,31 +22,42 @@ import android.view.WindowManager;
 public class ScArc extends View {
 
     /**
+     * Constants
+     */
+
+    public static final int ZERO = 0;
+
+    private static final float ANGLE_START = 0.0f;
+    private static final float ANGLE_SWEEP = 360.0f;
+
+    private static final float STROKE_SIZE = 3.0f;
+    private static final int STROKE_COLOR = Color.BLACK;
+
+
+    /**
      * Private attributes
      */
 
-    private float mAngleStart = 0.0f;
-    private float mAngleSweep = 360.0f;
-    private float mAngleDraw = 360.0f;
+    private float mAngleStart;
+    private float mAngleSweep;
+    private float mAngleDraw;
 
-    private float mStrokeSize = 0.0f;
-    private int mStrokeColor = Color.BLACK;
+    private float mStrokeSize;
+    private int mStrokeColor;
 
-    private int mMaxWidth = 0;
-    private int mMaxHeight = 0;
+    private int mMaxWidth;
+    private int mMaxHeight;
 
-    private FillingArea mFillingArea = FillingArea.BOTH;
-    private FillingMode mFillingMode = FillingMode.STRETCH;
+    private FillingArea mFillingArea;
+    private FillingMode mFillingMode;
 
 
     /**
      * Private variables
      */
 
-    private RectF mTrimmedArea = null;
-    private Paint mStrokePaint = null;
-
-    private OnArcEventListener mOnArcEventListener = null;
+    private RectF mTrimmedArea;
+    private Paint mStrokePaint;
 
 
     /**
@@ -125,24 +135,26 @@ public class ScArc extends View {
 
         // Read all attributes from xml and assign the value to linked variables
         this.mAngleStart = attrArray.getFloat(
-                R.styleable.ScComponents_scc_angle_start, 0.0f);
+                R.styleable.ScComponents_scc_angle_start, ScArc.ANGLE_START);
         this.mAngleSweep = attrArray.getFloat(
-                R.styleable.ScComponents_scc_angle_sweep, 360.0f);
+                R.styleable.ScComponents_scc_angle_sweep, ScArc.ANGLE_SWEEP);
         this.mAngleDraw = attrArray.getFloat(
-                R.styleable.ScComponents_scc_angle_draw, 360.0f);
+                R.styleable.ScComponents_scc_angle_draw, this.mAngleSweep);
 
         this.mStrokeSize = attrArray.getDimension(
-                R.styleable.ScComponents_scc_stroke_size, this.dpToPixel(context, 3.0f));
+                R.styleable.ScComponents_scc_stroke_size, this.dpToPixel(context, ScArc.STROKE_SIZE));
         this.mStrokeColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_stroke_color, Color.BLACK);
+                R.styleable.ScComponents_scc_stroke_color, ScArc.STROKE_COLOR);
 
         this.mMaxWidth = attrArray.getDimensionPixelSize(
-                R.styleable.ScComponents_scc_max_width, 0);
+                R.styleable.ScComponents_scc_max_width, ScArc.ZERO);
         this.mMaxHeight = attrArray.getDimensionPixelSize(
-                R.styleable.ScComponents_scc_max_height, 0);
+                R.styleable.ScComponents_scc_max_height, ScArc.ZERO);
 
+        // FillingArea.BOTH
         this.mFillingArea =
                 FillingArea.values()[attrArray.getInt(R.styleable.ScComponents_scc_fill_area, 1)];
+        // FillingMode.STRETCH
         this.mFillingMode =
                 FillingMode.values()[attrArray.getInt(R.styleable.ScComponents_scc_fill_mode, 0)];
 
@@ -177,19 +189,6 @@ public class ScArc extends View {
     @SuppressWarnings("all")
     private boolean pointInsideCircle(float x, float y, float radius) {
         return Math.pow(x, 2) + Math.pow(y, 2) < Math.pow(radius, 2);
-    }
-
-    // Check if user pressed on the arc
-    private boolean pressedOnArc(float angle, float x, float y) {
-        // Find the point on arc from angle
-        Point pointOnArc = this.getPointFromAngle(angle);
-
-        // Find the distance between the points and check it
-        return this.pointInsideCircle(
-                x - pointOnArc.x,
-                y - pointOnArc.y,
-                this.mStrokeSize
-        );
     }
 
 
@@ -397,51 +396,6 @@ public class ScArc extends View {
         this.setMeasuredDimension(width, height);
     }
 
-    // Check the touch
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        // Calc the layout
-        this.requestLayout();
-
-        // Store the touch position
-        float x = event.getX();
-        float y = event.getY();
-
-        // Check if press on arc
-        if (this.mOnArcEventListener != null) {
-            // Get the angle from touch position
-            float angle = this.getAngleFromPoint(x, y);
-
-            // Check if the pressure is on the arc
-            if (this.pressedOnArc(angle, x, y)) {
-                // Select action
-                switch (event.getAction()) {
-                    // Press
-                    case MotionEvent.ACTION_DOWN:
-                        this.mOnArcEventListener.onPress(angle);
-                        break;
-
-                    // Release
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_CANCEL:
-                        this.mOnArcEventListener.onRelease();
-                        break;
-
-                    // Move
-                    case MotionEvent.ACTION_MOVE:
-                        this.mOnArcEventListener.onSlide(angle);
-                        break;
-                }
-
-                // Block event propagation
-                return true;
-            }
-        }
-
-        // Not block the event propagation
-        return false;
-    }
-
 
     /**
      * Instance state
@@ -564,7 +518,28 @@ public class ScArc extends View {
                 (x - drawingArea.centerX()) / drawingArea.width()
         );
         // Convert to degree and fix over number
-        return ((float) Math.toDegrees(angle) + 360.0f) % 360.0f;
+        float degrees = ((float) Math.toDegrees(angle) + 360.0f) % 360.0f;
+        // Limit the value within the component angle range and return it
+        return this.valueRangeLimit(
+                degrees,
+                this.mAngleStart,
+                this.mAngleStart + this.mAngleSweep
+        );
+    }
+
+    // Check if a point belongs to the arc
+    public boolean belongsToArc(float x, float y, float precision) {
+        // Find the angle from the passed point
+        float angle = this.getAngleFromPoint(x, y);
+        // Find the point on arc from angle
+        Point pointOnArc = this.getPointFromAngle(angle);
+
+        // Find the distance between the points and check it
+        return this.pointInsideCircle(x - pointOnArc.x, y - pointOnArc.y, precision);
+    }
+
+    public boolean belongsToArc(float x, float y) {
+        return this.belongsToArc(x, y, this.mStrokeSize);
     }
 
     // Get the arc painter
@@ -736,27 +711,6 @@ public class ScArc extends View {
             this.mFillingMode = value;
             this.invalidate();
         }
-    }
-
-
-    /**
-     * Public listener
-     */
-
-    // Events on arc
-    public interface OnArcEventListener {
-
-        void onPress(double angle);
-
-        void onRelease();
-
-        void onSlide(double angle);
-
-    }
-
-    @SuppressWarnings("unused")
-    public void setOnArcEventListener(OnArcEventListener listener) {
-        this.mOnArcEventListener = listener;
     }
 
 }

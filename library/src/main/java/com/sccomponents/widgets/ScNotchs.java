@@ -19,8 +19,8 @@ class ScNotchs extends ScArc {
      * Private attributes
      */
 
-    private int mNotchsCount = 0;
-    private float mNotchsLength = 5;
+    private int mNotchsCount;
+    private float mNotchsLength;
 
 
     /**
@@ -72,7 +72,7 @@ class ScNotchs extends ScArc {
         final TypedArray attrArray = context.obtainStyledAttributes(attrs, R.styleable.ScComponents, defStyle, 0);
 
         this.mNotchsCount = attrArray.getInt(
-                R.styleable.ScComponents_scc_notchs, 0);
+                R.styleable.ScComponents_scc_notchs, ScArc.ZERO);
         this.mNotchsLength = attrArray.getDimension(
                 R.styleable.ScComponents_scc_notchs_length, this.getStrokeSize() * 2);
 
@@ -122,9 +122,13 @@ class ScNotchs extends ScArc {
             float currentAngle = index * deltaAngle;
             float length = this.mNotchsLength;
 
+            // If the current angle is outside the draw limit stop to draw
+            if ((deltaAngle < 0 && currentAngle < this.getAngleDraw()) ||
+                    (deltaAngle > 0 && currentAngle > this.getAngleDraw())) break;
+
             // Event
             if (this.mOnDrawListener != null) {
-                length = this.mOnDrawListener.onBeforeNotch(this.getPainter(), currentAngle, index);
+                length = this.mOnDrawListener.onDrawNotch(this.getPainter(), currentAngle, index);
             }
 
             // Find the start and the end points on the canvas in reference to the arc
@@ -228,7 +232,7 @@ class ScNotchs extends ScArc {
     @SuppressWarnings("unused")
     public interface OnDrawListener {
         // Return the new length of notch
-        float onBeforeNotch(Paint painter, float angle, int count);
+        float onDrawNotch(Paint painter, float angle, int count);
     }
 
     @SuppressWarnings("unused")

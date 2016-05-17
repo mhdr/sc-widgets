@@ -9,13 +9,12 @@
     android:orientation="vertical"
     tools:context="com.sccomponents.widgets.demo.MainActivity">
 
-    <com.sccomponents.widgets.ScGauge
+    <com.sccomponents.widgets.ScSeekBar
         android:id="@+id/gauge"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_gravity="center_horizontal"
         android:background="#cccccc"
-        android:padding="20dp"
         sc:scc_angle_start="0"
         sc:scc_angle_sweep="270"
         sc:scc_stroke_size="6dp"
@@ -32,6 +31,14 @@
         android:text="New Button"
         android:id="@+id/button"
         android:layout_margin="10dp"
+        android:layout_gravity="center_horizontal"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="VALUE"
+        android:id="@+id/txtValue"
         android:layout_gravity="center_horizontal"/>
 
 
