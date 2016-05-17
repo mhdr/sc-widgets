@@ -1,5 +1,6 @@
 package com.sccomponents.widgets;
 
+import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -24,17 +25,34 @@ public class ScGauge
         implements ValueAnimator.AnimatorUpdateListener, ScNotchs.OnDrawListener {
 
     /**
+     * Constants
+     */
+
+    public static final int ZERO = 0;
+
+    private static final float ANGLE_START = 0.0f;
+    private static final float ANGLE_SWEEP = 360.0f;
+
+    private static final float STROKE_SIZE = 3.0f;
+    private static final int STROKE_COLOR = Color.BLACK;
+
+    private static final float PROGRESS_SIZE = 1.0f;
+    private static final int PROGRESS_COLOR = Color.GRAY;
+
+
+    /**
      * Private variables
      */
 
-    private ScArc mArcBase = null;
-    private ScArc mArcProgress = null;
-    private ScNotchs mNotchs = null;
+    private ScArc mArcBase;
+    private ScArc mArcProgress;
+    private ScArc mArcNotchs;
 
-    private ValueAnimator mAnimator = null;
+    private ValueAnimator mAnimator;
 
-    private OnDrawListener mOnDrawListener = null;
-    private OnCustomPaddingListener mOnCustomPadding = null;
+    private OnDrawListener mOnDrawListener;
+    private OnCustomPaddingListener mOnCustomPaddingListener;
+    private OnEventListener mOnEventListener;
 
 
     /**
@@ -107,27 +125,27 @@ public class ScGauge
 
         // Read all attributes from xml and assign the value to linked variables
         float angleStart = attrArray.getFloat(
-                R.styleable.ScComponents_scc_angle_start, 0.0f);
+                R.styleable.ScComponents_scc_angle_start, ScGauge.ANGLE_START);
         float angleSweep = attrArray.getFloat(
-                R.styleable.ScComponents_scc_angle_sweep, 360.0f);
+                R.styleable.ScComponents_scc_angle_sweep, ScGauge.ANGLE_SWEEP);
 
         float strokeSize = attrArray.getDimension(
-                R.styleable.ScComponents_scc_stroke_size, this.dpToPixel(context, 3.0f));
+                R.styleable.ScComponents_scc_stroke_size, this.dpToPixel(context, ScGauge.STROKE_SIZE));
         int strokeColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_stroke_color, Color.BLACK);
+                R.styleable.ScComponents_scc_stroke_color, ScGauge.STROKE_COLOR);
 
         float progressSize = attrArray.getDimension(
-                R.styleable.ScComponents_scc_progress_size, this.dpToPixel(context, 1.0f));
+                R.styleable.ScComponents_scc_progress_size, this.dpToPixel(context, ScGauge.PROGRESS_SIZE));
         int progressColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_progress_color, Color.GRAY);
+                R.styleable.ScComponents_scc_progress_color, ScGauge.PROGRESS_COLOR);
 
         float value = attrArray.getFloat(
-                R.styleable.ScComponents_scc_value, angleStart);
+                R.styleable.ScComponents_scc_value, angleSweep);
 
         int notchsCount = attrArray.getInt(
-                R.styleable.ScComponents_scc_notchs, 0);
+                R.styleable.ScComponents_scc_notchs, ScGauge.ZERO);
         float notchsLength = attrArray.getDimension(
-                R.styleable.ScComponents_scc_notchs_length, this.dpToPixel(context, 5.0f));
+                R.styleable.ScComponents_scc_notchs_length, strokeSize * 2);
 
         // Recycle
         attrArray.recycle();
@@ -143,13 +161,14 @@ public class ScGauge
         this.mArcBase.setStrokeColor(strokeColor);
 
         // Notchs
-        this.mNotchs = new ScNotchs(context);
-        this.mNotchs.setAngleStart(angleStart);
-        this.mNotchs.setAngleSweep(angleSweep);
-        this.mNotchs.setStrokeSize(strokeSize);
-        this.mNotchs.setStrokeColor(strokeColor);
-        this.mNotchs.setNotchs(notchsCount);
-        this.mNotchs.setNotchsLength(notchsLength);
+        this.mArcNotchs = new ScNotchs(context);
+        this.mArcNotchs.setAngleStart(angleStart);
+        this.mArcNotchs.setAngleSweep(angleSweep);
+        this.mArcNotchs.setStrokeSize(strokeSize);
+        this.mArcNotchs.setStrokeColor(strokeColor);
+        ((ScNotchs) this.mArcNotchs).setNotchs(notchsCount);
+        ((ScNotchs) this.mArcNotchs).setNotchsLength(notchsLength);
+        ((ScNotchs) this.mArcNotchs).setOnDrawListener(this);
 
         // Progress arc
         this.mArcProgress = new ScArc(context);
@@ -163,13 +182,13 @@ public class ScGauge
         // ANIMATOR
 
         this.mAnimator = new ValueAnimator();
-        this.mAnimator.setDuration(500);
+        this.mAnimator.setDuration(0);
         this.mAnimator.setInterpolator(new DecelerateInterpolator());
         this.mAnimator.addUpdateListener(this);
     }
 
     // Find the max given a series of values
-    private float findMax(float... values) {
+    private float findMaxValue(float... values) {
         // Check for null values
         if (values == null || values.length == 0) return 0;
         // Save the first value inside the max holder
@@ -184,6 +203,25 @@ public class ScGauge
         return max;
     }
 
+    // Get the size in relation at the type
+    private float getStrokeSize(ScArc object) {
+        return object instanceof ScNotchs ?
+                ((ScNotchs) object).getNotchsLength() : object.getStrokeSize();
+    }
+
+    // Find the maximum stroke size.
+    // This method is protected because will be used in the inherited class for reposition
+    // the arcs in the space seen this methods is used inside the method to find the components
+    // padding.
+    protected float findMaxStrokeSize() {
+        // Consider all the arcs
+        return this.findMaxValue(
+                this.getStrokeSize(this.mArcBase),
+                this.getStrokeSize(this.mArcBase),
+                this.getStrokeSize(this.mArcNotchs)
+        );
+    }
+
     // Fix the arcs padding
     private void fixArcsPadding() {
         // Define the padding holder
@@ -193,22 +231,18 @@ public class ScGauge
 
         // If have instantiate the customer padding listener the padding will be decided by
         // the final user inside the calling function
-        if (this.mOnCustomPadding != null) {
+        if (this.mOnCustomPaddingListener != null) {
             // Call the method
-            this.mOnCustomPadding.onCustomPadding(baseArc, progressArc, notchs);
+            this.mOnCustomPaddingListener.onCustomPadding(baseArc, progressArc, notchs);
 
         } else {
             // Find the middle of max stroke sizes
-            float maxSize = this.findMax(
-                    this.mArcBase.getStrokeSize(),
-                    this.mArcBase.getStrokeSize(),
-                    this.mNotchs.getNotchsLength()
-            );
+            float maxSize = this.findMaxStrokeSize();
 
             // Calc the padding by the case for both arcs
-            int basePadding = Math.round((maxSize - this.mArcBase.getStrokeSize()) / 2);
-            int progressPadding = Math.round((maxSize - this.mArcProgress.getStrokeSize()) / 2);
-            int notchsPadding = Math.round((maxSize - this.mNotchs.getNotchsLength()) / 2);
+            int basePadding = Math.round((maxSize - this.getStrokeSize(this.mArcBase)) / 2);
+            int progressPadding = Math.round((maxSize - this.getStrokeSize(this.mArcProgress)) / 2);
+            int notchsPadding = Math.round((maxSize - this.getStrokeSize(this.mArcNotchs)) / 2);
 
             // Fill the padding holder variables
             baseArc = new Rect(
@@ -232,22 +266,9 @@ public class ScGauge
         this.mArcProgress.setPadding(
                 progressArc.left, progressArc.top, progressArc.right, progressArc.bottom
         );
-        this.mNotchs.setPadding(
+        this.mArcNotchs.setPadding(
                 notchs.left, notchs.top, notchs.right, notchs.bottom
         );
-    }
-
-    // Call the on before draw if needed
-    private void callOnBeforeDraw() {
-        // Check the listener
-        if (this.mOnDrawListener != null) {
-            // Call the method
-            this.mOnDrawListener.onBeforeDraw(
-                    this.mArcBase.getPainter(),
-                    this.mArcProgress.getPainter(),
-                    this.mNotchs.getPainter()
-            );
-        }
     }
 
 
@@ -304,35 +325,51 @@ public class ScGauge
     // On draw
     @Override
     protected void onDraw(Canvas canvas) {
-        // Call the events if needed
-        this.callOnBeforeDraw();
+        // Check the listener
+        if (this.mOnDrawListener != null) {
+            // Call the method
+            this.mOnDrawListener.onBeforeDraw(
+                    this.mArcBase.getPainter(),
+                    this.mArcProgress.getPainter(),
+                    this.mArcNotchs.getPainter()
+            );
+        }
 
-        // Draw
-        this.mArcBase.draw(canvas);
-        this.mNotchs.draw(canvas);
-        this.mArcProgress.draw(canvas);
+        // Cycle all arcs for draw it
+        for (ScArc arc : this.getArcs()) {
+            // Only if visible
+            if (arc.getVisibility() == View.VISIBLE) {
+                // Draw
+                arc.draw(canvas);
+            }
+        }
     }
 
     // On animation update
     @Override
     public void onAnimationUpdate(ValueAnimator animation) {
-        // Get the current value
-        float value = (float) animation.getAnimatedValue();
+        // Get the current angle value
+        float degrees = (float) animation.getAnimatedValue();
         // Set and refresh
-        this.mArcProgress.setAngleDraw(value);
+        this.mArcProgress.setAngleDraw(degrees);
         this.invalidate();
+
+        // Manage the listener
+        if (this.mOnEventListener != null) {
+            this.mOnEventListener.onValueChange(degrees);
+        }
     }
 
     // On before to draw the single notch for each notchs
     @Override
-    public float onBeforeNotch(Paint painter, float angle, int count) {
+    public float onDrawNotch(Paint painter, float angle, int count) {
         // If have a listener linked
         if (this.mOnDrawListener != null) {
             // Forward the event
-            return this.mOnDrawListener.onBeforeNotch(painter, angle, count);
+            return this.mOnDrawListener.onDrawNotch(painter, angle, count);
         } else {
             // Else return the standard notchs length
-            return this.mNotchs.getNotchsLength();
+            return ((ScNotchs) this.mArcNotchs).getNotchsLength();
         }
     }
 
@@ -353,7 +390,7 @@ public class ScGauge
         state.putParcelable("PARENT", superState);
         state.putParcelable("mArcBase", this.mArcBase.onSaveInstanceState());
         state.putParcelable("mArcProgress", this.mArcProgress.onSaveInstanceState());
-        state.putParcelable("mNotchs", this.mNotchs.onSaveInstanceState());
+        state.putParcelable("mArcNotchs", this.mArcNotchs.onSaveInstanceState());
 
         // Return the new state
         return state;
@@ -372,7 +409,7 @@ public class ScGauge
         // Now can restore all the saved variables values
         this.mArcBase.onRestoreInstanceState(savedState.getParcelable("mArcBase"));
         this.mArcProgress.onRestoreInstanceState(savedState.getParcelable("mArcProgress"));
-        this.mNotchs.onRestoreInstanceState(savedState.getParcelable("mNotchs"));
+        this.mArcNotchs.onRestoreInstanceState(savedState.getParcelable("mArcNotchs"));
     }
 
 
@@ -385,7 +422,7 @@ public class ScGauge
     // A wrong use of arcs can generate a malfunction of this component.
     @SuppressWarnings("unused")
     public ScArc[] getArcs() {
-        return new ScArc[]{this.mArcBase, this.mArcProgress, this.mNotchs};
+        return new ScArc[]{this.mArcBase, this.mArcNotchs, this.mArcProgress};
     }
 
     // Set stroke cap of painter for all arcs and notchs.
@@ -425,10 +462,12 @@ public class ScGauge
     // Set the arcs visibility.
     // For a correct measure of the component it is better not use GONE.
     @SuppressWarnings("unused")
-    public void show(boolean baseArc, boolean progressArc) {
+    public void show(boolean baseArc, boolean progressArc, boolean notchsArc) {
         // Apply the visibility status
         this.mArcBase.setVisibility(baseArc ? View.VISIBLE : View.INVISIBLE);
         this.mArcProgress.setVisibility(progressArc ? View.VISIBLE : View.INVISIBLE);
+        this.mArcNotchs.setVisibility(notchsArc ? View.VISIBLE : View.INVISIBLE);
+
         // Refresh
         this.requestLayout();
     }
@@ -444,6 +483,12 @@ public class ScGauge
         } else {
             return 0.0f;
         }
+    }
+
+    // Get the value animator
+    @SuppressWarnings("unused")
+    public Animator getValueAnimator() {
+        return this.mAnimator;
     }
 
 
@@ -465,8 +510,8 @@ public class ScGauge
             this.mArcBase.setStrokeSize(value);
             // Check if the notchs painter have the same value than the system maintain
             // the values linked.
-            if (this.mNotchs.getStrokeSize() == value) {
-                this.mNotchs.setStrokeSize(value);
+            if (this.mArcNotchs.getStrokeSize() == value) {
+                this.mArcNotchs.setStrokeSize(value);
             }
             // Refresh the component
             this.requestLayout();
@@ -487,8 +532,8 @@ public class ScGauge
             this.mArcBase.setStrokeColor(value);
             // Check if the notchs painter have the same value than the system maintain
             // the values linked.
-            if (this.mNotchs.getStrokeColor() == value) {
-                this.mNotchs.setStrokeColor(value);
+            if (this.mArcNotchs.getStrokeColor() == value) {
+                this.mArcNotchs.setStrokeColor(value);
             }
             // Refresh the component
             this.invalidate();
@@ -578,15 +623,21 @@ public class ScGauge
     // Notchs count
     @SuppressWarnings("unused")
     public int getNotchs() {
-        return this.mNotchs.getNotchs();
+        // Check for the right object instance
+        if (this.mArcNotchs instanceof ScNotchs) {
+            return ((ScNotchs) this.mArcNotchs).getNotchs();
+        } else {
+            return 0;
+        }
     }
 
     @SuppressWarnings("unused")
     public void setNotchs(int value) {
         // Check if value is changed
-        if (this.mNotchs.getNotchs() != value) {
+        if (this.mArcNotchs instanceof ScNotchs &&
+                ((ScNotchs) this.mArcNotchs).getNotchs() != value) {
             // Store the new value and refresh the component
-            this.mNotchs.setNotchsLength( value);
+            ((ScNotchs) this.mArcNotchs).setNotchsLength(value);
             this.requestLayout();
         }
     }
@@ -594,15 +645,21 @@ public class ScGauge
     // Progress size
     @SuppressWarnings("unused")
     public float getNotchsLength() {
-        return this.mNotchs.getNotchsLength();
+        // Check for the right object instance
+        if (this.mArcNotchs instanceof ScNotchs) {
+            return ((ScNotchs) this.mArcNotchs).getNotchsLength();
+        } else {
+            return 0;
+        }
     }
 
     @SuppressWarnings("unused")
     public void setNotchsLength(float value) {
         // Check if value is changed
-        if (this.mNotchs.getNotchsLength() != value) {
+        if (this.mArcNotchs instanceof ScNotchs &&
+                ((ScNotchs) this.mArcNotchs).getNotchsLength() != value) {
             // Store the new value and refresh the component
-            this.mNotchs.setNotchsLength(value);
+            ((ScNotchs) this.mArcNotchs).setNotchsLength(value);
             this.requestLayout();
         }
     }
@@ -612,11 +669,14 @@ public class ScGauge
      * Public listener and interface
      */
 
-    // Before draw
+    // Draw
     @SuppressWarnings("unused")
     public interface OnDrawListener {
-        void onBeforeDraw(Paint baseArc, Paint progressArc, Paint notchs);
-        float onBeforeNotch(Paint painter, float angle, int count);
+
+        void onBeforeDraw(Paint baseArc, Paint notchsArc, Paint progressArc);
+
+        float onDrawNotch(Paint painter, float angle, int count);
+
     }
 
     @SuppressWarnings("unused")
@@ -632,7 +692,18 @@ public class ScGauge
 
     @SuppressWarnings("unused")
     public void setCustomPaddingListener(OnCustomPaddingListener listener) {
-        this.mOnCustomPadding = listener;
+        this.mOnCustomPaddingListener = listener;
+    }
+
+    // Value changing
+    @SuppressWarnings("unused")
+    public interface OnEventListener {
+        void onValueChange(float degrees);
+    }
+
+    @SuppressWarnings("unused")
+    public void setOnEventListener(OnEventListener listener) {
+        this.mOnEventListener = listener;
     }
 
 }
