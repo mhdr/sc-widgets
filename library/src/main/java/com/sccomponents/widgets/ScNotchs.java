@@ -72,7 +72,7 @@ class ScNotchs extends ScArc {
         final TypedArray attrArray = context.obtainStyledAttributes(attrs, R.styleable.ScComponents, defStyle, 0);
 
         this.mNotchsCount = attrArray.getInt(
-                R.styleable.ScComponents_scc_notchs, ScArc.ZERO);
+                R.styleable.ScComponents_scc_notchs, 0);
         this.mNotchsLength = attrArray.getDimension(
                 R.styleable.ScComponents_scc_notchs_length, this.getStrokeSize() * 2);
 

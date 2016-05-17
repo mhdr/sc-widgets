@@ -1,0 +1,89 @@
+package com.sccomponents.widgets;
+
+import android.content.Context;
+import android.util.AttributeSet;
+import android.util.DisplayMetrics;
+import android.view.View;
+import android.view.WindowManager;
+
+/**
+ * The base widget class.
+ *
+ * This class contain only some utility methods useful for next components implementation.
+ */
+public class ScWidget extends View {
+
+    /**
+     * Constructors
+     */
+
+    public ScWidget(Context context) {
+        super(context);
+    }
+
+    public ScWidget(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public ScWidget(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+
+    /**
+     * Privates methods
+     */
+
+    // Get the display metric.
+    // This method is used for screen measure conversion.
+    private DisplayMetrics getDisplayMetrics(Context context) {
+        // Get the window manager from the window service
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        // Create the variable holder and inject the values
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(displayMetrics);
+        // Return
+        return displayMetrics;
+    }
+
+
+    /**
+     * Public methods
+     */
+
+    // Convert Dip to Pixel
+    @SuppressWarnings("unused")
+    public float dipToPixel(float dip) {
+        // Get the display metrics
+        DisplayMetrics metrics = this.getDisplayMetrics(this.getContext());
+        // Calc the conversion by the screen density
+        return dip * metrics.density;
+    }
+
+    // Limit number within a range
+    @SuppressWarnings("unused")
+    public static float valueRangeLimit(float value, float startValue, float endValue) {
+        // If is over the limit return the normalized value
+        if (value < Math.min(startValue, endValue)) return Math.min(startValue, endValue);
+        if (value > Math.max(startValue, endValue)) return Math.max(startValue, endValue);
+        // Else return the original value
+        return value;
+    }
+
+    // Find the max given a series of values
+    @SuppressWarnings("unused")
+    public static float findMaxValue(float... values) {
+        // Check for null values
+        if (values == null || values.length == 0) return 0;
+
+        // Cycle all other values
+        float max = Float.MIN_VALUE;
+        for (float value : values) {
+            // Find the max
+            if (max < value) max = value;
+        }
+        // Return
+        return max;
+    }
+
+}

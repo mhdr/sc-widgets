@@ -16,12 +16,13 @@
         android:layout_gravity="center_horizontal"
         android:background="#cccccc"
         sc:scc_angle_start="0"
-        sc:scc_angle_sweep="270"
+        sc:scc_angle_sweep="-180"
         sc:scc_stroke_size="6dp"
         sc:scc_value="45"
         sc:scc_progress_size="4dp"
         sc:scc_notchs="10"
         sc:scc_notchs_length="12dp"
+        sc:scc_snap_to_notchs="true"
         sc:scc_fill_mode="draw"
         />
 

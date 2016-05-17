@@ -14,25 +14,7 @@
         <attr name="scsl_hide_onclose" format="boolean" />
     </declare-styleable>
 
-    <!-- Circular Seek Bar -->
-    <declare-styleable name="ScCirclularSeekBar">
-        <attr name="sccsb_start_angle" format="integer" />
-        <attr name="sccsb_sweep_angle" format="integer" />
-        <attr name="sccsb_min" format="integer" />
-        <attr name="sccsb_max" format="integer" />
-        <attr name="sccsb_value" format="integer" />
-        <attr name="sccsb_notch_size" format="dimension" />
-        <attr name="sccsb_pointer_radius" format="dimension" />
-        <attr name="sccsb_halo_size" format="dimension" />
-        <attr name="sccsb_stroke_size" format="dimension" />
-        <attr name="sccsb_stroke_color" format="color" />
-        <attr name="sccsb_pointer_color" format="color" />
-        <attr name="sccsb_show_progress" format="boolean" />
-        <attr name="sccsb_max_width" format="dimension" />
-        <attr name="sccsb_max_height" format="dimension" />
-    </declare-styleable>
-
-    <!-- Circular Seek Bar -->
+    <!-- Components -->
     <declare-styleable name="ScComponents">
         <attr name="scc_angle_start" format="float" />
         <attr name="scc_angle_sweep" format="float" />
@@ -42,6 +24,9 @@
         <attr name="scc_progress_size" format="dimension" />
         <attr name="scc_progress_color" format="color" />
         <attr name="scc_value" format="float" />
+        <attr name="scc_pointer_radius" format="dimension" />
+        <attr name="scc_pointer_color" format="color" />
+        <attr name="scc_halo_size" format="dimension" />
         <attr name="scc_fill_area" />
         <attr name="scc_fill_mode" />
         <attr name="scc_notchs" format="integer" />

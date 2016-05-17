@@ -11,24 +11,20 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 
 /**
  * Create a Gauge
  */
 public class ScGauge
-        extends View
+        extends ScWidget
         implements ValueAnimator.AnimatorUpdateListener, ScNotchs.OnDrawListener {
 
     /**
      * Constants
      */
-
-    public static final int ZERO = 0;
 
     private static final float ANGLE_START = 0.0f;
     private static final float ANGLE_SWEEP = 360.0f;
@@ -76,40 +72,6 @@ public class ScGauge
 
 
     /**
-     * Privates utils
-     */
-
-    // Get the display metric.
-    // This method is used for screen measure conversion.
-    private DisplayMetrics getDisplayMetrics(Context context) {
-        // Get the window manager from the window service
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        // Create the variable holder and inject the values
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics(displayMetrics);
-        // Return
-        return displayMetrics;
-    }
-
-    // Convert Dip to Pixel
-    private float dpToPixel(Context context, float dp) {
-        // Get the display metrics
-        DisplayMetrics metrics = this.getDisplayMetrics(context);
-        // Calc the conversion by the screen density
-        return dp * metrics.density;
-    }
-
-    // Limit number within a range
-    private float valueRangeLimit(float value, float startValue, float endValue) {
-        // If is over the limit return the normalized value
-        if (value < Math.min(startValue, endValue)) return Math.min(startValue, endValue);
-        if (value > Math.max(startValue, endValue)) return Math.max(startValue, endValue);
-        // Else return the original value
-        return value;
-    }
-
-
-    /**
      * Privates methods
      */
 
@@ -130,12 +92,12 @@ public class ScGauge
                 R.styleable.ScComponents_scc_angle_sweep, ScGauge.ANGLE_SWEEP);
 
         float strokeSize = attrArray.getDimension(
-                R.styleable.ScComponents_scc_stroke_size, this.dpToPixel(context, ScGauge.STROKE_SIZE));
+                R.styleable.ScComponents_scc_stroke_size, this.dipToPixel(ScGauge.STROKE_SIZE));
         int strokeColor = attrArray.getColor(
                 R.styleable.ScComponents_scc_stroke_color, ScGauge.STROKE_COLOR);
 
         float progressSize = attrArray.getDimension(
-                R.styleable.ScComponents_scc_progress_size, this.dpToPixel(context, ScGauge.PROGRESS_SIZE));
+                R.styleable.ScComponents_scc_progress_size, this.dipToPixel(ScGauge.PROGRESS_SIZE));
         int progressColor = attrArray.getColor(
                 R.styleable.ScComponents_scc_progress_color, ScGauge.PROGRESS_COLOR);
 
@@ -143,7 +105,7 @@ public class ScGauge
                 R.styleable.ScComponents_scc_value, angleSweep);
 
         int notchsCount = attrArray.getInt(
-                R.styleable.ScComponents_scc_notchs, ScGauge.ZERO);
+                R.styleable.ScComponents_scc_notchs, 0);
         float notchsLength = attrArray.getDimension(
                 R.styleable.ScComponents_scc_notchs_length, strokeSize * 2);
 
@@ -187,22 +149,6 @@ public class ScGauge
         this.mAnimator.addUpdateListener(this);
     }
 
-    // Find the max given a series of values
-    private float findMaxValue(float... values) {
-        // Check for null values
-        if (values == null || values.length == 0) return 0;
-        // Save the first value inside the max holder
-        float max = values[0];
-
-        // Cycle all other values
-        for (int index = 1; index < values.length; index++) {
-            // Find the max
-            if (max < values[index]) max = values[index];
-        }
-        // Return
-        return max;
-    }
-
     // Get the size in relation at the type
     private float getStrokeSize(ScArc object) {
         return object instanceof ScNotchs ?
@@ -215,7 +161,7 @@ public class ScGauge
     // padding.
     protected float findMaxStrokeSize() {
         // Consider all the arcs
-        return this.findMaxValue(
+        return ScGauge.findMaxValue(
                 this.getStrokeSize(this.mArcBase),
                 this.getStrokeSize(this.mArcBase),
                 this.getStrokeSize(this.mArcNotchs)
@@ -476,7 +422,7 @@ public class ScGauge
     @SuppressWarnings("unused")
     public float translateAngleToValue(float angle, float startRange, float endRange) {
         // Limit the value within the range
-        angle = this.valueRangeLimit(angle, 0.0f, this.mArcProgress.getAngleSweep());
+        angle = ScGauge.valueRangeLimit(angle, 0.0f, this.mArcProgress.getAngleSweep());
         // Check for the division domain
         if (this.mArcProgress.getAngleSweep() != 0.0f) {
             return (angle / this.mArcProgress.getAngleSweep()) * (endRange - startRange);
@@ -586,7 +532,7 @@ public class ScGauge
         // Set and start animation
         this.mAnimator.setFloatValues(
                 this.mArcProgress.getAngleDraw(),
-                this.valueRangeLimit(degrees, 0, sweep)
+                ScGauge.valueRangeLimit(degrees, 0, sweep)
         );
         this.mAnimator.start();
     }
@@ -606,7 +552,7 @@ public class ScGauge
     @SuppressWarnings("unused")
     public void setValue(float value, float startRange, float endRange) {
         // Limit the value within the range
-        value = this.valueRangeLimit(value, startRange, endRange);
+        value = ScGauge.valueRangeLimit(value, startRange, endRange);
         // Check for the division domain
         if (endRange == startRange) {
             value = 0;

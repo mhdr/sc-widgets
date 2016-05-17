@@ -9,9 +9,7 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
-import android.view.WindowManager;
 
 
 /**
@@ -36,8 +34,8 @@ public class ScSeekBar extends ScGauge {
 
     private float mPointerRadius;
     private int mPointerColor;
-
     private float mHaloSize;
+    private boolean mSnapToNotchs;
 
 
     /**
@@ -76,18 +74,6 @@ public class ScSeekBar extends ScGauge {
      * Privates methods
      */
 
-    // Get the display metric.
-    // This method is used for screen measure conversion.
-    private DisplayMetrics getDisplayMetrics(Context context) {
-        // Get the window manager from the window service
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        // Create the variable holder and inject the values
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics(displayMetrics);
-        // Return
-        return displayMetrics;
-    }
-
     // Check all input values
     private void checkValues() {
         // Size
@@ -113,22 +99,33 @@ public class ScSeekBar extends ScGauge {
         return this.getArcs()[2];
     }
 
+    // Round the degree angle to the near notch value
+    private float snapToNotchs(float degrees) {
+        // Calc the delta angle and the middle stroke
+        float deltaAngle = this.getBaseArc().getAngleSweep() / this.getNotchs();
+        // Round at notchs value
+        return Math.round(degrees / deltaAngle) * deltaAngle;
+    }
+
     // Init the component
     private void init(Context context, AttributeSet attrs, int defStyle) {
         //--------------------------------------------------
         // ATTRIBUTES
 
         // Get the attributes list
-        final TypedArray attrArray = context.obtainStyledAttributes(attrs, R.styleable.ScCirclularSeekBar, defStyle, 0);
+        final TypedArray attrArray = context.obtainStyledAttributes(attrs, R.styleable.ScComponents, defStyle, 0);
 
         // Read all attributes from xml and assign the value to linked variables
         this.mPointerRadius = attrArray.getDimension(
-                R.styleable.ScCirclularSeekBar_sccsb_pointer_radius, this.dpToPixel(context, ScSeekBar.POINTER_RADIUS));
+                R.styleable.ScComponents_scc_pointer_radius, this.dipToPixel(ScSeekBar.POINTER_RADIUS));
         this.mPointerColor = attrArray.getColor(
-                R.styleable.ScCirclularSeekBar_sccsb_pointer_color, ScSeekBar.POINTER_COLOR);
+                R.styleable.ScComponents_scc_pointer_color, ScSeekBar.POINTER_COLOR);
 
         this.mHaloSize = attrArray.getDimension(
-                R.styleable.ScCirclularSeekBar_sccsb_halo_size, this.dpToPixel(context, ScSeekBar.HALO_SIZE));
+                R.styleable.ScComponents_scc_halo_size, this.dipToPixel(ScSeekBar.HALO_SIZE));
+
+        this.mSnapToNotchs = attrArray.getBoolean(
+                R.styleable.ScComponents_scc_snap_to_notchs, false);
 
         // Recycle
         attrArray.recycle();
@@ -136,7 +133,17 @@ public class ScSeekBar extends ScGauge {
         //--------------------------------------------------
         // INTERNAL
 
+        this.mArcPressed = false;
         this.checkValues();
+
+        // Check for snap to notchs the new degrees value
+        if (this.mSnapToNotchs) {
+            // Get the current value and round at the closed notchs value
+            float drawAngle = this.getProgressArc().getAngleDraw();
+            drawAngle = this.snapToNotchs(drawAngle);
+            // Apply to the progress arc
+            this.getProgressArc().setAngleDraw(drawAngle);
+        }
 
         //--------------------------------------------------
         // PAINTER
@@ -183,17 +190,21 @@ public class ScSeekBar extends ScGauge {
         });
     }
 
+    // Get the real dimension of the pointer
+    private float getPointerSize() {
+        return (this.mPointerRadius + this.mHaloSize) * 2;
+    }
+
     // Find the maximum stroke size.
     // This method is protected because will be used in the inherited class for reposition
     // the arcs in the space seen this methods is used inside the method to find the components
     // padding.
     @Override
     protected float findMaxStrokeSize() {
-        // Get the super max and the pointer global size
+        // Get the super max
         float maxSize = super.findMaxStrokeSize();
-        float pointerSize = (this.mPointerRadius + this.mHaloSize) * 2;
         // Compare with the pointer size
-        return maxSize > pointerSize ? maxSize : pointerSize;
+        return maxSize > this.getPointerSize() ? maxSize : this.getPointerSize();
     }
 
 
@@ -218,15 +229,9 @@ public class ScSeekBar extends ScGauge {
     // On draw
     @Override
     protected void onDraw(Canvas canvas) {
-        // Change paint alpha by drag or not
-        if (this.mArcPressed) {
-            this.mPointerPaint.setAlpha(ScSeekBar.HALO_ALPHA);
-            this.mHaloPaint.setAlpha(255);
-
-        } else {
-            this.mPointerPaint.setAlpha(255);
-            this.mHaloPaint.setAlpha(ScSeekBar.HALO_ALPHA);
-        }
+        // Change pointer paint alpha by pressed status
+        this.mPointerPaint.setAlpha(this.mArcPressed ? ScSeekBar.HALO_ALPHA : 255);
+        this.mHaloPaint.setAlpha(this.mArcPressed ? 255 : ScSeekBar.HALO_ALPHA);
 
         // Check the listener
         if (this.mOnDrawListener != null) {
@@ -264,7 +269,7 @@ public class ScSeekBar extends ScGauge {
                 // Trigger is pressed and set the current value only if the pressure happened
                 // on the arc space.
                 // The redraw will called inside the setValue method.
-                if (this.getBaseArc().belongsToArc(x, y)) {
+                if (this.getBaseArc().belongsToArc(x, y, this.getPointerSize())) {
                     this.mArcPressed = true;
                     this.setValue(angle);
                 }
@@ -288,8 +293,23 @@ public class ScSeekBar extends ScGauge {
                 break;
         }
 
-        // Event propagation
+        // Event propagation.
+        // If return false this method will capture only the press event and bypass all
+        // the successive events.
         return true;
+    }
+
+    // Progress value in degrees
+    @SuppressWarnings("unused")
+    @Override
+    public void setValue(float degrees) {
+        // Check for snap to notchs the new degrees value
+        if (this.mSnapToNotchs) {
+            // Round at the closed notchs value
+            degrees = this.snapToNotchs(degrees);
+        }
+        // Call the super
+        super.setValue(degrees);
     }
 
 
@@ -307,6 +327,7 @@ public class ScSeekBar extends ScGauge {
         state.putFloat("mPointerRadius", this.mPointerRadius);
         state.putInt("mPointerColor", this.mPointerColor);
         state.putFloat("mHaloSize", this.mHaloSize);
+        state.putBoolean("mSnapToNotchs", this.mSnapToNotchs);
 
         return state;
     }
@@ -322,19 +343,7 @@ public class ScSeekBar extends ScGauge {
         this.mPointerRadius = savedState.getFloat("mPointerRadius");
         this.mPointerColor = savedState.getInt("mPointerColor");
         this.mHaloSize = savedState.getFloat("mHaloSize");
-    }
-
-
-    /**
-     * Public methods
-     */
-
-    // Convert Dip to Pixel
-    public float dpToPixel(Context context, float dp) {
-        // Get the display metrics
-        DisplayMetrics metrics = this.getDisplayMetrics(context);
-        // Calc the conversion by the screen density
-        return dp * metrics.density;
+        this.mSnapToNotchs = savedState.getBoolean("mSnapToNotchs");
     }
 
 
@@ -383,22 +392,37 @@ public class ScSeekBar extends ScGauge {
         this.requestLayout();
     }
 
-/**
- * Public listener and interface
- */
+    // Snap the values to the notchs
+    @SuppressWarnings("unused")
+    public boolean getSnapToNotchs() {
+        return this.mSnapToNotchs;
+    }
 
-// Draw
-@SuppressWarnings("unused")
-public interface OnDrawListener {
+    @SuppressWarnings("unused")
+    public void setSnapToNotchs(boolean color) {
+        // Fix the trigger
+        this.mSnapToNotchs = color;
+        // Recall the set value method for apply the new setting
+        this.setValue(this.getValue());
+    }
 
-    void onBeforeDraw(
-            Paint baseArc, Paint notchsArc, Paint progressArc,
-            Paint pointer, Paint pointerHalo, boolean pressed
-    );
 
-    float onDrawNotch(Paint painter, float angle, int count);
+    /**
+     * Public listener and interface
+     */
 
-}
+    // Draw
+    @SuppressWarnings("unused")
+    public interface OnDrawListener {
+
+        void onBeforeDraw(
+                Paint baseArc, Paint notchsArc, Paint progressArc,
+                Paint pointer, Paint pointerHalo, boolean pressed
+        );
+
+        float onDrawNotch(Paint painter, float angle, int count);
+
+    }
 
     @SuppressWarnings("unused")
     public void setOnDrawListener(OnDrawListener listener) {

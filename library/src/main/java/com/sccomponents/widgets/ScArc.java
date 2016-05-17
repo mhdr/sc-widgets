@@ -10,22 +10,18 @@ import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 
 /**
  * Create an arc.
  * v2.0
  */
-public class ScArc extends View {
+public class ScArc extends ScWidget {
 
     /**
      * Constants
      */
-
-    public static final int ZERO = 0;
 
     private static final float ANGLE_START = 0.0f;
     private static final float ANGLE_SWEEP = 360.0f;
@@ -84,13 +80,36 @@ public class ScArc extends View {
      * Privates methods
      */
 
-    // Limit number within a range
-    private float valueRangeLimit(float value, float startValue, float endValue) {
-        // If is over the limit return the normalized value
-        if (value < Math.min(startValue, endValue)) return Math.min(startValue, endValue);
-        if (value > Math.max(startValue, endValue)) return Math.max(startValue, endValue);
-        // Else return the original value
-        return value;
+    // Limit an angle in degrees within a range
+    private float angleRangeLimit(float angle, float startAngle, float endAngle) {
+        // Find the opposite of the same angle
+        float positive = ScArc.normalizeAngle(angle + 360);
+        float negative = positive - 360;
+
+        // Try both case of angle is positive and is negative.
+        float firstCase = ScArc.valueRangeLimit(positive, startAngle, endAngle);
+        float secondCase = ScArc.valueRangeLimit(negative, startAngle, endAngle);
+
+        // If the first case is equal to the positive angle than the correct angle is the
+        // positive one
+        if (firstCase == positive) {
+            return positive;
+
+        } else {
+            // If the second case is equal to the negative angle than the correct angle is the
+            // negative one
+            if (secondCase == negative) {
+                return negative;
+
+            } else {
+                // The angle if over the limit.
+                // Try to find the nearest limit and return it.
+                if (Math.abs(firstCase - positive) < Math.abs(secondCase - negative))
+                    return firstCase;
+                else
+                    return secondCase;
+            }
+        }
     }
 
     // Check all input values if over the limits
@@ -107,19 +126,7 @@ public class ScArc extends View {
         if (this.mMaxHeight < 0) this.mMaxHeight = 0;
 
         // Check the draw angle limits
-        this.mAngleDraw = this.valueRangeLimit(this.mAngleDraw, 0, this.mAngleSweep);
-    }
-
-    // Get the display metric.
-    // This method is used for screen measure conversion.
-    private DisplayMetrics getDisplayMetrics(Context context) {
-        // Get the window manager from the window service
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        // Create the variable holder and inject the values
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics(displayMetrics);
-        // Return
-        return displayMetrics;
+        this.mAngleDraw = ScArc.valueRangeLimit(this.mAngleDraw, 0, this.mAngleSweep);
     }
 
     // Init the component.
@@ -142,14 +149,14 @@ public class ScArc extends View {
                 R.styleable.ScComponents_scc_angle_draw, this.mAngleSweep);
 
         this.mStrokeSize = attrArray.getDimension(
-                R.styleable.ScComponents_scc_stroke_size, this.dpToPixel(context, ScArc.STROKE_SIZE));
+                R.styleable.ScComponents_scc_stroke_size, this.dipToPixel(ScArc.STROKE_SIZE));
         this.mStrokeColor = attrArray.getColor(
                 R.styleable.ScComponents_scc_stroke_color, ScArc.STROKE_COLOR);
 
         this.mMaxWidth = attrArray.getDimensionPixelSize(
-                R.styleable.ScComponents_scc_max_width, ScArc.ZERO);
+                R.styleable.ScComponents_scc_max_width, 0);
         this.mMaxHeight = attrArray.getDimensionPixelSize(
-                R.styleable.ScComponents_scc_max_height, ScArc.ZERO);
+                R.styleable.ScComponents_scc_max_height, 0);
 
         // FillingArea.BOTH
         this.mFillingArea =
@@ -183,12 +190,6 @@ public class ScArc extends View {
         // Enable for touch
         this.setFocusable(true);
         this.setFocusableInTouchMode(true);
-    }
-
-    // Check if point is inside a circle (Pitagora)
-    @SuppressWarnings("all")
-    private boolean pointInsideCircle(float x, float y, float radius) {
-        return Math.pow(x, 2) + Math.pow(y, 2) < Math.pow(radius, 2);
     }
 
 
@@ -449,6 +450,23 @@ public class ScArc extends View {
 
 
     /**
+     * Static methods
+     */
+
+    // Normalize a angle in degrees
+    @SuppressWarnings("unused")
+    public static float normalizeAngle(float degrees) {
+        return (degrees + (degrees < 0 ? -360.0f : +360.0f)) % 360.0f;
+    }
+
+    // Check if point is inside a circle (Pitagora)
+    @SuppressWarnings("all")
+    public static boolean pointInsideCircle(float x, float y, float radius) {
+        return Math.pow(x, 2) + Math.pow(y, 2) < Math.pow(radius, 2);
+    }
+
+
+    /**
      * Public methods
      */
 
@@ -471,18 +489,13 @@ public class ScArc extends View {
         DRAW
     }
 
-    // Convert Dip to Pixel
-    public float dpToPixel(Context context, float dp) {
-        // Get the display metrics
-        DisplayMetrics metrics = this.getDisplayMetrics(context);
-        // Calc the conversion by the screen density
-        return dp * metrics.density;
-    }
-
     // Calc point position from angle in degrees.
     // Given an angle this method calc the relative point on the arc.
     @SuppressWarnings("unused")
     public Point getPointFromAngle(float degrees, float radiusAdjust) {
+        // Normalize the angle
+        degrees = ScArc.normalizeAngle(degrees);
+
         // Get the drawing area
         RectF canvasArea = this.calcCanvasArea(this.getMeasuredWidth(), this.getMeasuredHeight());
         RectF drawingArea = this.calcDrawingArea(canvasArea);
@@ -517,17 +530,17 @@ public class ScArc extends View {
                 (y - drawingArea.centerY()) / drawingArea.height(),
                 (x - drawingArea.centerX()) / drawingArea.width()
         );
-        // Convert to degree and fix over number
-        float degrees = ((float) Math.toDegrees(angle) + 360.0f) % 360.0f;
+
         // Limit the value within the component angle range and return it
-        return this.valueRangeLimit(
-                degrees,
+        return this.angleRangeLimit(
+                (float) Math.toDegrees(angle),
                 this.mAngleStart,
                 this.mAngleStart + this.mAngleSweep
         );
     }
 
     // Check if a point belongs to the arc
+    @SuppressWarnings("unused")
     public boolean belongsToArc(float x, float y, float precision) {
         // Find the angle from the passed point
         float angle = this.getAngleFromPoint(x, y);
@@ -535,9 +548,10 @@ public class ScArc extends View {
         Point pointOnArc = this.getPointFromAngle(angle);
 
         // Find the distance between the points and check it
-        return this.pointInsideCircle(x - pointOnArc.x, y - pointOnArc.y, precision);
+        return ScArc.pointInsideCircle(x - pointOnArc.x, y - pointOnArc.y, precision);
     }
 
+    @SuppressWarnings("unused")
     public boolean belongsToArc(float x, float y) {
         return this.belongsToArc(x, y, this.mStrokeSize);
     }
