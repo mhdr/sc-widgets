@@ -9,12 +9,13 @@
     android:orientation="vertical"
     tools:context="com.sccomponents.widgets.demo.MainActivity">
 
-    <com.sccomponents.widgets.ScSeekBar
+    <com.sccomponents.widgets.ScArc
         android:id="@+id/gauge"
         android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:background="#cccccc"
+        android:padding="20dp"
         sc:scc_angle_start="0"
         sc:scc_angle_sweep="-180"
         sc:scc_stroke_size="6dp"

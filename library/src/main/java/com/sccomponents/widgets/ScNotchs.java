@@ -11,8 +11,11 @@ import android.os.Parcelable;
 import android.util.AttributeSet;
 
 /**
+ *
  * Create a series of notchs that follow an arc path
- */
+ * v1.0
+ *
+ * */
 class ScNotchs extends ScArc {
 
     /**
@@ -85,22 +88,6 @@ class ScNotchs extends ScArc {
         this.checkValues();
     }
 
-    // Calc point position from angle in degrees.
-    // Given an angle this method calc the relative point on the arc.
-    private Point getPointFromAngle(float degrees, RectF area, float radiusAdjust) {
-        // Find the default arc radius
-        float xRadius = area.width() / 2 + radiusAdjust;
-        float yRadius = area.height() / 2 + +radiusAdjust;
-
-        // Convert the radius in radiant and find the coordinates in the space
-        double rad = Math.toRadians(degrees);
-        int x = Math.round(xRadius * (float) Math.cos(rad) + area.centerX());
-        int y = Math.round(yRadius * (float) Math.sin(rad) + area.centerY());
-
-        // Create the point and return it
-        return new Point(x, y);
-    }
-
 
     /**
      * Overrides
@@ -133,8 +120,11 @@ class ScNotchs extends ScArc {
 
             // Find the start and the end points on the canvas in reference to the arc
             // TODO: when scaled have notchs direction issue
-            Point startPoint = this.getPointFromAngle(currentAngle, area, -length + middleStroke);
-            Point endPoint = this.getPointFromAngle(currentAngle, area, middleStroke);
+            RectF startArea = ScNotchs.inflateRect(area, length - middleStroke);
+            Point startPoint = this.getPointFromAngle(currentAngle, startArea);
+
+            RectF endArea = ScNotchs.inflateRect(area, -middleStroke);
+            Point endPoint = this.getPointFromAngle(currentAngle, endArea);
 
             // Draw the line
             canvas.drawLine(

@@ -1,6 +1,7 @@
 package com.sccomponents.widgets;
 
 import android.content.Context;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -70,6 +71,11 @@ public class ScWidget extends View {
         return value;
     }
 
+    @SuppressWarnings("unused")
+    public static int valueRangeLimit(int value, int startValue, int endValue) {
+        return (int) ScWidget.valueRangeLimit((float) value, (float) startValue, (float) endValue);
+    }
+
     // Find the max given a series of values
     @SuppressWarnings("unused")
     public static float findMaxValue(float... values) {
@@ -84,6 +90,28 @@ public class ScWidget extends View {
         }
         // Return
         return max;
+    }
+
+    // Inflate a rectangle of the passed value.
+    // The method return a new inflated rectangle and not alter the origin one.
+    @SuppressWarnings("unused")
+    public static RectF inflateRect(RectF source, float value, boolean holdOrigin) {
+        // Create a copy of the rect
+        RectF dest = new RectF(source);
+        // Reduce the width and the height
+        dest.right -= value * 2;
+        dest.bottom -= value * 2;
+        // Translate if needed
+        if (!holdOrigin) {
+            dest.offset(value, value);
+        }
+        // Return
+        return dest;
+    }
+
+    @SuppressWarnings("unused")
+    public static RectF inflateRect(RectF source, float value) {
+        return ScWidget.inflateRect(source, value, false);
     }
 
 }

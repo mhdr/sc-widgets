@@ -14,8 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * Create an arc.
- * v2.0
+ * Draw an arc
+ * v1.0
  */
 public class ScArc extends ScWidget {
 
@@ -80,7 +80,12 @@ public class ScArc extends ScWidget {
      * Privates methods
      */
 
-    // Limit an angle in degrees within a range
+    // Limit an angle in degrees within a range.
+    // When press on the arc space the system return always an positive angle but the ScArc accept
+    // also negative value for the start and end angles.
+    // So in case of negative setting the normal range limit method not work proper and we must
+    // implement a specific method that consider to return all kind of angle value, positive and
+    // negative.
     private float angleRangeLimit(float angle, float startAngle, float endAngle) {
         // Find the opposite of the same angle
         float positive = ScArc.normalizeAngle(angle + 360);
@@ -161,9 +166,9 @@ public class ScArc extends ScWidget {
         // FillingArea.BOTH
         this.mFillingArea =
                 FillingArea.values()[attrArray.getInt(R.styleable.ScComponents_scc_fill_area, 1)];
-        // FillingMode.STRETCH
+        // FillingMode.DRAW
         this.mFillingMode =
-                FillingMode.values()[attrArray.getInt(R.styleable.ScComponents_scc_fill_mode, 0)];
+                FillingMode.values()[attrArray.getInt(R.styleable.ScComponents_scc_fill_mode, 1)];
 
         // Recycle
         attrArray.recycle();
@@ -310,6 +315,7 @@ public class ScArc extends ScWidget {
      */
 
     // Draw arc on the canvas using the passed area reference
+    // This is an important method can be override for future inherit class implementation.
     protected void internalDraw(Canvas canvas, RectF area) {
         canvas.drawArc(
                 area,
@@ -319,8 +325,12 @@ public class ScArc extends ScWidget {
                 this.mStrokePaint);
     }
 
-    // This method is used to calc the area by the filling mode case and call/set the right
-    // draw method.
+    // This method is used to calc the areas and filling it by call/set the right draw plan.
+    // Are to consider two type of draw:
+    // DRAW ask to render simply on an area.
+    // STRETCH before scale and transpose the canvas and after render on it using the default
+    // render method.
+    // This is an important method can be override for future inherit class implementation.
     protected void internalDraw(Canvas canvas) {
         // Find the canvas and drawing area
         RectF canvasArea = this.calcCanvasArea(canvas.getWidth(), canvas.getHeight());
@@ -370,6 +380,9 @@ public class ScArc extends ScWidget {
     @Override
     @SuppressWarnings("all")
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        // Calc the trimmed virtual area
+        this.mTrimmedArea = this.calcTrimmedArea();
+
         // Get suggested dimensions
         int width = View.getDefaultSize(this.getSuggestedMinimumWidth(), widthMeasureSpec);
         int height = View.getDefaultSize(this.getSuggestedMinimumHeight(), heightMeasureSpec);
@@ -378,22 +391,33 @@ public class ScArc extends ScWidget {
         boolean hWrap = this.getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT;
         boolean vWrap = this.getLayoutParams().height == ViewGroup.LayoutParams.WRAP_CONTENT;
 
-        // If have some wrap content create a perfected square before trim it.
-        if (hWrap) width = height;
-        if (vWrap) height = width;
+        // Find the horizontal and vertical global padding amount
+        float hGlobalPadding = this.getPaddingLeft() + this.getPaddingRight();
+        float vGlobalPadding = this.getPaddingTop() + this.getPaddingBottom();
+
+        // If have a horizontal wrap content we want to obtain a perfect circle radius so we must
+        // set the new height equal to the current width.
+        // For do this I must also consider the horizontal padding to remove before trimming the
+        // area and to add after trimmed.
+        if (hWrap) {
+            width = (int) ((height - hGlobalPadding) * (this.mTrimmedArea.width() / 2));
+            width += hGlobalPadding;
+        }
+
+        // If have a vertical wrap content we want to obtain a perfect circle radius so we must
+        // set the new width equal to the current height.
+        // For do this I must also consider the vertical padding to remove before trimming the
+        // area and to add after trimmed.
+        if (vWrap) {
+            height = (int) ((width - vGlobalPadding) * (this.mTrimmedArea.height() / 2));
+            height += vGlobalPadding;
+        }
 
         // Check the dimensions limits
-        if (this.mMaxWidth > 0 && width > this.mMaxWidth) width = this.mMaxWidth;
-        if (this.mMaxHeight > 0 && height > this.mMaxHeight) height = this.mMaxHeight;
+        if (this.mMaxWidth > 0) width = this.valueRangeLimit(width, 0, this.mMaxWidth);
+        if (this.mMaxHeight > 0) height = this.valueRangeLimit(height, 0, this.mMaxHeight);
 
-        // Calc the areas
-        this.mTrimmedArea = this.calcTrimmedArea();
-
-        // Check for wrapping the dimensions
-        if (hWrap) width = (int) (width * this.mTrimmedArea.width() / 2);
-        if (vWrap) height = (int) (height * this.mTrimmedArea.height() / 2);
-
-        // Set dimensions
+        // Set the finded dimensions
         this.setMeasuredDimension(width, height);
     }
 
@@ -453,16 +477,35 @@ public class ScArc extends ScWidget {
      * Static methods
      */
 
-    // Normalize a angle in degrees
+    // Normalize a angle in degrees.
+    // If the angle is over 360° will be normalized.
+    // This method work for negative and positive angle values.
     @SuppressWarnings("unused")
     public static float normalizeAngle(float degrees) {
         return (degrees + (degrees < 0 ? -360.0f : +360.0f)) % 360.0f;
     }
 
-    // Check if point is inside a circle (Pitagora)
+    // Check if point is inside a circle (Pitagora).
+    // Supposted that the origin of the circle is 0, 0.
     @SuppressWarnings("all")
     public static boolean pointInsideCircle(float x, float y, float radius) {
         return Math.pow(x, 2) + Math.pow(y, 2) < Math.pow(radius, 2);
+    }
+
+    // Find a point on the circumference inscribed in the passed area.
+    @SuppressWarnings("unused")
+    public static Point getPointFromAngle(float degrees, RectF area) {
+        // Find the default arc radius
+        float xRadius = area.width() / 2;
+        float yRadius = area.height() / 2;
+
+        // Convert the normalized radius in radiant and find the coordinates in the space
+        double rad = Math.toRadians(ScArc.normalizeAngle(degrees));
+        int x = Math.round(xRadius * (float) Math.cos(rad) + area.centerX());
+        int y = Math.round(yRadius * (float) Math.sin(rad) + area.centerY());
+
+        // Create the point and return it
+        return new Point(x, y);
     }
 
 
@@ -489,28 +532,23 @@ public class ScArc extends ScWidget {
         DRAW
     }
 
+    // Get the arc painter
+    @SuppressWarnings("unused")
+    public Paint getPainter() {
+        return this.mStrokePaint;
+    }
+
     // Calc point position from angle in degrees.
     // Given an angle this method calc the relative point on the arc.
     @SuppressWarnings("unused")
     public Point getPointFromAngle(float degrees, float radiusAdjust) {
-        // Normalize the angle
-        degrees = ScArc.normalizeAngle(degrees);
-
         // Get the drawing area
         RectF canvasArea = this.calcCanvasArea(this.getMeasuredWidth(), this.getMeasuredHeight());
         RectF drawingArea = this.calcDrawingArea(canvasArea);
-
-        // Find the default arc radius
-        float xRadius = drawingArea.width() / 2 + radiusAdjust;
-        float yRadius = drawingArea.height() / 2 + +radiusAdjust;
-
-        // Convert the radius in radiant and find the coordinates in the space
-        double rad = Math.toRadians(degrees);
-        int x = Math.round(xRadius * (float) Math.cos(rad) + drawingArea.centerX());
-        int y = Math.round(yRadius * (float) Math.sin(rad) + drawingArea.centerY());
+        RectF adjustedArea = ScArc.inflateRect(drawingArea, radiusAdjust);
 
         // Create the point and return it
-        return new Point(x, y);
+        return ScArc.getPointFromAngle(degrees, adjustedArea);
     }
 
     @SuppressWarnings("unused")
@@ -554,12 +592,6 @@ public class ScArc extends ScWidget {
     @SuppressWarnings("unused")
     public boolean belongsToArc(float x, float y) {
         return this.belongsToArc(x, y, this.mStrokeSize);
-    }
-
-    // Get the arc painter
-    @SuppressWarnings("unused")
-    public Paint getPainter() {
-        return this.mStrokePaint;
     }
 
 

@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+/*
         final ScGauge gauge = (ScGauge) MainActivity.this.findViewById(R.id.gauge);
         final Button button = (Button) this.findViewById(R.id.button);
         final TextView value = (TextView) this.findViewById(R.id.txtValue);
@@ -24,12 +25,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 assert gauge != null;
-                gauge.setValue(10, 0, 10);
+                gauge.setValue(2, 0, 10);
             }
         });
 
         assert gauge != null;
-        //gauge.getValueAnimator().setDuration(1000);
+        gauge.getValueAnimator().setDuration(1000);
         gauge.setOnEventListener(new ScGauge.OnEventListener() {
             @Override
             public void onValueChange(float degrees) {
@@ -37,5 +38,6 @@ public class MainActivity extends AppCompatActivity {
                 value.setText("" + degrees);
             }
         });
+*/
     }
 }
