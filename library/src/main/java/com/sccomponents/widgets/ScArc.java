@@ -490,7 +490,8 @@ public class ScArc extends ScWidget {
         return Math.pow(x, 2) + Math.pow(y, 2) < Math.pow(radius, 2);
     }
 
-    // Find a point on the circumference inscribed in the passed area.
+    // Find a point on the circumference inscribed in the passed area rectangle.
+    // This angle is intended to be a global angle and if not subdue to any restriction.
     @SuppressWarnings("unused")
     public static Point getPointFromAngle(float degrees, RectF area) {
         // Find the default arc radius
@@ -536,17 +537,20 @@ public class ScArc extends ScWidget {
         return this.mStrokePaint;
     }
 
-    // Calc point position from angle in degrees.
-    // Given an angle this method calc the relative point on the arc.
+    // Calc point position from relative angle in degrees.
+    // Note that the angle must be relative to the start angle defined by the component settings
+    // and not intended as a global angle.
     @SuppressWarnings("unused")
     public Point getPointFromAngle(float degrees, float radiusAdjust) {
         // Get the drawing area
         RectF canvasArea = this.calcCanvasArea(this.getMeasuredWidth(), this.getMeasuredHeight());
         RectF drawingArea = this.calcDrawingArea(canvasArea);
-        RectF adjustedArea = ScArc.inflateRect(drawingArea, radiusAdjust);
+        // Adjust the area by the passed value and the half stroke size
+        RectF adjustedArea = ScArc.inflateRect(drawingArea, radiusAdjust + this.mStrokeSize / 2);
 
-        // Create the point and return it
-        return ScArc.getPointFromAngle(degrees, adjustedArea);
+        // Create the point by the angle relative at the start angle defined in the component
+        // settings and return it.
+        return ScArc.getPointFromAngle(degrees + this.mAngleStart, adjustedArea);
     }
 
     @SuppressWarnings("unused")
@@ -555,6 +559,8 @@ public class ScArc extends ScWidget {
     }
 
     // Find the angle from position on screen.
+    // This method consider the angles limits settings and return a relative angle value within
+    // this limits.
     @SuppressWarnings("unused")
     public float getAngleFromPoint(float x, float y) {
         // Get the drawing area
@@ -567,23 +573,21 @@ public class ScArc extends ScWidget {
                 (x - drawingArea.centerX()) / drawingArea.width()
         );
 
-        // Limit the value within the component angle range and return it
-        return this.angleRangeLimit(
-                (float) Math.toDegrees(angle),
-                this.mAngleStart,
-                this.mAngleStart + this.mAngleSweep
-        );
+        // Normalize the degrees angle by the start angle defined by component settings.
+        float degrees = (float) Math.toDegrees(angle) - this.mAngleStart;
+        // Check the angle limit and return the checked value
+        return this.angleRangeLimit(degrees, 0, this.mAngleSweep);
     }
 
     // Check if a point belongs to the arc
     @SuppressWarnings("unused")
     public boolean belongsToArc(float x, float y, float precision) {
-        // Find the angle from the passed point
+        // Find the angle from the passed point and get the point on the arc
         float angle = this.getAngleFromPoint(x, y);
-        // Find the point on arc from angle
         Point pointOnArc = this.getPointFromAngle(angle);
 
-        // Find the distance between the points and check it
+        // Find the delta distance between the points and check if is inside a circle build on
+        // the precision radius.
         return ScArc.pointInsideCircle(x - pointOnArc.x, y - pointOnArc.y, precision);
     }
 

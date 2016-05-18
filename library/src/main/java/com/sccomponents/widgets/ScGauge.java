@@ -526,14 +526,11 @@ public class ScGauge
 
     @SuppressWarnings("unused")
     public void setValue(float degrees) {
-        // Hold the sweep angle
-        float sweep = this.mArcProgress.getAngleSweep();
+        // Limit the passed angle.
+        degrees = ScGauge.valueRangeLimit(degrees, 0, this.mArcProgress.getAngleSweep());
 
         // Set and start animation
-        this.mAnimator.setFloatValues(
-                this.mArcProgress.getAngleDraw(),
-                ScGauge.valueRangeLimit(degrees, 0, sweep)
-        );
+        this.mAnimator.setFloatValues(this.mArcProgress.getAngleDraw(), degrees);
         this.mAnimator.start();
     }
 

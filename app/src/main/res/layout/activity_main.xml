@@ -9,7 +9,7 @@
     android:orientation="vertical"
     tools:context="com.sccomponents.widgets.demo.MainActivity">
 
-    <com.sccomponents.widgets.ScGauge
+    <com.sccomponents.widgets.ScSeekBar
         android:id="@+id/gauge"
         android:layout_width="200dp"
         android:layout_height="wrap_content"

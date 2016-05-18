@@ -215,7 +215,8 @@ public class ScSeekBar extends ScGauge {
     // Draw pointer
     private void drawPointer(Canvas canvas) {
         // The actual pointer position
-        Point position = this.getProgressArc().getPointFromAngle(this.getProgressArc().getAngleDraw());
+        Point position = this.getProgressArc()
+                .getPointFromAngle(this.getProgressArc().getAngleDraw());
         // Draw the circle and the halo
         canvas.drawCircle(position.x, position.y, this.mPointerRadius, this.mPointerPaint);
         canvas.drawCircle(position.x, position.y, this.mPointerRadius + this.mHaloSize / 2, this.mHaloPaint);
@@ -259,17 +260,19 @@ public class ScSeekBar extends ScGauge {
         float x = event.getX();
         float y = event.getY();
 
-        // Get the angle from touch position
+        // Get the angle from touch position and check if the point belong to the arc.
+        // Note that the touch precision level is defined by the size of the pointer draw on the
+        // the component.
         float angle = this.getBaseArc().getAngleFromPoint(x, y);
+        boolean belong = this.getBaseArc().belongsToArc(x, y, this.getPointerSize());
 
-        // Select case by action
+        // Select case by action type
         switch (event.getAction()) {
             // Press
             case MotionEvent.ACTION_DOWN:
-                // Trigger is pressed and set the current value only if the pressure happened
-                // on the arc space.
+                // If the point belong to the arc set the current value and the pressed trigger.
                 // The redraw will called inside the setValue method.
-                if (this.getBaseArc().belongsToArc(x, y, this.getPointerSize())) {
+                if (belong) {
                     this.mArcPressed = true;
                     this.setValue(angle);
                 }
@@ -285,9 +288,9 @@ public class ScSeekBar extends ScGauge {
 
             // Move
             case MotionEvent.ACTION_MOVE:
-                // If the trigger is pressed set the current value.
-                // The redraw will called inside the setValue method.
-                if (this.mArcPressed) {
+                // If the point belong to the arc and the trigger is pressed set the current value.
+                // The component redraw will called inside the setValue method.
+                if (belong && this.mArcPressed) {
                     this.setValue(angle);
                 }
                 break;
@@ -303,6 +306,7 @@ public class ScSeekBar extends ScGauge {
     @SuppressWarnings("unused")
     @Override
     public void setValue(float degrees) {
+
         // Check for snap to notchs the new degrees value
         if (this.mSnapToNotchs) {
             // Round at the closed notchs value
