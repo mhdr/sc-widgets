@@ -484,7 +484,7 @@ public class ScArc extends ScWidget {
     }
 
     // Check if point is inside a circle (Pitagora).
-    // Supposted that the origin of the circle is 0, 0.
+    // Supposed that the origin of the circle is 0, 0.
     @SuppressWarnings("all")
     public static boolean pointInsideCircle(float x, float y, float radius) {
         return Math.pow(x, 2) + Math.pow(y, 2) < Math.pow(radius, 2);
@@ -558,7 +558,7 @@ public class ScArc extends ScWidget {
         return this.getPointFromAngle(degrees, 0.0f);
     }
 
-    // Find the angle from position on screen.
+    // Find the angle from position on the component.
     // This method consider the angles limits settings and return a relative angle value within
     // this limits.
     @SuppressWarnings("unused")
