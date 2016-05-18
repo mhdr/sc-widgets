@@ -1,5 +1,5 @@
 # ScArc
-This components create an arc inscribed inside a rectangle area.
+This components create an arc inscribed inside a rectangle area.<br />
 The arc can be build starting from any angle and the length of the arc will be defined through a sweep angle value.
 All the angle can be positive or negative and you can decide the filling area methods by many options.
 An important feature of this component is the possibility to use the <code>wrap_content</code> for define the layout response.
@@ -9,13 +9,13 @@ There are two ways to draw an arc on this component.
 - **STRETCH**: before draw in the basic mode (as above) and after stretch the canvas.<br />
 This methods of draw will stretch also the stroke to creating a good effect.
 
-Also you can decide witch dimension want to fill: none, both dimensions, vertical or horizontal.
+Also you can decide witch dimension want to fill: none, both dimensions, vertical or horizontal.<br />
 This for give to the user many combinations to render the arc on the drawing area.
 
 
 ## ScArc class details
-This class extend the <code>ScWidget</code> class.
-By default the arc create a closed circle: from 0° to 360°.
+This class extend the [ScWidget](ScWidget) class.
+By default the arc create a closed circle: from 0° to 360°.<br />
 Note that all angle is usually expressed in degrees and almost methods need to have an delta angle relative to the start angle.
 
 
@@ -23,12 +23,12 @@ Note that all angle is usually expressed in degrees and almost methods need to h
 
 - **float normalizeAngle(float degrees)**<br />
 Normalize a angle in degrees.
-If the angle is over 360° will be normalized.
+If the angle is over 360° will be normalized.<br />
 This method work for negative and positive angle values.
 - **boolean pointInsideCircle(float x, float y, float radius)**<br />
 Check if point is inside a circle (Pitagora) supposed that the origin of the circle is 0, 0.
 - **Point getPointFromAngle(float degrees, RectF area)**<br />
-Find a point on the circumference inscribed in the passed area rectangle.
+Find a point on the circumference inscribed in the passed area rectangle.<br />
 This angle is intended to be a global angle and if not subdue to any restriction.
 
 
@@ -38,10 +38,10 @@ This angle is intended to be a global angle and if not subdue to any restriction
 Get the arc painter
 - **Point getPointFromAngle(float degrees, float radiusAdjust)**<br />
 **Point getPointFromAngle(float degrees)**<br />
-Calc point position from relative angle in degrees.
+Calc point position from relative angle in degrees.<br />
 Note that the angle must be relative to the start angle defined by the component settings and not intended as a global angle.
 - **float getAngleFromPoint(float x, float y)**<br />
-Find the angle from position on the component.
+Find the angle from position on the component.<br />
 This method consider the angles limits settings and return a relative angle value within this limits.
 - **boolean belongsToArc(float x, float y, float precision)**<br />
 **boolean belongsToArc(float x, float y)**<br />
@@ -53,7 +53,7 @@ Check if a point belongs to the arc.
 - **get/setAngleSweep**  -> float value, default <code>360</code><br />
 The sweep angle is the delta value between the start angle and the end angle.
 - **get/setAngleDraw**  -> float value, default <code>360</code><br />
-This angle is the really angle used to draw but when equal the sweep angle they stay sync.
+This angle is the really angle used to draw but when equal the sweep angle they stay sync.<br />
 This property is useful to build a class that inherit this or play with the canvas space.
 - **get/setStrokeSize**  -> float value, default <code>3dp</code><br />
 The value must be passed in pixel.
