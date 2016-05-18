@@ -17,8 +17,10 @@ This for give to the user many combinations to render the arc on the drawing are
 
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/1.jpg)
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/2.jpg)
+<br />
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/3.jpg)
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/4.jpg)
+<br />
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/5.jpg)
 
 ## ScArc class details
