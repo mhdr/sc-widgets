@@ -15,11 +15,11 @@ This for give to the user many combinations to render the arc on the drawing are
 
 ## Images
 
-![alt tag](raw/scarc/1.jpg)
-![alt tag](raw/scarc/2.jpg)
-![alt tag](raw/scarc/3.jpg)
-![alt tag](raw/scarc/4.jpg)
-![alt tag](raw/scarc/5.jpg)
+![](raw/scarc/1.jpg?raw=true)
+![](raw/scarc/2.jpg?raw=true)
+![](raw/scarc/3.jpg?raw=true)
+![](raw/scarc/4.jpg?raw=true)
+![](raw/scarc/5.jpg?raw=true)
 
 ## ScArc class details
 This class extend the [ScWidget](ScWidget) class.
