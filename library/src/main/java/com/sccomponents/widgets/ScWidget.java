@@ -61,7 +61,8 @@ public class ScWidget extends View {
         return dip * metrics.density;
     }
 
-    // Limit number within a range
+    // Limit number within a range.
+    // This method not consider the sign and the upper and lower values limit order.
     @SuppressWarnings("unused")
     public static float valueRangeLimit(float value, float startValue, float endValue) {
         // If is over the limit return the normalized value
@@ -92,8 +93,8 @@ public class ScWidget extends View {
         return max;
     }
 
-    // Inflate a rectangle of the passed value.
-    // The method return a new inflated rectangle and not alter the origin one.
+    // Inflate a rectangle by the passed value.
+    // The method return a new inflated rectangle and can alter the origin too.
     @SuppressWarnings("unused")
     public static RectF inflateRect(RectF source, float value, boolean holdOrigin) {
         // Create a copy of the rect
@@ -114,4 +115,13 @@ public class ScWidget extends View {
         return ScWidget.inflateRect(source, value, false);
     }
 
+    // Reset the rectangle to its origin
+    @SuppressWarnings("unused")
+    public static RectF resetRectToOrigin(RectF rect) {
+        // Create a new rect
+        RectF newRect = new RectF(rect);
+        // Reset to origin and return it
+        newRect.offset(-newRect.left, -newRect.top);
+        return newRect;
+    }
 }

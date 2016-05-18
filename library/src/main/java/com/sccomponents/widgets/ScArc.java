@@ -159,9 +159,9 @@ public class ScArc extends ScWidget {
                 R.styleable.ScComponents_scc_stroke_color, ScArc.STROKE_COLOR);
 
         this.mMaxWidth = attrArray.getDimensionPixelSize(
-                R.styleable.ScComponents_scc_max_width, 0);
+                R.styleable.ScComponents_scc_max_width, Integer.MAX_VALUE);
         this.mMaxHeight = attrArray.getDimensionPixelSize(
-                R.styleable.ScComponents_scc_max_height, 0);
+                R.styleable.ScComponents_scc_max_height, Integer.MAX_VALUE);
 
         // FillingArea.BOTH
         this.mFillingArea =
@@ -246,13 +246,14 @@ public class ScArc extends ScWidget {
         return area;
     }
 
-    // Calc starting area from a width and height and apply padding and stroke size.
-    // The origin of the rectangle is always 0,0 you must remember to apply an offset for
-    // balance the area.
+    // Calc starting area from width and height dimensions and apply padding.
     private RectF calcCanvasArea(int width, int height) {
-        width -= this.getPaddingLeft() + this.getPaddingRight() + this.mStrokeSize;
-        height -= this.getPaddingTop() + this.getPaddingBottom() + this.mStrokeSize;
-        return new RectF(0, 0, width, height);
+        return new RectF(
+                this.getPaddingLeft(),
+                this.getPaddingTop(),
+                width - this.getPaddingRight(),
+                height - this.getPaddingBottom()
+        );
     }
 
     // Calc complete circle drawing area.
@@ -263,7 +264,7 @@ public class ScArc extends ScWidget {
         if (this.mTrimmedArea == null || this.mTrimmedArea.isEmpty()) return new RectF();
 
         // Default working area calculated consider the padding and the stroke size
-        RectF area = new RectF(startingArea);
+        RectF newArea = new RectF(startingArea);
 
         // Layout wrapping
         boolean hWrap = this.getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -276,12 +277,12 @@ public class ScArc extends ScWidget {
                 this.mFillingArea == FillingArea.BOTH || this.mFillingArea == FillingArea.HORIZONTAL) {
             // Find the multiplier based on the trimmed area and apply the proportion to the
             // horizontal dimensions.
-            float hMultiplier = area.width() / this.mTrimmedArea.width();
+            float hMultiplier = newArea.width() / this.mTrimmedArea.width();
             float left = this.mTrimmedArea.left * hMultiplier;
 
             // Apply the new values to the area and modify the horizontal offset
-            area.left = -hMultiplier - left;
-            area.right = hMultiplier - left;
+            newArea.left = -hMultiplier - left + this.getPaddingLeft();
+            newArea.right = hMultiplier - left + this.getPaddingLeft();
         }
 
         // If fill the area expand the area to have the full filling working space with the arc
@@ -291,22 +292,16 @@ public class ScArc extends ScWidget {
                 this.mFillingArea == FillingArea.BOTH || this.mFillingArea == FillingArea.VERTICAL) {
             // Find the multiplier based on the trimmed area and apply the proportion to the
             // vertical dimensions.
-            float vMultiplier = area.height() / this.mTrimmedArea.height();
+            float vMultiplier = newArea.height() / this.mTrimmedArea.height();
             float top = this.mTrimmedArea.top * vMultiplier;
 
             // Apply the new values to the area and modify the vertical offset
-            area.top = -vMultiplier - top;
-            area.bottom = vMultiplier - top;
+            newArea.top = -vMultiplier - top + this.getPaddingTop();
+            newArea.bottom = vMultiplier - top + this.getPaddingTop();
         }
 
-        // Adjust the offset
-        area.offset(
-                this.getPaddingLeft() + this.mStrokeSize / 2,
-                this.getPaddingTop() + this.mStrokeSize / 2
-        );
-
-        // Return the calc area
-        return area;
+        // Return the calculated area
+        return newArea;
     }
 
 
@@ -317,8 +312,9 @@ public class ScArc extends ScWidget {
     // Draw arc on the canvas using the passed area reference
     // This is an important method can be override for future inherit class implementation.
     protected void internalDraw(Canvas canvas, RectF area) {
+        // Consider the stroke size and draw
         canvas.drawArc(
-                area,
+                ScArc.inflateRect(area, this.mStrokeSize / 2),
                 this.mAngleStart,
                 this.mAngleDraw,
                 false,
@@ -356,8 +352,10 @@ public class ScArc extends ScWidget {
                         drawingArea.height() / canvasArea.height()
                 );
 
-                // Draw the arc on the canvas
+                // Draw the arc on the reset canvas
+                canvasArea = ScArc.resetRectToOrigin(canvasArea);
                 this.internalDraw(canvas, canvasArea);
+
                 // Restore the last saved canvas status
                 canvas.restore();
                 break;
@@ -414,8 +412,8 @@ public class ScArc extends ScWidget {
         }
 
         // Check the dimensions limits
-        if (this.mMaxWidth > 0) width = this.valueRangeLimit(width, 0, this.mMaxWidth);
-        if (this.mMaxHeight > 0) height = this.valueRangeLimit(height, 0, this.mMaxHeight);
+        width = this.valueRangeLimit(width, 0, this.mMaxWidth);
+        height = this.valueRangeLimit(height, 0, this.mMaxHeight);
 
         // Set the finded dimensions
         this.setMeasuredDimension(width, height);

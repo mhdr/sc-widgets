@@ -95,13 +95,12 @@ class ScNotchs extends ScArc {
 
     // Draw the notchs on the canvas
     @Override
-    protected void internalDraw(Canvas canvas, RectF area) {
+    protected void internalDraw(Canvas canvas, RectF endArea) {
         // Draw only if the notch length and count is more of zero.
         if (this.mNotchsLength <= 0 || this.mNotchsCount <= 0) return;
 
         // Calc the delta angle and the middle stroke
         float deltaAngle = this.getAngleSweep() / this.mNotchsCount;
-        float middleStroke = this.getStrokeSize() / 2;
 
         // Cycle all notchs
         for (int index = 0; index < this.mNotchsCount + 1; index++) {
@@ -113,18 +112,20 @@ class ScNotchs extends ScArc {
             if ((deltaAngle < 0 && currentAngle < this.getAngleDraw()) ||
                     (deltaAngle > 0 && currentAngle > this.getAngleDraw())) break;
 
+            // Adjust the current angle
+            currentAngle += this.getAngleStart();
+
             // Event
             if (this.mOnDrawListener != null) {
                 length = this.mOnDrawListener.onDrawNotch(this.getPainter(), currentAngle, index);
             }
 
             // Find the start and the end points on the canvas in reference to the arc
-            // TODO: when scaled have notchs direction issue
-            RectF startArea = ScNotchs.inflateRect(area, length - middleStroke);
-            Point startPoint = this.getPointFromAngle(currentAngle, startArea);
+            // TODO: when scaled have notchs visual issue
+            RectF startArea = ScNotchs.inflateRect(endArea, length);
 
-            RectF endArea = ScNotchs.inflateRect(area, -middleStroke);
-            Point endPoint = this.getPointFromAngle(currentAngle, endArea);
+            Point startPoint = ScNotchs.getPointFromAngle(currentAngle, startArea);
+            Point endPoint = ScNotchs.getPointFromAngle(currentAngle, endArea);
 
             // Draw the line
             canvas.drawLine(

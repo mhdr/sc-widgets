@@ -9,22 +9,21 @@
     android:orientation="vertical"
     tools:context="com.sccomponents.widgets.demo.MainActivity">
 
-    <com.sccomponents.widgets.ScArc
+    <com.sccomponents.widgets.ScGauge
         android:id="@+id/gauge"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:background="#cccccc"
-        android:padding="20dp"
-        sc:scc_angle_start="0"
-        sc:scc_angle_sweep="-180"
+        android:padding="10dp"
+        sc:scc_angle_start="135"
+        sc:scc_angle_sweep="270"
         sc:scc_stroke_size="6dp"
-        sc:scc_value="45"
-        sc:scc_progress_size="4dp"
+        sc:scc_value="180"
+        sc:scc_progress_size="3dp"
         sc:scc_notchs="10"
-        sc:scc_notchs_length="12dp"
         sc:scc_snap_to_notchs="true"
-        sc:scc_fill_mode="draw"
+        sc:scc_fill_mode="stretch"
         />
 
     <Button
