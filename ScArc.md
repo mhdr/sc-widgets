@@ -15,11 +15,11 @@ This for give to the user many combinations to render the arc on the drawing are
 
 ## Images
 
-![image](https://raw.github.com/paroca72/sc-widget/master/raw/scarc/1.jpg)
-![image](https://raw.github.com/paroca72/sc-widget/master/raw/scarc/2.jpg)
-![image](https://raw.github.com/paroca72/sc-widget/master/raw/scarc/3.jpg)
-![image](https://raw.github.com/paroca72/sc-widget/master/raw/scarc/4.jpg)
-![image](https://raw.github.com/paroca72/sc-widget/master/raw/scarc/5.jpg)
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/1.jpg)
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/2.jpg)
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/3.jpg)
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/4.jpg)
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/5.jpg)
 
 ## ScArc class details
 This class extend the [ScWidget](ScWidget) class.
