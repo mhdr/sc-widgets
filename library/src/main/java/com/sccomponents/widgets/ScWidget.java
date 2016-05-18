@@ -67,7 +67,7 @@ public abstract class ScWidget extends View {
      * Static methods
      */
 
-    // Limit number within a range.
+    // Limit number within a values range.
     // This method not consider the sign and the upper and lower values limit order.
     @SuppressWarnings("unused")
     public static float valueRangeLimit(float value, float startValue, float endValue) {
@@ -81,6 +81,13 @@ public abstract class ScWidget extends View {
     @SuppressWarnings("unused")
     public static int valueRangeLimit(int value, int startValue, int endValue) {
         return (int) ScWidget.valueRangeLimit((float) value, (float) startValue, (float) endValue);
+    }
+
+    // Check if number is within a values range.
+    // This method not consider the sign and the upper and lower values limit order.
+    @SuppressWarnings("unused")
+    public static boolean withinRange(float value, float startValue, float endValue) {
+        return value == ScWidget.valueRangeLimit(value, startValue, endValue);
     }
 
     // Find the max given a series of values

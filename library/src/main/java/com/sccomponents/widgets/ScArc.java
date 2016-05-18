@@ -23,6 +23,7 @@ public class ScArc extends ScWidget {
      * Constants
      */
 
+    private static final float ANGLE_MAX = 360.0f;
     private static final float ANGLE_START = 0.0f;
     private static final float ANGLE_SWEEP = 360.0f;
 
@@ -88,8 +89,8 @@ public class ScArc extends ScWidget {
     // negative.
     private float angleRangeLimit(float angle, float startAngle, float endAngle) {
         // Find the opposite of the same angle
-        float positive = ScArc.normalizeAngle(angle + 360);
-        float negative = positive - 360;
+        float positive = ScArc.normalizeAngle(angle + ScArc.ANGLE_MAX);
+        float negative = positive - ScArc.ANGLE_MAX;
 
         // Try both case of angle is positive and is negative.
         float firstCase = ScArc.valueRangeLimit(positive, startAngle, endAngle);
@@ -123,8 +124,10 @@ public class ScArc extends ScWidget {
         if (this.mStrokeSize < 0.0f) this.mStrokeSize = 0.0f;
 
         // Angle
-        if (Math.abs(this.mAngleSweep) > 360.0f) this.mAngleSweep = this.mAngleSweep % 360.0f;
-        if (Math.abs(this.mAngleDraw) > 360.0f) this.mAngleDraw = this.mAngleDraw % 360.0f;
+        if (Math.abs(this.mAngleSweep) > ScArc.ANGLE_MAX)
+            this.mAngleSweep = ScArc.normalizeAngle(this.mAngleSweep);
+        if (Math.abs(this.mAngleDraw) > ScArc.ANGLE_MAX)
+            this.mAngleDraw = ScArc.normalizeAngle(this.mAngleDraw);
 
         // Dimension
         if (this.mMaxWidth < 0) this.mMaxWidth = 0;
@@ -498,8 +501,8 @@ public class ScArc extends ScWidget {
         float xRadius = area.width() / 2;
         float yRadius = area.height() / 2;
 
-        // Convert the normalized radius in radiant and find the coordinates in the space
-        double rad = Math.toRadians(ScArc.normalizeAngle(degrees));
+        // Convert the radius in radiant and find the coordinates in the space
+        double rad = Math.toRadians(degrees);
         int x = Math.round(xRadius * (float) Math.cos(rad) + area.centerX());
         int y = Math.round(yRadius * (float) Math.sin(rad) + area.centerY());
 
