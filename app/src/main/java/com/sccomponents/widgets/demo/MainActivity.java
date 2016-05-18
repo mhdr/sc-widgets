@@ -15,7 +15,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-/*
         final ScGauge gauge = (ScGauge) MainActivity.this.findViewById(R.id.gauge);
         final Button button = (Button) this.findViewById(R.id.button);
         final TextView value = (TextView) this.findViewById(R.id.txtValue);
@@ -38,6 +37,5 @@ public class MainActivity extends AppCompatActivity {
                 value.setText("" + degrees);
             }
         });
-*/
     }
 }
