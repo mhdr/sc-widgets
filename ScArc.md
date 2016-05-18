@@ -1,0 +1,82 @@
+# ScArc
+This components create an arc inscribed inside a rectangle area.
+The arc can be build starting from any angle and the length of the arc will be defined through a sweep angle value.
+All the angle can be positive or negative and you can decide the filling area methods by many options.
+An important feature of this component is the possibility to use the <code>wrap_content</code> for define the layout response.
+
+There are two ways to draw an arc on this component.
+- **DRAW**: will simply draw the arc on the component canvas using the proper methods.
+- **STRETCH**: before draw in the basic mode (as above) and after stretch the canvas.<br />
+This methods of draw will stretch also the stroke to creating a good effect.
+<br />
+Also you can decide witch dimension want to fill: none, both dimensions, vertical or horizontal.
+This for give to the user many combinations to render the arc on the drawing area.
+<br />
+
+## ScArc class details
+This class extend the <code>ScWidget</code> class.
+By default the arc create a closed circle: from 0° to 360°.
+Note that all angle is usually expressed in degrees and almost methods need to have an delta angle relative to the start angle.
+
+
+#### Static methods
+
+- **float normalizeAngle(float degrees)**<br />
+Normalize a angle in degrees.
+If the angle is over 360° will be normalized.
+This method work for negative and positive angle values.
+- **boolean pointInsideCircle(float x, float y, float radius)**<br />
+Check if point is inside a circle (Pitagora) supposed that the origin of the circle is 0, 0.
+- **Point getPointFromAngle(float degrees, RectF area)**<br />
+Find a point on the circumference inscribed in the passed area rectangle.
+This angle is intended to be a global angle and if not subdue to any restriction.
+
+
+#### Public methods
+
+- **Paint getPainter()**<br />
+Get the arc painter
+- **Point getPointFromAngle(float degrees, float radiusAdjust)**<br />
+**Point getPointFromAngle(float degrees)**<br />
+Calc point position from relative angle in degrees.
+Note that the angle must be relative to the start angle defined by the component settings and not intended as a global angle.
+- **float getAngleFromPoint(float x, float y)**<br />
+Find the angle from position on the component.
+This method consider the angles limits settings and return a relative angle value within this limits.
+- **boolean belongsToArc(float x, float y, float precision)**<br />
+**boolean belongsToArc(float x, float y)**<br />
+Check if a point belongs to the arc.
+
+
+#### Getter and Setter
+- **get/setAngleStart**  -> float value, default <code>0</code><br />
+- **get/setAngleSweep**  -> float value, default <code>360</code><br />
+The sweep angle is the delta value between the start angle and the end angle.
+- **get/setAngleDraw**  -> float value, default <code>360</code><br />
+This angle is the really angle used to draw but when equal the sweep angle they stay sync.
+This property is useful to build a class that inherit this or play with the canvas space.
+- **get/setStrokeSize**  -> float value, default <code>3dp</code><br />
+The value must be passed in pixel.
+- **get/setStrokeColor**  -> int value, default <code>Color.BLACK</code><br />
+- **get/setMaxWidth**  -> int value, default <code>Int.MAX_VALUE</code><br />
+- **get/setMaxHeight**  -> int value, default <code>Int.MAX_VALUE</code><br />
+- **get/setFillingArea**  -> FillingArea value, default <code>FillingArea.BOTH</code><br />
+- **get/setFillingMode**  -> FillingMode value, default <code>FillingMode.DRAW</code><br />
+
+
+# License
+<pre>
+ Copyright 2015 Samuele Carassai
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in  writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,  either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+</pre>

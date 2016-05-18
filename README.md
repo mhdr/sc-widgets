@@ -1,5 +1,37 @@
-# ScWidgets
-UNDER CONSTRUCTION
+# ScUtils
+This is a library of widgets
+
+- **[ScWidget](ScWidget.md)**<br />
+The base class for all widget component of this series.
+Contains only for utility methods for facilitate the inherit use of this.
+
+- **[ScArc](ScArc.md)**<br />
+This components create an arc inscribed inside a rectangle area.
+The arc can be build staring from any angle and the length of the arc will be defined with an sweep angle.
+All the angle can be positive or negative and you can decide the filling area methods by many options.
+Please press on the link above to see some picture example of the possibility of this component.
+
+
+# Usage
+
+via Gradle:
+```java
+android {
+    ...
+    buildTypes {
+        ...
+        repositories {
+            ...
+            maven { url "https://jitpack.io" }
+        }
+    }
+}
+...
+dependencies {
+    ...
+    compile 'com.github.paroca72:sc-widgets:1.0.0'
+}
+```
 
 #License
 <pre>
