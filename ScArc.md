@@ -10,8 +10,8 @@ There are two ways to draw an arc on this component.
 This methods of draw will stretch also the stroke to creating a good effect.
 
 Also you can decide witch dimension want to fill: none, both dimensions, vertical or horizontal.<br />
-This for give to the user many combinations to render the arc on the drawing area.
-**LOOK** some images exmaple at the end of this page.
+This for give to the user many combinations to render the arc on the drawing area.<br />
+**LOOK** some images example at the end of this page.
 
 
 ## ScArc class details
@@ -98,9 +98,7 @@ Draw a circle as the last images below
     </declare-styleable>
 ```
 
-
----
-####### Images
+####### Example images
 
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/1.jpg)
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/2.jpg)
