@@ -50,18 +50,24 @@ Check if a point belongs to the arc.
 
 #### Getter and Setter
 - **get/setAngleStart**  -> float value, default <code>0</code><br />
+The start angle in degrees.
 - **get/setAngleSweep**  -> float value, default <code>360</code><br />
-The sweep angle is the delta value between the start angle and the end angle.
+The sweep angle (in degrees) is the delta value between the start angle and the end angle.
 - **get/setAngleDraw**  -> float value, default <code>360</code><br />
-This angle is the really angle used to draw but when equal the sweep angle they stay sync.<br />
-This property is useful to build a class that inherit this or play with the canvas space.
+This angle (in degrees) is the really angle used to draw but when equal the sweep angle they stay sync.<br />
+This property is useful to build a class that inherit this or play with the canvas space.<br />
+Use this properties is same a drawing clip region for the arc.
 - **get/setStrokeSize**  -> float value, default <code>3dp</code><br />
 The value must be passed in pixel.
 - **get/setStrokeColor**  -> int value, default <code>Color.BLACK</code><br />
 - **get/setMaxWidth**  -> int value, default <code>Int.MAX_VALUE</code><br />
+The value must be passed in pixel.
 - **get/setMaxHeight**  -> int value, default <code>Int.MAX_VALUE</code><br />
+The value must be passed in pixel.
 - **get/setFillingArea**  -> FillingArea value, default <code>FillingArea.BOTH</code><br />
+Possibly values by enum: NONE, BOTH, HORIZONTAL, VERTICAL
 - **get/setFillingMode**  -> FillingMode value, default <code>FillingMode.DRAW</code><br />
+Possibly values by enum: DRAW, STRETCH
 
 
 # License
