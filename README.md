@@ -2,11 +2,11 @@
 This is a library of widgets
 
 - **[ScWidget](ScWidget.md)**<br />
-The base class for all widget component of this series.
-Contains only for utility methods for facilitate the inherit use of this.
+The base class for all widget component of this series.<br />
+Contains just utility methods for facilitate the building of a component.
 
 - **[ScArc](ScArc.md)**<br />
-This components create an arc inscribed inside a rectangle area.
+This components create an arc inscribed inside a rectangle area.<br />
 The arc can be build staring from any angle and the length of the arc will be defined with an sweep angle.
 All the angle can be positive or negative and you can decide the filling area methods by many options.
 Please press on the link above to see some picture example of the possibility of this component.

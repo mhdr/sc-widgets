@@ -11,8 +11,9 @@ import android.view.WindowManager;
  * The base widget class.
  *
  * This class contain only some utility methods useful for next components implementation.
+ * v1.0
  */
-public class ScWidget extends View {
+public abstract class ScWidget extends View {
 
     /**
      * Constructors
@@ -60,6 +61,11 @@ public class ScWidget extends View {
         // Calc the conversion by the screen density
         return dip * metrics.density;
     }
+
+
+    /**
+     * Static methods
+     */
 
     // Limit number within a range.
     // This method not consider the sign and the upper and lower values limit order.
