@@ -9,21 +9,22 @@
     android:orientation="vertical"
     tools:context="com.sccomponents.widgets.demo.MainActivity">
 
-    <com.sccomponents.widgets.ScSeekBar
+    <com.sccomponents.widgets.ScArc
         android:id="@+id/gauge"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:background="#cccccc"
         android:padding="10dp"
-        sc:scc_angle_start="135"
-        sc:scc_angle_sweep="270"
-        sc:scc_stroke_size="6dp"
+        sc:scc_angle_start="0"
+        sc:scc_angle_sweep="360"
+        sc:scc_stroke_size="3dp"
         sc:scc_value="180"
         sc:scc_progress_size="3dp"
         sc:scc_notchs="10"
         sc:scc_snap_to_notchs="true"
-        sc:scc_fill_mode="stretch"
+        sc:scc_fill_mode="draw"
+        sc:scc_fill_area="both"
         />
 
     <Button

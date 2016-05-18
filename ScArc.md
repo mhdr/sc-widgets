@@ -13,6 +13,14 @@ Also you can decide witch dimension want to fill: none, both dimensions, vertica
 This for give to the user many combinations to render the arc on the drawing area.
 
 
+## Images
+
+![alt tag](raw/scarc/1.jpg)
+![alt tag](raw/scarc/2.jpg)
+![alt tag](raw/scarc/3.jpg)
+![alt tag](raw/scarc/4.jpg)
+![alt tag](raw/scarc/5.jpg)
+
 ## ScArc class details
 This class extend the [ScWidget](ScWidget) class.
 By default the arc create a closed circle: from 0° to 360°.<br />
@@ -67,7 +75,8 @@ The value must be passed in pixel.
 - **get/setFillingArea**  -> FillingArea value, default <code>FillingArea.BOTH</code><br />
 Possibly values by enum: NONE, BOTH, HORIZONTAL, VERTICAL
 - **get/setFillingMode**  -> FillingMode value, default <code>FillingMode.DRAW</code><br />
-Possibly values by enum: DRAW, STRETCH
+Possibly values by enum: DRAW, STRETCH<br />
+Please look above for a short explain of this feature.
 
 
 # License
