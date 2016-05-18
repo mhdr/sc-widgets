@@ -12,21 +12,7 @@ This methods of draw will stretch also the stroke to creating a good effect.
 Also you can decide witch dimension want to fill: none, both dimensions, vertical or horizontal.<br />
 This for give to the user many combinations to render the arc on the drawing area.
 
-
-## Images
-
-![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/1.jpg)
-![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/2.jpg)
-<br />
-![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/3.jpg)
-![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/4.jpg)
-<br />
-![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/5.jpg)
-
-## ScArc class details
-This class extend the [ScWidget](ScWidget) class.
-By default the arc create a closed circle: from 0° to 360°.<br />
-Note that all angle is usually expressed in degrees and almost methods need to have an delta angle relative to the start angle.
+**LOOK** some images exmaple at the end of this page.
 
 
 #### Static methods
@@ -79,6 +65,50 @@ Possibly values by enum: NONE, BOTH, HORIZONTAL, VERTICAL
 - **get/setFillingMode**  -> FillingMode value, default <code>FillingMode.DRAW</code><br />
 Possibly values by enum: DRAW, STRETCH<br />
 Please look above for a short explain of this feature.
+
+
+---
+####### XML using
+
+Draw a circle as the last images below
+```xml
+    <com.sccomponents.widgets.ScArc
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+    />
+```
+
+####### XML Properties
+```xml
+    <declare-styleable name="ScComponents">
+        <attr name="scc_angle_start" format="float" />
+        <attr name="scc_angle_sweep" format="float" />
+        <attr name="scc_angle_draw" format="float" />
+        <attr name="scc_stroke_size" format="dimension" />
+        <attr name="scc_stroke_color" format="color" />
+        <attr name="scc_fill_area" format="enum" />
+        <attr name="scc_fill_mode" format="enum" />
+        <attr name="scc_max_width" format="dimension" />
+        <attr name="scc_max_height" format="dimension" />
+    </declare-styleable>
+```
+
+## Images
+
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/1.jpg)
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/2.jpg)
+
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/3.jpg)
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/4.jpg)
+
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/5.jpg)
+
+## ScArc class details
+This class extend the [ScWidget](ScWidget) class.
+By default the arc create a closed circle: from 0° to 360°.<br />
+Note that all angle is usually expressed in degrees and almost methods need to have an delta angle relative to the start angle.
+
 
 
 # License
