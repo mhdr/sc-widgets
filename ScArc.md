@@ -8,10 +8,10 @@ There are two ways to draw an arc on this component.
 - **DRAW**: will simply draw the arc on the component canvas using the proper methods.
 - **STRETCH**: before draw in the basic mode (as above) and after stretch the canvas.<br />
 This methods of draw will stretch also the stroke to creating a good effect.
-<br />
+
 Also you can decide witch dimension want to fill: none, both dimensions, vertical or horizontal.
 This for give to the user many combinations to render the arc on the drawing area.
-<br />
+
 
 ## ScArc class details
 This class extend the <code>ScWidget</code> class.
