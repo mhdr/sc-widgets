@@ -99,11 +99,12 @@ class ScNotchs extends ScArc {
         // Draw only if the notch length and count is more of zero.
         if (this.mNotchsLength <= 0 || this.mNotchsCount <= 0) return;
 
-        // Calc the delta angle and the middle stroke
-        float deltaAngle = this.getAngleSweep() / this.mNotchsCount;
+        // Calc the delta angle and the real notchs count
+        int count = this.mNotchsCount + (this.getAngleSweep() >= ScNotchs.DEFAULT_ANGLE_MAX ? 0 : 1);
+        float deltaAngle = this.getAngleSweep() / count;
 
         // Cycle all notchs
-        for (int index = 0; index < this.mNotchsCount + 1; index++) {
+        for (int index = 0; index < count; index++) {
             // Find current the angle and length
             float currentAngle = index * deltaAngle;
             float length = this.mNotchsLength;

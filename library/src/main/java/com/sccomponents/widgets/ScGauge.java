@@ -26,14 +26,14 @@ public class ScGauge
      * Constants
      */
 
-    private static final float ANGLE_START = 0.0f;
-    private static final float ANGLE_SWEEP = 360.0f;
+    public static final float DEFAULT_ANGLE_START = 0.0f;
+    public static final float DEFAULT_ANGLE_SWEEP = 360.0f;
 
-    private static final float STROKE_SIZE = 3.0f;
-    private static final int STROKE_COLOR = Color.BLACK;
+    public static final float DEFAULT_STROKE_SIZE = 3.0f;
+    public static final int DEFAULT_STROKE_COLOR = Color.BLACK;
 
-    private static final float PROGRESS_SIZE = 1.0f;
-    private static final int PROGRESS_COLOR = Color.GRAY;
+    public static final float DEFAULT_PROGRESS_SIZE = 1.0f;
+    public static final int DEFAULT_PROGRESS_COLOR = Color.GRAY;
 
 
     /**
@@ -87,19 +87,19 @@ public class ScGauge
 
         // Read all attributes from xml and assign the value to linked variables
         float angleStart = attrArray.getFloat(
-                R.styleable.ScComponents_scc_angle_start, ScGauge.ANGLE_START);
+                R.styleable.ScComponents_scc_angle_start, ScGauge.DEFAULT_ANGLE_START);
         float angleSweep = attrArray.getFloat(
-                R.styleable.ScComponents_scc_angle_sweep, ScGauge.ANGLE_SWEEP);
+                R.styleable.ScComponents_scc_angle_sweep, ScGauge.DEFAULT_ANGLE_SWEEP);
 
         float strokeSize = attrArray.getDimension(
-                R.styleable.ScComponents_scc_stroke_size, this.dipToPixel(ScGauge.STROKE_SIZE));
+                R.styleable.ScComponents_scc_stroke_size, this.dipToPixel(ScGauge.DEFAULT_STROKE_SIZE));
         int strokeColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_stroke_color, ScGauge.STROKE_COLOR);
+                R.styleable.ScComponents_scc_stroke_color, ScGauge.DEFAULT_STROKE_COLOR);
 
         float progressSize = attrArray.getDimension(
-                R.styleable.ScComponents_scc_progress_size, this.dipToPixel(ScGauge.PROGRESS_SIZE));
+                R.styleable.ScComponents_scc_progress_size, this.dipToPixel(ScGauge.DEFAULT_PROGRESS_SIZE));
         int progressColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_progress_color, ScGauge.PROGRESS_COLOR);
+                R.styleable.ScComponents_scc_progress_color, ScGauge.DEFAULT_PROGRESS_COLOR);
 
         float value = attrArray.getFloat(
                 R.styleable.ScComponents_scc_value, angleSweep);

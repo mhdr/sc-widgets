@@ -21,11 +21,11 @@ public class ScSeekBar extends ScGauge {
      * Constants
      */
 
-    private static final float POINTER_RADIUS = 10.0f;
-    private static final int POINTER_COLOR = Color.GRAY;
+    public static final float DEFAULT_POINTER_RADIUS = 10.0f;
+    public static final int DEFAULT_POINTER_COLOR = Color.GRAY;
 
-    private static final float HALO_SIZE = 5.0f;
-    private static final int HALO_ALPHA = 128;
+    public static final float DEFAULT_HALO_SIZE = 5.0f;
+    public static final int DEFAULT_HALO_ALPHA = 128;
 
 
     /**
@@ -117,12 +117,12 @@ public class ScSeekBar extends ScGauge {
 
         // Read all attributes from xml and assign the value to linked variables
         this.mPointerRadius = attrArray.getDimension(
-                R.styleable.ScComponents_scc_pointer_radius, this.dipToPixel(ScSeekBar.POINTER_RADIUS));
+                R.styleable.ScComponents_scc_pointer_radius, this.dipToPixel(ScSeekBar.DEFAULT_POINTER_RADIUS));
         this.mPointerColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_pointer_color, ScSeekBar.POINTER_COLOR);
+                R.styleable.ScComponents_scc_pointer_color, ScSeekBar.DEFAULT_POINTER_COLOR);
 
         this.mHaloSize = attrArray.getDimension(
-                R.styleable.ScComponents_scc_halo_size, this.dipToPixel(ScSeekBar.HALO_SIZE));
+                R.styleable.ScComponents_scc_halo_size, this.dipToPixel(ScSeekBar.DEFAULT_HALO_SIZE));
 
         this.mSnapToNotchs = attrArray.getBoolean(
                 R.styleable.ScComponents_scc_snap_to_notchs, false);
@@ -162,7 +162,7 @@ public class ScSeekBar extends ScGauge {
         this.mHaloPaint.setStrokeWidth(this.mHaloSize);
         this.mHaloPaint.setStyle(Paint.Style.STROKE);
         this.mHaloPaint.setStrokeCap(Paint.Cap.ROUND);
-        this.mHaloPaint.setAlpha(ScSeekBar.HALO_ALPHA);
+        this.mHaloPaint.setAlpha(ScSeekBar.DEFAULT_HALO_ALPHA);
 
         //--------------------------------------------------
         // EVENT
@@ -231,8 +231,8 @@ public class ScSeekBar extends ScGauge {
     @Override
     protected void onDraw(Canvas canvas) {
         // Change pointer paint alpha by pressed status
-        this.mPointerPaint.setAlpha(this.mArcPressed ? ScSeekBar.HALO_ALPHA : 255);
-        this.mHaloPaint.setAlpha(this.mArcPressed ? 255 : ScSeekBar.HALO_ALPHA);
+        this.mPointerPaint.setAlpha(this.mArcPressed ? ScSeekBar.DEFAULT_HALO_ALPHA : 255);
+        this.mHaloPaint.setAlpha(this.mArcPressed ? 255 : ScSeekBar.DEFAULT_HALO_ALPHA);
 
         // Check the listener
         if (this.mOnDrawListener != null) {

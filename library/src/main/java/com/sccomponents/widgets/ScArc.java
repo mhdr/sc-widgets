@@ -23,12 +23,12 @@ public class ScArc extends ScWidget {
      * Constants
      */
 
-    private static final float ANGLE_MAX = 360.0f;
-    private static final float ANGLE_START = 0.0f;
-    private static final float ANGLE_SWEEP = 360.0f;
+    public static final float DEFAULT_ANGLE_MAX = 360.0f;
+    public static final float DEFAULT_ANGLE_START = 0.0f;
+    public static final float DEFAULT_ANGLE_SWEEP = 360.0f;
 
-    private static final float STROKE_SIZE = 3.0f;
-    private static final int STROKE_COLOR = Color.BLACK;
+    public static final float DEFAULT_STROKE_SIZE = 3.0f;
+    public static final int DEFAULT_STROKE_COLOR = Color.BLACK;
 
 
     /**
@@ -89,8 +89,8 @@ public class ScArc extends ScWidget {
     // negative.
     private float angleRangeLimit(float angle, float startAngle, float endAngle) {
         // Find the opposite of the same angle
-        float positive = ScArc.normalizeAngle(angle + ScArc.ANGLE_MAX);
-        float negative = positive - ScArc.ANGLE_MAX;
+        float positive = ScArc.normalizeAngle(angle + ScArc.DEFAULT_ANGLE_MAX);
+        float negative = positive - ScArc.DEFAULT_ANGLE_MAX;
 
         // Try both case of angle is positive and is negative.
         float firstCase = ScArc.valueRangeLimit(positive, startAngle, endAngle);
@@ -124,9 +124,9 @@ public class ScArc extends ScWidget {
         if (this.mStrokeSize < 0.0f) this.mStrokeSize = 0.0f;
 
         // Angle
-        if (Math.abs(this.mAngleSweep) > ScArc.ANGLE_MAX)
+        if (Math.abs(this.mAngleSweep) > ScArc.DEFAULT_ANGLE_MAX)
             this.mAngleSweep = ScArc.normalizeAngle(this.mAngleSweep);
-        if (Math.abs(this.mAngleDraw) > ScArc.ANGLE_MAX)
+        if (Math.abs(this.mAngleDraw) > ScArc.DEFAULT_ANGLE_MAX)
             this.mAngleDraw = ScArc.normalizeAngle(this.mAngleDraw);
 
         // Dimension
@@ -150,16 +150,16 @@ public class ScArc extends ScWidget {
 
         // Read all attributes from xml and assign the value to linked variables
         this.mAngleStart = attrArray.getFloat(
-                R.styleable.ScComponents_scc_angle_start, ScArc.ANGLE_START);
+                R.styleable.ScComponents_scc_angle_start, ScArc.DEFAULT_ANGLE_START);
         this.mAngleSweep = attrArray.getFloat(
-                R.styleable.ScComponents_scc_angle_sweep, ScArc.ANGLE_SWEEP);
+                R.styleable.ScComponents_scc_angle_sweep, ScArc.DEFAULT_ANGLE_SWEEP);
         this.mAngleDraw = attrArray.getFloat(
                 R.styleable.ScComponents_scc_angle_draw, this.mAngleSweep);
 
         this.mStrokeSize = attrArray.getDimension(
-                R.styleable.ScComponents_scc_stroke_size, this.dipToPixel(ScArc.STROKE_SIZE));
+                R.styleable.ScComponents_scc_stroke_size, this.dipToPixel(ScArc.DEFAULT_STROKE_SIZE));
         this.mStrokeColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_stroke_color, ScArc.STROKE_COLOR);
+                R.styleable.ScComponents_scc_stroke_color, ScArc.DEFAULT_STROKE_COLOR);
 
         this.mMaxWidth = attrArray.getDimensionPixelSize(
                 R.styleable.ScComponents_scc_max_width, Integer.MAX_VALUE);
