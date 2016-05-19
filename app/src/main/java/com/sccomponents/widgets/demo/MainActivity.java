@@ -16,15 +16,14 @@ public class MainActivity extends AppCompatActivity {
 
         final ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
         assert notchs != null;
-        notchs.getPainter().setStrokeCap(Paint.Cap.ROUND);
         notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
             @Override
             public void onDrawNotch(ScNotchs.NotchInfo info) {
-                // Calculate a custom angle
+                // All customizations are arbitrary
                 info.angle = info.angle * 2 - 180;
-                // Distance and length
                 info.distanceFromBorder = info.index * 4;
                 info.length = notchs.getNotchs() - info.index;
+                info.size *= info.length / 10;
             }
         });
 
