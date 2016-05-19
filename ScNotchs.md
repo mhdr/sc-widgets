@@ -124,7 +124,7 @@ Take a look to the [ScArc](ScArc) class documentation
         });
 ```
 
-### Custom coloring and notchs emphasis
+### Points
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/3.jpg"> 
 ```xml
