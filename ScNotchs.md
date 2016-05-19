@@ -136,6 +136,10 @@ Take a look to the [ScArc](ScArc) class documentation
         sc:scc_stroke_size="12dp"/>
 ```
 
+<br />
+<br />
+<br />
+
 ```java
         final ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
         assert notchs != null;
@@ -165,6 +169,10 @@ Take a look to the [ScArc](ScArc) class documentation
             android:padding="35dp"
             sc:scc_notchs="32" />
 ```
+
+<br />
+<br />
+<br />
 
 ```java
         final ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
