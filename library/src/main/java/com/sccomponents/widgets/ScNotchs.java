@@ -16,7 +16,7 @@ import android.util.AttributeSet;
  * v1.0
  *
  * */
-class ScNotchs extends ScArc {
+public class ScNotchs extends ScArc {
 
     /**
      * Private attributes

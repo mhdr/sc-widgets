@@ -3,46 +3,21 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:sc="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:padding="10dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="10dp"
     tools:context="com.sccomponents.widgets.demo.MainActivity">
 
     <com.sccomponents.widgets.ScNotchs
-        android:id="@+id/gauge"
+        xmlns:sc="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/notchs"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:background="#cccccc"
         android:padding="10dp"
-        sc:scc_angle_start="0"
-        sc:scc_angle_sweep="360"
-        sc:scc_stroke_size="3dp"
-        sc:scc_value="180"
-        sc:scc_progress_size="3dp"
-        sc:scc_notchs="10"
-        sc:scc_snap_to_notchs="true"
-        sc:scc_fill_mode="draw"
-        sc:scc_fill_area="both"
-        />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="New Button"
-        android:id="@+id/button"
-        android:layout_margin="10dp"
-        android:layout_gravity="center_horizontal"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="VALUE"
-        android:id="@+id/txtValue"
-        android:layout_gravity="center_horizontal"/>
-
+        sc:scc_angle_start="-90"
+        sc:scc_notchs="16"/>
 
 </LinearLayout>
 
