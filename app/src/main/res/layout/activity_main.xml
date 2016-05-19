@@ -7,7 +7,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="10dp"
-    tools:context="com.sccomponents.widgets.demo.MainActivity">
+    tools:context="com.sccomponents.widgets.demo.MainActivity"
+    android:gravity="center_vertical|center_horizontal">
 
     <com.sccomponents.widgets.ScNotchs
         xmlns:sc="http://schemas.android.com/apk/res-auto"
@@ -16,8 +17,10 @@
         android:layout_height="wrap_content"
         android:background="#cccccc"
         android:padding="10dp"
-        sc:scc_angle_start="-90"
-        sc:scc_notchs="16"/>
+        sc:scc_angle_sweep="270"
+        sc:scc_notchs="9"
+        sc:scc_notchs_length="1dp"
+        sc:scc_stroke_size="12dp"/>
 
 </LinearLayout>
 

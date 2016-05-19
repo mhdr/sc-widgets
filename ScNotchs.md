@@ -37,6 +37,8 @@ The notchs line length.
 ---
 ####### XML using
 
+Draw a circle as the right images
+
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/1.jpg"> 
 ```xml
     <com.sccomponents.widgets.ScNotchs
@@ -48,7 +50,6 @@ The notchs line length.
     />
 ```
 
-Draw a circle as the right images
 
 ####### XML Properties
 
@@ -62,8 +63,9 @@ Take a look to the [ScArc](ScArc) class documentation
     </declare-styleable>
 ```
 
----
-####### Let's play
+## Let's play
+
+### Custom coloring and notchs emphasis
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/2.jpg"> 
 ```xml
@@ -122,6 +124,28 @@ Take a look to the [ScArc](ScArc) class documentation
         });
 ```
 
+### Custom coloring and notchs emphasis
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/3.jpg"> 
+```xml
+    <com.sccomponents.widgets.ScNotchs
+        xmlns:sc="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/notchs"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:background="#cccccc"
+        android:padding="10dp"
+        sc:scc_angle_sweep="270"
+        sc:scc_notchs="9"
+        sc:scc_notchs_length="1dp"
+        sc:scc_stroke_size="12dp"/>
+```
+
+```java
+        ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
+        assert notchs != null;
+        notchs.getPainter().setStrokeCap(Paint.Cap.ROUND);
+```
 
 
 # License

@@ -101,7 +101,7 @@ public class ScNotchs extends ScArc {
 
         // Calc the delta angle and the real notchs count
         int count = this.mNotchsCount + (this.getAngleSweep() >= ScNotchs.DEFAULT_ANGLE_MAX ? 0 : 1);
-        float deltaAngle = this.getAngleSweep() / count;
+        float deltaAngle = this.getAngleSweep() / this.mNotchsCount;
 
         // Cycle all notchs
         for (int index = 0; index < count; index++) {
