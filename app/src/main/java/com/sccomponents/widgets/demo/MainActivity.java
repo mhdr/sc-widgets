@@ -19,9 +19,12 @@ public class MainActivity extends AppCompatActivity {
         notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
             @Override
             public void onDrawNotch(ScNotchs.NotchInfo info) {
-                // Adjust the length and the position
-                info.length += info.index;
-                info.distanceFromBorder = -info.length / 2;
+                // Adjust the distance from border
+                float multiplier = (notchs.getWidth() / 2) / notchs.getNotchs();
+                info.distanceFromBorder = (notchs.getNotchs() - info.index) * multiplier;
+
+                // Adjust the dimension
+                info.length = 1 + info.index / 5;
             }
         });
 

@@ -14,10 +14,12 @@
         xmlns:sc="http://schemas.android.com/apk/res-auto"
         android:id="@+id/notchs"
         android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
         android:background="#cccccc"
-        android:padding="35dp"
-        sc:scc_notchs="32"
+        sc:scc_notch_type="circle_filled"
+        sc:scc_notchs="20"
+        sc:scc_notchs_length="2dp"
+        sc:scc_stroke_size="1dp"
         />
 
 </LinearLayout>

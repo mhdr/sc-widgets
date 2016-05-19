@@ -129,11 +129,10 @@ Take a look to the [ScArc](ScArc) class documentation
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:background="#cccccc"
-        android:padding="10dp"
-        sc:scc_angle_sweep="270"
-        sc:scc_notchs="9"
-        sc:scc_notchs_length="1dp"
-        sc:scc_stroke_size="12dp"/>
+        sc:scc_notch_type="circle_filled"
+        sc:scc_notchs="20"
+        sc:scc_notchs_length="2dp"
+        sc:scc_stroke_size="1dp" />
 ```
 
 <br />
