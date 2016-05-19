@@ -138,7 +138,6 @@ Take a look to the [ScArc](ScArc) class documentation
 
 <br />
 <br />
-<br />
 
 ```java
         final ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
@@ -170,6 +169,7 @@ Take a look to the [ScArc](ScArc) class documentation
             sc:scc_notchs="32" />
 ```
 
+<br />
 <br />
 <br />
 <br />
