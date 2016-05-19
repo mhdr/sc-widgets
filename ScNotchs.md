@@ -80,7 +80,7 @@ Take a look to the [ScArc](ScArc) class documentation
         android:background="#cccccc"
         android:padding="10dp"
         sc:scc_angle_start="-90"
-        sc:scc_notchs="16"/>
+        sc:scc_notchs="16" />
 ```
 
 <br />
@@ -154,7 +154,7 @@ Take a look to the [ScArc](ScArc) class documentation
         });
 ```
 
-### Notchs position
+### Notchs position and rounded stroke
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/4.jpg"> 
 ```xml
@@ -176,12 +176,50 @@ Take a look to the [ScArc](ScArc) class documentation
 ```java
         final ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
         assert notchs != null;
+        notchs.getPainter().setStrokeCap(Paint.Cap.ROUND);
         notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
             @Override
             public void onDrawNotch(ScNotchs.NotchInfo info) {
                 // Adjust the length and the position
                 info.length += info.index;
                 info.distanceFromBorder = -info.length / 2;
+            }
+        });
+```
+
+
+### Spiral increasing angles
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/5.jpg"> 
+```xml
+    <com.sccomponents.widgets.ScNotchs
+        xmlns:sc="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/notchs"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:background="#cccccc"
+        android:padding="10dp"
+        sc:scc_angle_sweep="270"
+        sc:scc_notchs="32" />
+```
+
+<br />
+<br />
+<br />
+<br />
+
+```java
+        final ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
+        assert notchs != null;
+        notchs.getPainter().setStrokeCap(Paint.Cap.ROUND);
+        notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
+            @Override
+            public void onDrawNotch(ScNotchs.NotchInfo info) {
+                // Calculate a custom angle
+                info.angle = info.angle * 2 - 180;
+                // Distance and length
+                info.distanceFromBorder = info.index * 4;
+                info.length = notchs.getNotchs() - info.index;
             }
         });
 ```
