@@ -6,10 +6,10 @@ Considering that this component inherit from the [ScArc](ScArc) component please
 ## ScNotchs class details
 This class extend the [ScArc](ScArc) class.
 
-> **KNOWED ISSUES**
-> When the arc is stretched have some visual issues about the notchs direction.
-> This problem will be fixed in the new version is possible.
-> About this and other any help will be **appreciated**.
+> **KNOWED ISSUES**<br />
+> When the arc is stretched have some visual issues about the notchs direction.<br />
+> This problem will be fixed in the new version is possible.<br />
+> About this and other any help will be **appreciated**.<br />
 
 #### Public methods
 
@@ -79,6 +79,9 @@ Take a look to the [ScArc](ScArc) class documentation
         sc:scc_angle_start="-90"
         sc:scc_notchs="16"/>
 ```
+
+<br />
+<br />
 
 ```java
         final ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
