@@ -157,7 +157,7 @@ Take a look to the [ScArc](ScArc) class documentation
 
 ### Notchs position
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/3.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/4.jpg"> 
 ```xml
     <com.sccomponents.widgets.ScNotchs
             xmlns:sc="http://schemas.android.com/apk/res-auto"
