@@ -63,6 +63,7 @@ Take a look to the [ScArc](ScArc) class documentation
         ...
         <attr name="scc_notchs" format="integer" />
         <attr name="scc_notchs_length" format="dimension" />
+        <attr name="scc_notch_type" format="enum" />
     </declare-styleable>
 ```
 
