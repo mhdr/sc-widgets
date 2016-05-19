@@ -23,14 +23,17 @@ The number of sector where the arc will be divided.
 Note that if the arc is NOT closed you will see one more notch that will represent the starting one.
 - **get/setNotchsLength**  -> float value, default is double of stroke size<br />
 The notchs line length.
+- **get/setNotchType**  -> NotchTypes value, default <code>NotchTypes.LINE</code><br />
+Define the notch type: LINE, CIRCLE, CIRCLE_FILLED.
 
 
 #### Interfaces
 
+Changing the info values will be effect on to drive the draw on canvas.
+
 ```java
     public interface OnDrawListener {
-        // Return the new length of notch
-        float onDrawNotch(Paint painter, float angle, int count);
+       void onDrawNotch(NotchInfo info);
     }
 ```
 
@@ -83,53 +86,40 @@ Take a look to the [ScArc](ScArc) class documentation
 <br />
 <br />
 <br />
-<br />
 
 ```java
         final ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
         assert notchs != null;
         notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
             @Override
-            public float onDrawNotch(Paint painter, float angle, int count) {
+            public void onDrawNotch(ScNotchs.NotchInfo info) {
                 // ATTENTION!
                 // In this exercise you will note that I never used the class setter to set the
                 // stroke size, notchs length or the stroke color.
                 // This because call the standard setter doing a component invalidate that
                 // would call again this method going into an infinite loop.
 
-                // Hold the starting notch length
-                float length = notchs.getNotchsLength();
-
                 // Emphasis every 4 notchs
-                if (count % 4 == 0) {
+                if (info.index % 4 == 0) {
                     // Change the stroke size and the length
-                    painter.setStrokeWidth(painter.getStrokeWidth() * 3);
-                    length *= 3;
+                    info.size *= 3;
+                    info.length *= 3;
                 }
                 // Emphasis every 2 notchs
-                else if (count % 2 == 0) {
+                else if (info.index % 2 == 0) {
                     // Change the stroke size and the length
-                    painter.setStrokeWidth(painter.getStrokeWidth() * 2);
-                    length *= 2;
-                }
-                // No emphasis
-                else {
-                    // Set the default stroke size and not change the length
-                    painter.setStrokeWidth(notchs.dipToPixel(ScNotchs.DEFAULT_STROKE_SIZE));
+                    info.size *= 2;
+                    info.length *= 2;
                 }
 
                 // Change the color
-                float fraction = (float) count / (float) notchs.getNotchs();
-                int color = (Integer) new ArgbEvaluator().evaluate(fraction, 0xffff0000, 0xff0000ff);
-                painter.setColor(color);
-
-                // return the new length
-                return length;
+                float fraction = (float) info.index / (float) notchs.getNotchs();
+                info.color = (Integer) new ArgbEvaluator().evaluate(fraction, 0xffff0000, 0xff0000ff);
             }
         });
 ```
 
-### Points
+### Points and distance from border
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/3.jpg"> 
 ```xml
@@ -147,9 +137,46 @@ Take a look to the [ScArc](ScArc) class documentation
 ```
 
 ```java
-        ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
+        final ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
         assert notchs != null;
-        notchs.getPainter().setStrokeCap(Paint.Cap.ROUND);
+        notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
+            @Override
+            public void onDrawNotch(ScNotchs.NotchInfo info) {
+                // Adjust the distance from border
+                float multiplier = (notchs.getWidth() / 2) / notchs.getNotchs();
+                info.distanceFromBorder = (notchs.getNotchs() - info.index) * multiplier;
+
+                // Adjust the dimension
+                info.length = 1 + info.index / 5;
+            }
+        });
+```
+
+### Notchs position
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/3.jpg"> 
+```xml
+    <com.sccomponents.widgets.ScNotchs
+            xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/notchs"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:background="#cccccc"
+            android:padding="35dp"
+            sc:scc_notchs="32" />
+```
+
+```java
+        final ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
+        assert notchs != null;
+        notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
+            @Override
+            public void onDrawNotch(ScNotchs.NotchInfo info) {
+                // Adjust the length and the position
+                info.length += info.index;
+                info.distanceFromBorder = -info.length / 2;
+            }
+        });
 ```
 
 

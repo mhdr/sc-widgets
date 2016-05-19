@@ -178,14 +178,12 @@ public class ScSeekBar extends ScGauge {
             }
 
             @Override
-            public float onDrawNotch(Paint painter, float angle, int count) {
+            public void onDrawNotch(ScNotchs.NotchInfo info) {
                 // Check if have an listener instanced
                 if (ScSeekBar.this.mOnDrawListener != null) {
                     // Propagate the methods
-                    return ScSeekBar.this.mOnDrawListener.onDrawNotch(painter, angle, count);
+                    ScSeekBar.this.mOnDrawListener.onDrawNotch(info);
                 }
-                // Else return the default value retrieved from the notch object
-                return ScSeekBar.this.getNotchsArc().getNotchsLength();
             }
         });
     }
@@ -424,7 +422,7 @@ public class ScSeekBar extends ScGauge {
                 Paint pointer, Paint pointerHalo, boolean pressed
         );
 
-        float onDrawNotch(Paint painter, float angle, int count);
+        void onDrawNotch(ScNotchs.NotchInfo info);
 
     }
 

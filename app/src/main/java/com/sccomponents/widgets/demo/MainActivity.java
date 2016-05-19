@@ -14,8 +14,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
+        final ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
         assert notchs != null;
-        notchs.getPainter().setStrokeCap(Paint.Cap.ROUND);
+        notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
+            @Override
+            public void onDrawNotch(ScNotchs.NotchInfo info) {
+                // Adjust the length and the position
+                info.length += info.index;
+                info.distanceFromBorder = -info.length / 2;
+            }
+        });
+
     }
 }

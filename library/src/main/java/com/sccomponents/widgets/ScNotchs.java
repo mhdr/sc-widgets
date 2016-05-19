@@ -3,6 +3,7 @@ package com.sccomponents.widgets;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.RectF;
@@ -11,11 +12,9 @@ import android.os.Parcelable;
 import android.util.AttributeSet;
 
 /**
- *
  * Create a series of notchs that follow an arc path
  * v1.0
- *
- * */
+ */
 public class ScNotchs extends ScArc {
 
     /**
@@ -24,6 +23,7 @@ public class ScNotchs extends ScArc {
 
     private int mNotchsCount;
     private float mNotchsLength;
+    private NotchTypes mNotchType;
 
 
     /**
@@ -64,6 +64,21 @@ public class ScNotchs extends ScArc {
         if (this.mNotchsLength < 0) this.mNotchsLength = 0;
     }
 
+    // Set the painter type
+    private void setPainterType() {
+        // Set the stroke type
+        switch (this.mNotchType) {
+            case LINE:
+            case CIRCLE:
+                this.getPainter().setStyle(Paint.Style.STROKE);
+                break;
+
+            case CIRCLE_FILLED:
+                this.getPainter().setStyle(Paint.Style.FILL_AND_STROKE);
+                break;
+        }
+    }
+
     // Init the component.
     // Retrieve all attributes with the default values if needed and create the internal using
     // objects.
@@ -79,6 +94,10 @@ public class ScNotchs extends ScArc {
         this.mNotchsLength = attrArray.getDimension(
                 R.styleable.ScComponents_scc_notchs_length, this.getStrokeSize() * 2);
 
+        // NotchTypes.LINE
+        this.mNotchType =
+                NotchTypes.values()[attrArray.getInt(R.styleable.ScComponents_scc_notch_type, 0)];
+
         // Recycle
         attrArray.recycle();
 
@@ -86,6 +105,42 @@ public class ScNotchs extends ScArc {
         // INTERNAL
 
         this.checkValues();
+        this.setPainterType();
+    }
+
+    // Draw the line
+    private void drawLine(Canvas canvas, NotchInfo info, RectF area) {
+        // Find the start area where find the start point
+        RectF startArea = ScNotchs.inflateRect(area, info.length + info.distanceFromBorder);
+        RectF endArea = ScNotchs.inflateRect(area, info.distanceFromBorder);
+
+        // Find the start and the end points on the canvas in reference to the arc
+        Point startPoint = ScNotchs.getPointFromAngle(info.angle, startArea);
+        Point endPoint = ScNotchs.getPointFromAngle(info.angle, endArea);
+
+        // Draw the line
+        canvas.drawLine(
+                startPoint.x, startPoint.y,
+                endPoint.x, endPoint.y,
+                this.getPainter()
+        );
+    }
+
+    // Draw the circle
+    private void drawCircle(Canvas canvas, NotchInfo info, RectF area) {
+        // Find the start area where find the start point
+        float padding = info.size / 2 + info.length + info.distanceFromBorder;
+        RectF startArea = ScNotchs.inflateRect(area, padding);
+
+        // Find the point on the arc starting by the angle
+        Point startPoint = ScNotchs.getPointFromAngle(info.angle, startArea);
+
+        // Draw the circle
+        canvas.drawCircle(
+                startPoint.x, startPoint.y,
+                info.length,
+                this.getPainter()
+        );
     }
 
 
@@ -94,8 +149,9 @@ public class ScNotchs extends ScArc {
      */
 
     // Draw the notchs on the canvas
+    // TODO: when scaled have notchs visual issue
     @Override
-    protected void internalDraw(Canvas canvas, RectF endArea) {
+    protected void internalDraw(Canvas canvas, RectF area) {
         // Draw only if the notch length and count is more of zero.
         if (this.mNotchsLength <= 0 || this.mNotchsCount <= 0) return;
 
@@ -107,33 +163,40 @@ public class ScNotchs extends ScArc {
         for (int index = 0; index < count; index++) {
             // Find current the angle and length
             float currentAngle = index * deltaAngle;
-            float length = this.mNotchsLength;
-
             // If the current angle is outside the draw limit stop to draw
-            if ((deltaAngle < 0 && currentAngle < this.getAngleDraw()) ||
-                    (deltaAngle > 0 && currentAngle > this.getAngleDraw())) break;
+            if (!ScNotchs.withinRange(currentAngle, 0, this.getAngleDraw())) break;
 
-            // Adjust the current angle
-            currentAngle += this.getAngleStart();
+            // Create the notch info to pass to the listener.
+            // Note that adjust the current angle to a global angle.
+            NotchInfo info = new NotchInfo();
+            info.angle = currentAngle + this.getAngleStart();
+            info.color = this.getStrokeColor();
+            info.distanceFromBorder = 0.0f;
+            info.index = index;
+            info.length = this.mNotchsLength;
+            info.size = this.getStrokeSize();
 
-            // Event
+            // Check if the listener is linked
             if (this.mOnDrawListener != null) {
-                length = this.mOnDrawListener.onDrawNotch(this.getPainter(), currentAngle, index);
+                // Call the method
+                this.mOnDrawListener.onDrawNotch(info);
+
+                // Apply the info to the painter
+                this.getPainter().setStrokeWidth(info.size);
+                this.getPainter().setColor(info.color);
             }
 
-            // Find the start and the end points on the canvas in reference to the arc
-            // TODO: when scaled have notchs visual issue
-            RectF startArea = ScNotchs.inflateRect(endArea, length);
+            // Draw the line by the case
+            switch (this.mNotchType) {
+                case LINE:
+                    this.drawLine(canvas, info, area);
+                    break;
 
-            Point startPoint = ScNotchs.getPointFromAngle(currentAngle, startArea);
-            Point endPoint = ScNotchs.getPointFromAngle(currentAngle, endArea);
-
-            // Draw the line
-            canvas.drawLine(
-                    startPoint.x, startPoint.y,
-                    endPoint.x, endPoint.y,
-                    this.getPainter()
-            );
+                case CIRCLE:
+                case CIRCLE_FILLED:
+                    this.drawCircle(canvas, info, area);
+                    break;
+            }
         }
     }
 
@@ -154,6 +217,7 @@ public class ScNotchs extends ScArc {
         state.putParcelable("PARENT", superState);
         state.putInt("mNotchsCount", this.mNotchsCount);
         state.putFloat("mNotchsLength", this.mNotchsLength);
+        state.putInt("mNotchType", this.mNotchType.ordinal());
 
         // Return the new state
         return state;
@@ -172,6 +236,33 @@ public class ScNotchs extends ScArc {
         // Now can restore all the saved variables values
         this.mNotchsCount = savedState.getInt("mNotchsCount");
         this.mNotchsLength = savedState.getFloat("mNotchsLength");
+        this.mNotchType = NotchTypes.values()[savedState.getInt("mNotchType")];
+    }
+
+
+    /**
+     * Public methods
+     */
+
+    // This class was created only for pass the notch information to the listener as you
+    // can see in the following code.
+    @SuppressWarnings("unused")
+    public class NotchInfo {
+
+        public float angle = 0.0f;
+        public int index = 0;
+        public float length = 0.0f;
+        public float size = 0.0f;
+        public int color = Color.BLACK;
+        public float distanceFromBorder = 0.0f;
+
+    }
+
+    @SuppressWarnings("unused")
+    public enum NotchTypes {
+        LINE,
+        CIRCLE,
+        CIRCLE_FILLED
     }
 
 
@@ -215,6 +306,24 @@ public class ScNotchs extends ScArc {
         }
     }
 
+    // Notchs count
+    @SuppressWarnings("unused")
+    public NotchTypes getNotchType() {
+        return this.mNotchType;
+    }
+
+    @SuppressWarnings("unused")
+    public void setNotchType(NotchTypes value) {
+        // Check if value is changed
+        if (this.mNotchType != value) {
+            // Store the new value
+            this.mNotchType = value;
+            // Set the painter and refresh the component
+            this.setPainterType();
+            this.invalidate();
+        }
+    }
+
 
     /**
      * Public listener and interface
@@ -224,7 +333,7 @@ public class ScNotchs extends ScArc {
     @SuppressWarnings("unused")
     public interface OnDrawListener {
         // Return the new length of notch
-        float onDrawNotch(Paint painter, float angle, int count);
+        void onDrawNotch(NotchInfo info);
     }
 
     @SuppressWarnings("unused")

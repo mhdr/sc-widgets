@@ -5,22 +5,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center_vertical|center_horizontal"
     android:orientation="vertical"
     android:padding="10dp"
-    tools:context="com.sccomponents.widgets.demo.MainActivity"
-    android:gravity="center_vertical|center_horizontal">
+    tools:context="com.sccomponents.widgets.demo.MainActivity">
 
     <com.sccomponents.widgets.ScNotchs
         xmlns:sc="http://schemas.android.com/apk/res-auto"
         android:id="@+id/notchs"
         android:layout_width="200dp"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         android:background="#cccccc"
-        android:padding="10dp"
-        sc:scc_angle_sweep="270"
-        sc:scc_notchs="9"
-        sc:scc_notchs_length="1dp"
-        sc:scc_stroke_size="12dp"/>
+        android:padding="35dp"
+        sc:scc_notchs="32"
+        />
 
 </LinearLayout>
 

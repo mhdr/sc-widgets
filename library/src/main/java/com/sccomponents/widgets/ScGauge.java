@@ -308,14 +308,11 @@ public class ScGauge
 
     // On before to draw the single notch for each notchs
     @Override
-    public float onDrawNotch(Paint painter, float angle, int count) {
+    public void onDrawNotch(ScNotchs.NotchInfo info) {
         // If have a listener linked
         if (this.mOnDrawListener != null) {
             // Forward the event
-            return this.mOnDrawListener.onDrawNotch(painter, angle, count);
-        } else {
-            // Else return the standard notchs length
-            return ((ScNotchs) this.mArcNotchs).getNotchsLength();
+            this.mOnDrawListener.onDrawNotch(info);
         }
     }
 
@@ -618,7 +615,7 @@ public class ScGauge
 
         void onBeforeDraw(Paint baseArc, Paint notchsArc, Paint progressArc);
 
-        float onDrawNotch(Paint painter, float angle, int count);
+        void onDrawNotch(ScNotchs.NotchInfo info);
 
     }
 
