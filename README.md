@@ -11,6 +11,10 @@ The arc can be build staring from any angle and the length of the arc will be de
 All the angle can be positive or negative and you can decide the filling area methods by many options.
 Please press on the link above to see some picture example of the possibility of this component.
 
+- **[ScNotchs](ScNotchs.md)**<br />
+This components create a notchs arc inscribed inside a rectangle area.<br />
+Considering that this component inherit from the [ScArc](ScArc) component please take a look to the related documentation before use it.
+
 
 # Usage
 
