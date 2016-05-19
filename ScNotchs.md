@@ -61,7 +61,15 @@ Take a look to the [ScArc](ScArc) class documentation
     </declare-styleable>
 ```
 
-####### Example images
+---
+####### Examples
+
+<table>
+    <tr>
+        <td>**CODE**</td>
+        <td>**RESULT**</td>
+    <tr>
+</table>
 
 
 
