@@ -37,7 +37,7 @@ The notchs line length.
 ---
 ####### XML using
 
-Draw a circle as the last images below
+Draw a circle as the right images
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/1.jpg"> 
 ```xml
     <com.sccomponents.widgets.ScNotchs
