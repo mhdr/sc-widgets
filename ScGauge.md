@@ -95,12 +95,20 @@ The notchs line length.
 ---
 ####### XML using
 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/1.jpg"> 
 ```xml
-    <com.sccomponents.widgets.ScArc
+    <com.sccomponents.widgets.ScGauge
+        xmlns:sc="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/notchs"
         android:layout_width="200dp"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
+        android:background="#cccccc"
         android:padding="10dp"
-    />
+        sc:scc_angle_sweep="270"
+        sc:scc_stroke_size="6dp"
+        sc:scc_progress_size="3dp"
+        sc:scc_value="135"
+        sc:scc_notchs="12" />
 ```
 
 ####### XML Properties
