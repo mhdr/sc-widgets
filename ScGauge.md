@@ -1,11 +1,13 @@
 # ScGauge
-A fusion of [ScArc](ScArc) and [ScNotchs](ScNotchs) components, this create a gauge with many possibilities of customize.
-The class has been designed to starting simple and user friendly but provides all needed functions to customize it in every parts.
-Follow
+A fusion of [ScArc](ScArc) and [ScNotchs](ScNotchs) components, this create a gauge with many possibilities of customize.<br />
+The class has been designed to starting simple and user friendly but provides all needed functions to customize it in every parts.<br />
+
+Follow in this page you will find some examples for better understand the potentiality of this component.<br />
+But is simple to understand that you can use for create gauges, progress bars and, extending this class, seek bars ([ScSeekBar](ScSeekBar)).
 
 
 ## ScGauge class details
-This class extend the [ScWidget](ScWidget) class.
+This class extend the [ScWidget](ScWidget) class.<br />
 The component if create using of [ScArc](ScArc) and [ScNotchs](ScNotchs) components so please take a look about the documentation relative to each component.
 
 The default configuration have:
@@ -13,7 +15,7 @@ The default configuration have:
 - One [ScNotchs](ScNotchs) for create the notchs
 - One [ScArc](ScArc) for the progress arc
 
-In this documentation will see that the configuration can be changed.
+In this documentation will see that the configuration can be changed.<br />
 Take in mind that this object consider the "progress" is always the last one.
 
 
@@ -78,7 +80,7 @@ The value must be passed in pixel.
 The base stroke color.
 
 - **get/setValue**  -> float value, default <code>0</code><br />
-The current progress value.
+The current progress value.<br />
 IMPORTANT! This getter/setter have a overload where you can pass a range of float values and the methods translate the reference value to the angle in degrees and call the base methods.
 
 - **get/setNotchs**  -> float value, default <code>0</code><br />

@@ -86,7 +86,7 @@ Please look above for a short explain of this feature.
 ---
 ####### XML using
 
-Draw a circle as the last images below
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/5.jpg"> 
 ```xml
     <com.sccomponents.widgets.ScArc
         android:layout_width="200dp"
@@ -117,9 +117,6 @@ Draw a circle as the last images below
 
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/3.jpg)
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/4.jpg)
-
-![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/5.jpg)
-
 
 
 # License
