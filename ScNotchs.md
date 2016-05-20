@@ -1,10 +1,10 @@
 # ScNotchs
 This components create a notchs arc inscribed inside a rectangle area.<br />
-Considering that this component inherit from the [ScArc](ScArc) component please take a look to the related documentation before use it.
+Considering that this component inherit from the [ScArc](ScArc.md) component please take a look to the related documentation before use it.
 
 
 ## ScNotchs class details
-This class extend the [ScArc](ScArc) class.
+This class extend the [ScArc](ScArc.md) class.
 
 > **KNOWED ISSUES**<br />
 > When the arc is stretched have some visual issues about the notchs direction.<br />
@@ -59,7 +59,7 @@ Draw a circle as the right images
 
 ####### XML Properties
 
-Take a look to the [ScArc](ScArc) class documentation
+Take a look to the [ScArc](ScArc.md) class documentation
 ```xml
     <declare-styleable name="ScComponents">
         ...

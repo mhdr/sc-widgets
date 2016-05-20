@@ -1,19 +1,19 @@
 # ScGauge
-A fusion of [ScArc](ScArc) and [ScNotchs](ScNotchs) components, this create a gauge with many possibilities of customize.<br />
+A fusion of [ScArc](ScArc.md) and [ScNotchs](ScNotchs.md) components, this create a gauge with many possibilities of customize.<br />
 The class has been designed to starting simple and user friendly but provides all needed functions to customize it in every parts.<br />
 
 Follow in this page you will find some examples for better understand the potentiality of this component.<br />
-But is simple to understand that you can use for create gauges, progress bars and, extending this class, seek bars ([ScSeekBar](ScSeekBar)).
+But is simple to understand that you can use for create gauges, progress bars and, extending this class, seek bars ([ScSeekBar](ScSeekBar.md)).
 
 
 ## ScGauge class details
-This class extend the [ScWidget](ScWidget) class.<br />
-The component if create using of [ScArc](ScArc) and [ScNotchs](ScNotchs) components so please take a look about the documentation relative to each component.
+This class extend the [ScWidget](ScWidget.md) class.<br />
+The component if create using of [ScArc](ScArc.md) and [ScNotchs](ScNotchs.md) components so please take a look about the documentation relative to each component.
 
 The default configuration have:
-- One [ScArc](ScArc) for the base arc
-- One [ScNotchs](ScNotchs) for create the notchs
-- One [ScArc](ScArc) for the progress arc
+- One [ScArc](ScArc.md) for the base arc
+- One [ScNotchs](ScNotchs.md) for create the notchs
+- One [ScArc](ScArc.md) for the progress arc
 
 In this documentation will see that the configuration can be changed.<br />
 Take in mind that this object consider the "progress" is always the last one.
@@ -28,11 +28,11 @@ A wrong use of arcs can generate a malfunction of this component.
 
 - **void setStrokesCap(Paint.Cap cap)**<br />
 Set stroke cap of painter for all components inside the gauge.<br />
-Default value is BUTT from the ScArc settings.
+Default value is BUTT from the [ScArc](ScArc.md) settings.
 
 - **void setCanvasFilling(ScArc.FillingArea area, ScArc.FillingMode mode)**<br />
 The canvas filling setting for all components inside the gauge.<br />
-For the filling possibilities please refer to the [ScArc](ScArc) documentation.
+For the filling possibilities please refer to the [ScArc](ScArc.md) documentation.
 
 - **void show(boolean baseArc, boolean notchsArc, boolean progressArc)**<br />
 Set the components visibility.
@@ -50,9 +50,9 @@ This method is only for advanced use of ScGauge and use it improperly can be cau
 Changing the component type mean create a new one and lost old information like visibility and cap stroke style.<br />
 So, if you did some change about inner properties before call this method, you must remember to apply again these settings.
 
-- **void setNotchsStyle()**<br />
+- **void setNotchsStyle(ScNotchs.NotchsTypes value)**<br />
 Set the notchs style for all ScNotchs components inside this component.
-For the style possibilities please refer to the [ScNotchs](ScNotchs) documentation.
+For the style possibilities please refer to the [ScNotchs](ScNotchs.md) documentation.
 
 
 #### Getter and Setter

@@ -15,7 +15,7 @@ This for give to the user many combinations to render the arc on the drawing are
 
 
 ## ScArc class details
-This class extend the [ScWidget](ScWidget) class.
+This class extend the [ScWidget](ScWidget.md) class.
 By default the arc create a closed circle: from 0° to 360°.<br />
 Note that all angle is usually expressed in degrees and almost methods need to have an delta angle relative to the start angle.
 
