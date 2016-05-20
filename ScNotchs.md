@@ -18,13 +18,16 @@ Link to the draw listener.
 
 
 #### Getter and Setter
+
 - **get/setNotchs**  -> float value, default <code>0</code><br />
 The number of sector where the arc will be divided.
 Note that if the arc is NOT closed you will see one more notch that will represent the starting one.
+
 - **get/setNotchsLength**  -> float value, default is double of stroke size<br />
 The notchs line length.
-- **get/setNotchType**  -> NotchTypes value, default <code>NotchTypes.LINE</code><br />
-Define the notch type: LINE, CIRCLE, CIRCLE_FILLED.
+
+- **get/setNotchsType**  -> NotchsTypes value, default <code>NotchsTypes.LINE</code><br />
+Define the notchs type: LINE, CIRCLE, CIRCLE_FILLED.
 
 
 #### Interfaces

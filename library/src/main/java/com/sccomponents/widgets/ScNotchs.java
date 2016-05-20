@@ -23,7 +23,7 @@ public class ScNotchs extends ScArc {
 
     private int mNotchsCount;
     private float mNotchsLength;
-    private NotchTypes mNotchType;
+    private NotchsTypes mNotchsType;
 
 
     /**
@@ -67,7 +67,7 @@ public class ScNotchs extends ScArc {
     // Set the painter type
     private void setPainterType() {
         // Set the stroke type
-        switch (this.mNotchType) {
+        switch (this.mNotchsType) {
             case LINE:
             case CIRCLE:
                 this.getPainter().setStyle(Paint.Style.STROKE);
@@ -94,9 +94,9 @@ public class ScNotchs extends ScArc {
         this.mNotchsLength = attrArray.getDimension(
                 R.styleable.ScComponents_scc_notchs_length, this.getStrokeSize() * 2);
 
-        // NotchTypes.LINE
-        this.mNotchType =
-                NotchTypes.values()[attrArray.getInt(R.styleable.ScComponents_scc_notch_type, 0)];
+        // NotchsTypes.LINE
+        this.mNotchsType =
+                NotchsTypes.values()[attrArray.getInt(R.styleable.ScComponents_scc_notch_type, 0)];
 
         // Recycle
         attrArray.recycle();
@@ -188,7 +188,7 @@ public class ScNotchs extends ScArc {
             }
 
             // Draw the line by the case
-            switch (this.mNotchType) {
+            switch (this.mNotchsType) {
                 case LINE:
                     this.drawLine(canvas, info, area);
                     break;
@@ -218,7 +218,7 @@ public class ScNotchs extends ScArc {
         state.putParcelable("PARENT", superState);
         state.putInt("mNotchsCount", this.mNotchsCount);
         state.putFloat("mNotchsLength", this.mNotchsLength);
-        state.putInt("mNotchType", this.mNotchType.ordinal());
+        state.putInt("mNotchsType", this.mNotchsType.ordinal());
 
         // Return the new state
         return state;
@@ -237,7 +237,7 @@ public class ScNotchs extends ScArc {
         // Now can restore all the saved variables values
         this.mNotchsCount = savedState.getInt("mNotchsCount");
         this.mNotchsLength = savedState.getFloat("mNotchsLength");
-        this.mNotchType = NotchTypes.values()[savedState.getInt("mNotchType")];
+        this.mNotchsType = NotchsTypes.values()[savedState.getInt("mNotchsType")];
     }
 
 
@@ -261,7 +261,7 @@ public class ScNotchs extends ScArc {
     }
 
     @SuppressWarnings("unused")
-    public enum NotchTypes {
+    public enum NotchsTypes {
         LINE,
         CIRCLE,
         CIRCLE_FILLED
@@ -310,16 +310,16 @@ public class ScNotchs extends ScArc {
 
     // Notchs count
     @SuppressWarnings("unused")
-    public NotchTypes getNotchType() {
-        return this.mNotchType;
+    public NotchsTypes getNotchsType() {
+        return this.mNotchsType;
     }
 
     @SuppressWarnings("unused")
-    public void setNotchType(NotchTypes value) {
+    public void setNotchsType(NotchsTypes value) {
         // Check if value is changed
-        if (this.mNotchType != value) {
+        if (this.mNotchsType != value) {
             // Store the new value
-            this.mNotchType = value;
+            this.mNotchsType = value;
             // Set the painter and refresh the component
             this.setPainterType();
             this.invalidate();

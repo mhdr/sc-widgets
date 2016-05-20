@@ -29,10 +29,10 @@ public class ScGauge
     public static final float DEFAULT_ANGLE_START = 0.0f;
     public static final float DEFAULT_ANGLE_SWEEP = 360.0f;
 
-    public static final float DEFAULT_STROKE_SIZE = 5.0f;
+    public static final float DEFAULT_STROKE_SIZE = 3.0f;
     public static final int DEFAULT_STROKE_COLOR = Color.BLACK;
 
-    public static final float DEFAULT_PROGRESS_SIZE = 2.0f;
+    public static final float DEFAULT_PROGRESS_SIZE = 1.0f;
     public static final int DEFAULT_PROGRESS_COLOR = Color.GRAY;
 
 
@@ -94,7 +94,7 @@ public class ScGauge
      */
 
     // Initialize a ScArc object with the defined settings of components
-    private void arcSetter(ScArc arc, boolean isProgress) {
+    private void arcObjectSetter(ScArc arc, boolean isProgress) {
         // Fill the settings
         arc.setAngleStart(this.mAngleStart);
         arc.setAngleSweep(this.mAngleSweep);
@@ -157,16 +157,16 @@ public class ScGauge
 
         // Base arc
         this.mArcBase = new ScArc(context);
-        this.arcSetter(this.mArcBase, false);
+        this.arcObjectSetter(this.mArcBase, false);
 
         // Notchs
         this.mArcNotchs = new ScNotchs(context);
-        this.arcSetter(this.mArcNotchs, false);
+        this.arcObjectSetter(this.mArcNotchs, false);
 
         // Progress arc.
         // The last one is ALWAYS the progress one.
         this.mArcProgress = new ScArc(context);
-        this.arcSetter(this.mArcProgress, true);
+        this.arcObjectSetter(this.mArcProgress, true);
 
         //--------------------------------------------------
         // ANIMATOR
@@ -463,6 +463,7 @@ public class ScGauge
     }
 
     // Get the value animator.
+    // Note that the initial value duration of the animation is zero equal to "no animation".
     @SuppressWarnings("unused")
     public Animator getValueAnimator() {
         return this.mAnimator;
@@ -482,23 +483,39 @@ public class ScGauge
         if (baseArcToNotchs) {
             // Create a new instance of the ScNotchs
             this.mArcBase = new ScNotchs(this.getContext());
-            this.arcSetter(this.mArcBase, false);
+            this.arcObjectSetter(this.mArcBase, false);
         }
 
         // Transform the notchs to an arc object
         if (notchsArcToArc) {
             // Create a new instance of the ScArc
             this.mArcNotchs = new ScArc(this.getContext());
-            this.arcSetter(this.mArcNotchs, false);
+            this.arcObjectSetter(this.mArcNotchs, false);
         }
 
         // Transform the base arc to a notchs object
         if (baseArcToNotchs) {
             // Create a new instance of the ScNotchs
             this.mArcProgress = new ScNotchs(this.getContext());
-            this.arcSetter(this.mArcProgress, true);
+            this.arcObjectSetter(this.mArcProgress, true);
         }
     }
+
+    // Set the notchs style for all ScNotchs components inside this component
+    @SuppressWarnings("unused")
+    public void setNotchsStyle(ScNotchs.NotchsTypes value) {
+        // Apply to all notchs object
+        for (ScArc arc : this.getArcs()) {
+            // Check for ScNotchs class
+            if (arc instanceof ScNotchs) {
+                // Cast and setting
+                ((ScNotchs) arc).setNotchsType(value);
+            }
+        }
+        // Refresh the component
+        this.requestLayout();
+    }
+
 
     /**
      * Public properties

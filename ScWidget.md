@@ -13,15 +13,19 @@ This class cannot instanced directly but must be inherited.
 **int valueRangeLimit(int value, int startValue, int endValue)**<br />
 Limit number within a range.<br />
 This method not consider the sign and the upper and lower values limit order.
+
 - **boolean withinRange(float value, float startValue, float endValue)**<br />
 Check if number is within a values range.<br />
 This method not consider the sign and the upper and lower values limit order.
+
 - **float findMaxValue(float... values)**<br />
 Find the max given a series of values.
+
 - **RectF inflateRect(RectF source, float value, boolean holdOrigin)**<br />
 **RectF inflateRect(RectF source, float value)**<br />
 Inflate a rectangle by the passed value.<br />
 The method return a new inflated rectangle and can alter the origin too.
+
 - **RectF resetRectToOrigin(RectF rect)**<br />
 Reset the rectangle to its origin.
 

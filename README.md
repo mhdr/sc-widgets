@@ -15,6 +15,9 @@ Please press on the link above to see some picture example of the possibility of
 This components create a notchs arc inscribed inside a rectangle area.<br />
 Considering that this component inherit from the [ScArc](ScArc) component please take a look to the related documentation before use it.
 
+- **[ScGauge](ScGauge.md)**<br />
+A fusion of [ScArc](ScArc) and [ScNotchs](ScNotchs) components, this create a gauge with many possibilities of customize.<br />
+The class has been designed to starting simple and user friendly but provides all needed functions to customize it in every parts.
 
 # Usage
 

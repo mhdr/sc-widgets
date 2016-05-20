@@ -25,8 +25,10 @@ Note that all angle is usually expressed in degrees and almost methods need to h
 Normalize a angle in degrees.
 If the angle is over 360° will be normalized.<br />
 This method work for negative and positive angle values.
+
 - **boolean pointInsideCircle(float x, float y, float radius)**<br />
 Check if point is inside a circle (Pitagora) supposed that the origin of the circle is 0, 0.
+
 - **Point getPointFromAngle(float degrees, RectF area)**<br />
 Find a point on the circumference inscribed in the passed area rectangle.<br />
 This angle is intended to be a global angle and if not subdue to any restriction.
@@ -35,14 +37,17 @@ This angle is intended to be a global angle and if not subdue to any restriction
 #### Public methods
 
 - **Paint getPainter()**<br />
-Get the arc painter
+Get the arc painter.
+
 - **Point getPointFromAngle(float degrees, float radiusAdjust)**<br />
 **Point getPointFromAngle(float degrees)**<br />
 Calc point position from relative angle in degrees.<br />
 Note that the angle must be relative to the start angle defined by the component settings and not intended as a global angle.
+
 - **float getAngleFromPoint(float x, float y)**<br />
 Find the angle from position on the component.<br />
 This method consider the angles limits settings and return a relative angle value within this limits.
+
 - **boolean belongsToArc(float x, float y, float precision)**<br />
 **boolean belongsToArc(float x, float y)**<br />
 Check if a point belongs to the arc.
@@ -51,21 +56,28 @@ Check if a point belongs to the arc.
 #### Getter and Setter
 - **get/setAngleStart**  -> float value, default <code>0</code><br />
 The start angle in degrees.
+
 - **get/setAngleSweep**  -> float value, default <code>360</code><br />
 The sweep angle (in degrees) is the delta value between the start angle and the end angle.
+
 - **get/setAngleDraw**  -> float value, default <code>360</code><br />
 This angle (in degrees) is the really angle used to draw but when equal the sweep angle they stay sync.<br />
 This property is useful to build a class that inherit this or play with the canvas space.<br />
 Use this properties is same a drawing clip region for the arc.
+
 - **get/setStrokeSize**  -> float value, default <code>3dp</code><br />
 The value must be passed in pixel.
+
 - **get/setStrokeColor**  -> int value, default <code>Color.BLACK</code><br />
 - **get/setMaxWidth**  -> int value, default <code>Int.MAX_VALUE</code><br />
 The value must be passed in pixel.
+
 - **get/setMaxHeight**  -> int value, default <code>Int.MAX_VALUE</code><br />
 The value must be passed in pixel.
+
 - **get/setFillingArea**  -> FillingArea value, default <code>FillingArea.BOTH</code><br />
 Possibly values by enum: NONE, BOTH, HORIZONTAL, VERTICAL
+
 - **get/setFillingMode**  -> FillingMode value, default <code>FillingMode.DRAW</code><br />
 Possibly values by enum: DRAW, STRETCH<br />
 Please look above for a short explain of this feature.
