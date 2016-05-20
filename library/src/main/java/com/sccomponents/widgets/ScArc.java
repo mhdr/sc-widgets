@@ -510,11 +510,6 @@ public class ScArc extends ScWidget {
         return new Point(x, y);
     }
 
-
-    /**
-     * Public methods
-     */
-
     // The area filling types.
     // Decide what filling in drawing area.
     @SuppressWarnings("unused")
@@ -533,6 +528,11 @@ public class ScArc extends ScWidget {
         STRETCH,
         DRAW
     }
+
+
+    /**
+     * Public methods
+     */
 
     // Get the arc painter
     @SuppressWarnings("unused")

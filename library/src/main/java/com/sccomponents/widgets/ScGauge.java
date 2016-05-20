@@ -37,6 +37,24 @@ public class ScGauge
 
 
     /**
+     * Private attributes
+     */
+
+    private float mAngleStart;
+    private float mAngleSweep;
+    private float mAngleDraw;
+
+    private float mStrokeSize;
+    private int mStrokeColor;
+
+    private float mProgressSize;
+    private int mProgressColor;
+
+    private int mNotchsCount;
+    private float mNotchsLength;
+
+
+    /**
      * Private variables
      */
 
@@ -75,6 +93,28 @@ public class ScGauge
      * Privates methods
      */
 
+    // Initialize a ScArc object with the defined settings of components
+    private void arcSetter(ScArc arc, boolean isProgress) {
+        // Fill the settings
+        arc.setAngleStart(this.mAngleStart);
+        arc.setAngleSweep(this.mAngleSweep);
+        arc.setStrokeSize(isProgress ? this.mProgressSize : this.mStrokeSize);
+        arc.setStrokeColor(isProgress ? this.mProgressColor : this.mStrokeColor);
+
+        // If progress set also the draw angle
+        if (isProgress) {
+            arc.setAngleDraw(this.mAngleDraw);
+        }
+
+        // Check if notchs instance
+        if (arc instanceof ScNotchs) {
+            // Set the particular notchs properties
+            ((ScNotchs) arc).setNotchs(this.mNotchsCount);
+            ((ScNotchs) arc).setNotchsLength(this.mNotchsLength);
+            ((ScNotchs) arc).setOnDrawListener(this);
+        }
+    }
+
     // Init the component.
     // Retrieve all attributes with the default values if needed and create the internal using
     // objects.
@@ -86,28 +126,28 @@ public class ScGauge
         final TypedArray attrArray = context.obtainStyledAttributes(attrs, R.styleable.ScComponents, defStyle, 0);
 
         // Read all attributes from xml and assign the value to linked variables
-        float angleStart = attrArray.getFloat(
+        this.mAngleStart = attrArray.getFloat(
                 R.styleable.ScComponents_scc_angle_start, ScGauge.DEFAULT_ANGLE_START);
-        float angleSweep = attrArray.getFloat(
+        this.mAngleSweep = attrArray.getFloat(
                 R.styleable.ScComponents_scc_angle_sweep, ScGauge.DEFAULT_ANGLE_SWEEP);
 
-        float strokeSize = attrArray.getDimension(
+        this.mStrokeSize = attrArray.getDimension(
                 R.styleable.ScComponents_scc_stroke_size, this.dipToPixel(ScGauge.DEFAULT_STROKE_SIZE));
-        int strokeColor = attrArray.getColor(
+        this.mStrokeColor = attrArray.getColor(
                 R.styleable.ScComponents_scc_stroke_color, ScGauge.DEFAULT_STROKE_COLOR);
 
-        float progressSize = attrArray.getDimension(
+        this.mProgressSize = attrArray.getDimension(
                 R.styleable.ScComponents_scc_progress_size, this.dipToPixel(ScGauge.DEFAULT_PROGRESS_SIZE));
-        int progressColor = attrArray.getColor(
+        this.mProgressColor = attrArray.getColor(
                 R.styleable.ScComponents_scc_progress_color, ScGauge.DEFAULT_PROGRESS_COLOR);
 
-        float value = attrArray.getFloat(
-                R.styleable.ScComponents_scc_value, angleSweep);
+        this.mAngleDraw = attrArray.getFloat(
+                R.styleable.ScComponents_scc_value, this.mAngleSweep);
 
-        int notchsCount = attrArray.getInt(
+        this.mNotchsCount = attrArray.getInt(
                 R.styleable.ScComponents_scc_notchs, 0);
-        float notchsLength = attrArray.getDimension(
-                R.styleable.ScComponents_scc_notchs_length, strokeSize * 2);
+        this.mNotchsLength = attrArray.getDimension(
+                R.styleable.ScComponents_scc_notchs_length, this.mStrokeSize * 2);
 
         // Recycle
         attrArray.recycle();
@@ -117,28 +157,16 @@ public class ScGauge
 
         // Base arc
         this.mArcBase = new ScArc(context);
-        this.mArcBase.setAngleStart(angleStart);
-        this.mArcBase.setAngleSweep(angleSweep);
-        this.mArcBase.setStrokeSize(strokeSize);
-        this.mArcBase.setStrokeColor(strokeColor);
+        this.arcSetter(this.mArcBase, false);
 
         // Notchs
         this.mArcNotchs = new ScNotchs(context);
-        this.mArcNotchs.setAngleStart(angleStart);
-        this.mArcNotchs.setAngleSweep(angleSweep);
-        this.mArcNotchs.setStrokeSize(strokeSize);
-        this.mArcNotchs.setStrokeColor(strokeColor);
-        ((ScNotchs) this.mArcNotchs).setNotchs(notchsCount);
-        ((ScNotchs) this.mArcNotchs).setNotchsLength(notchsLength);
-        ((ScNotchs) this.mArcNotchs).setOnDrawListener(this);
+        this.arcSetter(this.mArcNotchs, false);
 
-        // Progress arc
+        // Progress arc.
+        // The last one is ALWAYS the progress one.
         this.mArcProgress = new ScArc(context);
-        this.mArcProgress.setAngleStart(angleStart);
-        this.mArcProgress.setAngleSweep(angleSweep);
-        this.mArcProgress.setAngleDraw(value);
-        this.mArcProgress.setStrokeSize(progressSize);
-        this.mArcProgress.setStrokeColor(progressColor);
+        this.arcSetter(this.mArcProgress, true);
 
         //--------------------------------------------------
         // ANIMATOR
@@ -168,7 +196,11 @@ public class ScGauge
         );
     }
 
-    // Fix the arcs padding
+    // Fix the arcs padding.
+    // This method setting padding automatically of all component inside the gauge centering the
+    // the stroke one above the other.
+    // Note that if have a custom padding listener linked the procedure will be bypassed and
+    // the user should setting. If not the padding rectangle will be empty for all components.
     private void fixArcsPadding() {
         // Define the padding holder
         Rect baseArc = new Rect();
@@ -331,9 +363,15 @@ public class ScGauge
         Bundle state = new Bundle();
         // Save all starting from the parent state
         state.putParcelable("PARENT", superState);
-        state.putParcelable("mArcBase", this.mArcBase.onSaveInstanceState());
-        state.putParcelable("mArcProgress", this.mArcProgress.onSaveInstanceState());
-        state.putParcelable("mArcNotchs", this.mArcNotchs.onSaveInstanceState());
+        state.putFloat("mAngleStart", this.mAngleStart);
+        state.putFloat("mAngleSweep", this.mAngleSweep);
+        state.putFloat("mAngleDraw", this.mAngleDraw);
+        state.putFloat("mStrokeSize", this.mStrokeSize);
+        state.putInt("mStrokeColor", this.mStrokeColor);
+        state.putFloat("mProgressSize", this.mProgressSize);
+        state.putInt("mProgressColor", this.mProgressColor);
+        state.putInt("mNotchsCount", this.mNotchsCount);
+        state.putFloat("mNotchsLength", this.mNotchsLength);
 
         // Return the new state
         return state;
@@ -350,9 +388,15 @@ public class ScGauge
         super.onRestoreInstanceState(superState);
 
         // Now can restore all the saved variables values
-        this.mArcBase.onRestoreInstanceState(savedState.getParcelable("mArcBase"));
-        this.mArcProgress.onRestoreInstanceState(savedState.getParcelable("mArcProgress"));
-        this.mArcNotchs.onRestoreInstanceState(savedState.getParcelable("mArcNotchs"));
+        this.mAngleStart = savedState.getFloat("mAngleStart");
+        this.mAngleSweep = savedState.getFloat("mAngleSweep");
+        this.mAngleDraw = savedState.getFloat("mAngleDraw");
+        this.mStrokeSize = savedState.getFloat("mStrokeSize");
+        this.mStrokeColor = savedState.getInt("mStrokeColor");
+        this.mProgressSize = savedState.getFloat("mProgressSize");
+        this.mProgressColor = savedState.getInt("mProgressColor");
+        this.mNotchsCount = savedState.getInt("mNotchsCount");
+        this.mNotchsLength = savedState.getFloat("mNotchsLength");
     }
 
 
@@ -380,36 +424,14 @@ public class ScGauge
         this.invalidate();
     }
 
-    // Set the start angle on every arcs
-    @SuppressWarnings("unused")
-    public void setAngleStart(int value) {
-        // Cycle all arcs and set the start angle
-        for (ScArc arc : this.getArcs()) {
-            arc.setAngleStart(value);
-        }
-        // Refresh
-        this.requestLayout();
-    }
-
-    // Set the sweep angle on every arcs
-    @SuppressWarnings("unused")
-    public void setAngleSweep(int value) {
-        // Cycle all arcs and set the start angle
-        for (ScArc arc : this.getArcs()) {
-            arc.setAngleSweep(value);
-        }
-        // Refresh
-        this.requestLayout();
-    }
-
     // Set the arcs visibility.
     // For a correct measure of the component it is better not use GONE.
     @SuppressWarnings("unused")
-    public void show(boolean baseArc, boolean progressArc, boolean notchsArc) {
+    public void show(boolean baseArc, boolean notchsArc, boolean progressArc) {
         // Apply the visibility status
         this.mArcBase.setVisibility(baseArc ? View.VISIBLE : View.INVISIBLE);
-        this.mArcProgress.setVisibility(progressArc ? View.VISIBLE : View.INVISIBLE);
         this.mArcNotchs.setVisibility(notchsArc ? View.VISIBLE : View.INVISIBLE);
+        this.mArcProgress.setVisibility(progressArc ? View.VISIBLE : View.INVISIBLE);
 
         // Refresh
         this.requestLayout();
@@ -434,28 +456,101 @@ public class ScGauge
         return this.mAnimator;
     }
 
+    // Change the components configuration.
+    // This method is only for advanced use of ScGauge and use it improperly can be cause of
+    // component malfunction. Note that ALWAYS the last component is the progress one.
+    // Changing the component type mean create a new one and lost old information like visibility
+    // and cap stroke style.
+    // So, if you did some change about inner properties before call this
+    // method, you must remember to apply again these settings.
+    @SuppressWarnings("unused")
+    public void changeComponentsConfiguration(
+            boolean baseArcToNotchs, boolean notchsArcToArc, boolean progressArcToNotchs) {
+        // Transform the base arc to a notchs object
+        if (baseArcToNotchs) {
+            // Create a new instance of the ScNotchs
+            this.mArcBase = new ScNotchs(this.getContext());
+            this.arcSetter(this.mArcBase, false);
+        }
+
+        // Transform the notchs to an arc object
+        if (notchsArcToArc) {
+            // Create a new instance of the ScArc
+            this.mArcNotchs = new ScArc(this.getContext());
+            this.arcSetter(this.mArcNotchs, false);
+        }
+
+        // Transform the base arc to a notchs object
+        if (baseArcToNotchs) {
+            // Create a new instance of the ScNotchs
+            this.mArcProgress = new ScNotchs(this.getContext());
+            this.arcSetter(this.mArcProgress, true);
+        }
+    }
 
     /**
      * Public properties
      */
 
+    // Start angle.
+    // Use this method change the start angle of all component inside this gauge.
+    @SuppressWarnings("unused")
+    public float getAngleStart(int value) {
+        return this.mAngleStart;
+    }
+
+    @SuppressWarnings("unused")
+    public void setAngleStart(int value) {
+        // Check for changed value
+        if (this.mAngleStart != value) {
+            // Save the new value
+            this.mAngleStart = value;
+            // Cycle all arcs and set the start angle
+            for (ScArc arc : this.getArcs()) {
+                arc.setAngleStart(value);
+            }
+            // Refresh
+            this.requestLayout();
+        }
+    }
+
+    // Sweep angle.
+    // Use this method change the start angle of all component inside this gauge.
+    @SuppressWarnings("unused")
+    public float getAngleSweep(int value) {
+        return this.mAngleSweep;
+    }
+
+    @SuppressWarnings("unused")
+    public void setAngleSweep(int value) {
+        // Check for changed value
+        if (this.mAngleSweep != value) {
+            // Save the new value
+            this.mAngleSweep = value;
+            // Cycle all arcs and set the start angle
+            for (ScArc arc : this.getArcs()) {
+                arc.setAngleSweep(value);
+            }
+            // Refresh
+            this.requestLayout();
+        }
+    }
+
     // Stroke size
     @SuppressWarnings("unused")
     public float getStrokeSize() {
-        return this.mArcBase.getStrokeSize();
+        return this.mStrokeSize;
     }
 
     @SuppressWarnings("unused")
     public void setStrokeSize(float value) {
         // Check if value is changed
-        if (this.getStrokeSize() != value) {
+        if (this.mStrokeSize != value) {
             // Store the new value
+            this.mStrokeSize = value;
+            // Apply to the arcs
             this.mArcBase.setStrokeSize(value);
-            // Check if the notchs painter have the same value than the system maintain
-            // the values linked.
-            if (this.mArcNotchs.getStrokeSize() == value) {
-                this.mArcNotchs.setStrokeSize(value);
-            }
+            this.mArcNotchs.setStrokeSize(value);
             // Refresh the component
             this.requestLayout();
         }
@@ -464,20 +559,18 @@ public class ScGauge
     // Stroke color
     @SuppressWarnings("unused")
     public int getStrokeColor() {
-        return this.mArcBase.getStrokeColor();
+        return this.mStrokeColor;
     }
 
     @SuppressWarnings("unused")
     public void setStrokeColor(int value) {
         // Check if value is changed
-        if (this.getStrokeColor() != value) {
+        if (this.mStrokeColor != value) {
             // Store the new value
+            this.mStrokeColor = value;
+            // Apply to the arcs
             this.mArcBase.setStrokeColor(value);
-            // Check if the notchs painter have the same value than the system maintain
-            // the values linked.
-            if (this.mArcNotchs.getStrokeColor() == value) {
-                this.mArcNotchs.setStrokeColor(value);
-            }
+            this.mArcNotchs.setStrokeColor(value);
             // Refresh the component
             this.invalidate();
         }
@@ -486,14 +579,15 @@ public class ScGauge
     // Progress size
     @SuppressWarnings("unused")
     public float getProgressSize() {
-        return this.mArcProgress.getStrokeSize();
+        return this.mProgressSize;
     }
 
     @SuppressWarnings("unused")
     public void setProgressSize(float value) {
         // Check if value is changed
-        if (this.getProgressSize() != value) {
+        if (this.mProgressSize != value) {
             // Store the new value and refresh the component
+            this.mProgressSize = value;
             this.mArcProgress.setStrokeSize(value);
             this.requestLayout();
         }
@@ -502,14 +596,15 @@ public class ScGauge
     // Progress color
     @SuppressWarnings("unused")
     public int getProgressColor() {
-        return this.mArcProgress.getStrokeColor();
+        return this.mProgressColor;
     }
 
     @SuppressWarnings("unused")
     public void setProgressColor(int value) {
         // Check if value is changed
-        if (this.getProgressColor() != value) {
+        if (this.mProgressColor != value) {
             // Store the new value and refresh the component
+            this.mProgressColor = value;
             this.mArcProgress.setStrokeColor(value);
             this.invalidate();
         }
@@ -518,17 +613,19 @@ public class ScGauge
     // Progress value in degrees
     @SuppressWarnings("unused")
     public float getValue() {
-        return this.mArcProgress.getAngleDraw();
+        return this.mAngleDraw;
     }
 
     @SuppressWarnings("unused")
     public void setValue(float degrees) {
-        // Limit the passed angle.
-        degrees = ScGauge.valueRangeLimit(degrees, 0, this.mArcProgress.getAngleSweep());
-
-        // Set and start animation
-        this.mAnimator.setFloatValues(this.mArcProgress.getAngleDraw(), degrees);
-        this.mAnimator.start();
+        // Check if value is changed
+        if (this.mAngleDraw != degrees) {
+            // Limit the passed angle.
+            degrees = ScGauge.valueRangeLimit(degrees, 0, this.mAngleSweep);
+            // Set and start animation
+            this.mAnimator.setFloatValues(this.mAngleDraw, degrees);
+            this.mAnimator.start();
+        }
     }
 
     // Progress value but based on a values range.
@@ -537,7 +634,7 @@ public class ScGauge
     public float getValue(float startRange, float endRange) {
         // Return the translated value
         return this.translateAngleToValue(
-                this.mArcProgress.getAngleDraw(),
+                this.mAngleDraw,
                 startRange,
                 endRange
         );
@@ -553,8 +650,7 @@ public class ScGauge
 
         } else {
             // Convert the value in the relative angle respect the arc length
-            value = ((value - startRange) / (endRange - startRange)) *
-                    this.mArcProgress.getAngleSweep();
+            value = ((value - startRange) / (endRange - startRange)) * this.mAngleSweep;
         }
         // Call the base method
         this.setValue(value);
@@ -563,21 +659,24 @@ public class ScGauge
     // Notchs count
     @SuppressWarnings("unused")
     public int getNotchs() {
-        // Check for the right object instance
-        if (this.mArcNotchs instanceof ScNotchs) {
-            return ((ScNotchs) this.mArcNotchs).getNotchs();
-        } else {
-            return 0;
-        }
+        return this.mNotchsCount;
     }
 
     @SuppressWarnings("unused")
     public void setNotchs(int value) {
         // Check if value is changed
-        if (this.mArcNotchs instanceof ScNotchs &&
-                ((ScNotchs) this.mArcNotchs).getNotchs() != value) {
-            // Store the new value and refresh the component
-            ((ScNotchs) this.mArcNotchs).setNotchsLength(value);
+        if (this.mNotchsCount != value) {
+            // Fix the new value
+            this.mNotchsCount = value;
+            // Apply to all notchs object
+            for (ScArc arc : this.getArcs()) {
+                // Check for ScNotchs class
+                if (arc instanceof ScNotchs) {
+                    // Cast and setting
+                    ((ScNotchs) arc).setNotchs(value);
+                }
+            }
+            // Refresh the component
             this.requestLayout();
         }
     }
@@ -585,21 +684,24 @@ public class ScGauge
     // Progress size
     @SuppressWarnings("unused")
     public float getNotchsLength() {
-        // Check for the right object instance
-        if (this.mArcNotchs instanceof ScNotchs) {
-            return ((ScNotchs) this.mArcNotchs).getNotchsLength();
-        } else {
-            return 0;
-        }
+        return this.mNotchsLength;
     }
 
     @SuppressWarnings("unused")
     public void setNotchsLength(float value) {
         // Check if value is changed
-        if (this.mArcNotchs instanceof ScNotchs &&
-                ((ScNotchs) this.mArcNotchs).getNotchsLength() != value) {
-            // Store the new value and refresh the component
-            ((ScNotchs) this.mArcNotchs).setNotchsLength(value);
+        if (this.mNotchsLength != value) {
+            // Fix the new value
+            this.mNotchsLength = value;
+            // Apply to all notchs object
+            for (ScArc arc : this.getArcs()) {
+                // Check for ScNotchs class
+                if (arc instanceof ScNotchs) {
+                    // Cast and setting
+                    ((ScNotchs) arc).setNotchsLength(value);
+                }
+            }
+            // Refresh the component
             this.requestLayout();
         }
     }

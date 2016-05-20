@@ -169,6 +169,7 @@ public class ScNotchs extends ScArc {
             // Create the notch info to pass to the listener.
             // Note that adjust the current angle to a global angle.
             NotchInfo info = new NotchInfo();
+            info.source = this;
             info.angle = currentAngle + this.getAngleStart();
             info.color = this.getStrokeColor();
             info.distanceFromBorder = 0.0f;
@@ -249,6 +250,7 @@ public class ScNotchs extends ScArc {
     @SuppressWarnings("unused")
     public class NotchInfo {
 
+        public ScNotchs source = null;
         public float angle = 0.0f;
         public int index = 0;
         public float length = 0.0f;
@@ -332,8 +334,9 @@ public class ScNotchs extends ScArc {
     // Before draw
     @SuppressWarnings("unused")
     public interface OnDrawListener {
-        // Return the new length of notch
+
         void onDrawNotch(NotchInfo info);
+
     }
 
     @SuppressWarnings("unused")
