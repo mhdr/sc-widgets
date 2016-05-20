@@ -29,10 +29,10 @@ public class ScGauge
     public static final float DEFAULT_ANGLE_START = 0.0f;
     public static final float DEFAULT_ANGLE_SWEEP = 360.0f;
 
-    public static final float DEFAULT_STROKE_SIZE = 3.0f;
+    public static final float DEFAULT_STROKE_SIZE = 5.0f;
     public static final int DEFAULT_STROKE_COLOR = Color.BLACK;
 
-    public static final float DEFAULT_PROGRESS_SIZE = 1.0f;
+    public static final float DEFAULT_PROGRESS_SIZE = 2.0f;
     public static final int DEFAULT_PROGRESS_COLOR = Color.GRAY;
 
 
@@ -412,7 +412,7 @@ public class ScGauge
         return new ScArc[]{this.mArcBase, this.mArcNotchs, this.mArcProgress};
     }
 
-    // Set stroke cap of painter for all arcs and notchs.
+    // Set stroke cap of painter for all components inside the gauge.
     // Default value is BUTT from the ScArc settings.
     @SuppressWarnings("unused")
     public void setStrokesCap(Paint.Cap cap) {
@@ -424,7 +424,19 @@ public class ScGauge
         this.invalidate();
     }
 
-    // Set the arcs visibility.
+    // The canvas filling setting for all components inside the gauge.
+    @SuppressWarnings("unused")
+    public void setCanvasFilling(ScArc.FillingArea area, ScArc.FillingMode mode) {
+        // Cycle all arcs and set the filling
+        for (ScArc arc : this.getArcs()) {
+            arc.setFillingArea(area);
+            arc.setFillingMode(mode);
+        }
+        // Refresh
+        this.requestLayout();
+    }
+
+    // Set the components visibility.
     // For a correct measure of the component it is better not use GONE.
     @SuppressWarnings("unused")
     public void show(boolean baseArc, boolean notchsArc, boolean progressArc) {
@@ -450,7 +462,7 @@ public class ScGauge
         }
     }
 
-    // Get the value animator
+    // Get the value animator.
     @SuppressWarnings("unused")
     public Animator getValueAnimator() {
         return this.mAnimator;

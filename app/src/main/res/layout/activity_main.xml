@@ -10,7 +10,7 @@
     android:padding="10dp"
     tools:context="com.sccomponents.widgets.demo.MainActivity">
 
-    <com.sccomponents.widgets.ScNotchs
+    <com.sccomponents.widgets.ScGauge
         xmlns:sc="http://schemas.android.com/apk/res-auto"
         android:id="@+id/notchs"
         android:layout_width="200dp"
@@ -18,7 +18,8 @@
         android:background="#cccccc"
         android:padding="10dp"
         sc:scc_angle_sweep="270"
-        sc:scc_notchs="32" />
+        sc:scc_value="135"
+        sc:scc_notchs="12" />
 
 </LinearLayout>
 

@@ -755,7 +755,7 @@ public class ScArc extends ScWidget {
     }
 
     @SuppressWarnings("unused")
-    public void setAreaFilling(FillingMode value) {
+    public void setFillingMode(FillingMode value) {
         // Check if value is changed
         if (this.mFillingMode != value) {
             // Store the new value and refresh the component
