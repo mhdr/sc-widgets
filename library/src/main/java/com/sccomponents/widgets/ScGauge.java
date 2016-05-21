@@ -142,7 +142,7 @@ public class ScGauge
                 R.styleable.ScComponents_scc_progress_color, ScGauge.DEFAULT_PROGRESS_COLOR);
 
         this.mAngleDraw = attrArray.getFloat(
-                R.styleable.ScComponents_scc_value, this.mAngleSweep);
+                R.styleable.ScComponents_scc_value, 0);
 
         this.mNotchsCount = attrArray.getInt(
                 R.styleable.ScComponents_scc_notchs, 0);
@@ -649,10 +649,13 @@ public class ScGauge
     public void setValue(float degrees) {
         // Check if value is changed
         if (this.mAngleDraw != degrees) {
-            // Limit the passed angle.
-            degrees = ScGauge.valueRangeLimit(degrees, 0, this.mAngleSweep);
+            // Save the new value
+            this.mAngleDraw = degrees;
             // Set and start animation
-            this.mAnimator.setFloatValues(this.mAngleDraw, degrees);
+            this.mAnimator.setFloatValues(
+                    this.mAngleDraw,
+                    ScGauge.valueRangeLimit(degrees, 0, this.mAngleSweep)
+            );
             this.mAnimator.start();
         }
     }
