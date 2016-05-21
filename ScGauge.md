@@ -132,8 +132,8 @@ The notchs line length.
 ### [Simple and beauty](ScGauge_SimpleAndBeauty.md)
 Press to above link for see the code application.
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/2.jpg"> 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/3.jpg"> 
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/2.jpg)
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/3.jpg)
 
 
 # License
