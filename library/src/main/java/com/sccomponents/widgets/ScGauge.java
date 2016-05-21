@@ -308,8 +308,8 @@ public class ScGauge
             // Call the method
             this.mOnDrawListener.onBeforeDraw(
                     this.mArcBase.getPainter(),
-                    this.mArcProgress.getPainter(),
-                    this.mArcNotchs.getPainter()
+                    this.mArcNotchs.getPainter(),
+                    this.mArcProgress.getPainter()
             );
         }
 

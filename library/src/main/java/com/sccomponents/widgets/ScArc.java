@@ -4,9 +4,11 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.RectF;
+import android.graphics.SweepGradient;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -53,6 +55,7 @@ public class ScArc extends ScWidget {
      * Private variables
      */
 
+    private int[] mStrokeColorsGradient;
     private RectF mTrimmedArea;
     private Paint mStrokePaint;
 
@@ -200,6 +203,34 @@ public class ScArc extends ScWidget {
         this.setFocusableInTouchMode(true);
     }
 
+    // Create a sweep gradient shader
+    private SweepGradient createSweepGradient() {
+        // Find the center
+        int centerX = this.getMeasuredWidth() / 2;
+        int centerY = this.getMeasuredHeight() / 2;
+
+        // Create the position holder
+        float[] positions = new float[this.mStrokeColorsGradient.length];
+        float deltaAngle = this.mAngleSweep / (this.mStrokeColorsGradient.length - 1);
+
+        // Fill the positions holder
+        for (int index = 0; index < this.mStrokeColorsGradient.length; index ++) {
+            positions[index] = index * (deltaAngle / 360.0f);
+        }
+
+        // Create the matrix and rotate it
+        Matrix matrix = new Matrix();
+        matrix.preRotate(this.mAngleStart, centerX, centerY);
+
+        // Create the gradient and apply the matrix
+        SweepGradient gradient = new SweepGradient(
+                centerX, centerY, this.mStrokeColorsGradient, positions);
+        gradient.setLocalMatrix(matrix);
+
+        // Return the gradient
+        return gradient;
+    }
+
 
     /**
      * Area methods
@@ -331,6 +362,13 @@ public class ScArc extends ScWidget {
     // render method.
     // This is an important method can be override for future inherit class implementation.
     protected void internalDraw(Canvas canvas) {
+        // Check if need to create a gradient
+        if (this.mStrokeColorsGradient != null && this.mStrokeColorsGradient.length > 0 &&
+                this.mAngleSweep != 0) {
+            // Create the gradient and apply it to the painter
+            this.mStrokePaint.setShader(this.createSweepGradient());
+        }
+
         // Find the canvas and drawing area
         RectF canvasArea = this.calcCanvasArea(canvas.getWidth(), canvas.getHeight());
         RectF drawingArea = this.calcDrawingArea(canvasArea);
@@ -599,6 +637,14 @@ public class ScArc extends ScWidget {
         return this.belongsToArc(x, y, this.mStrokeSize);
     }
 
+    // Create a gradient color and apply it to the stroke
+    @SuppressWarnings("unused")
+    public void setStrokeColors(int... values) {
+        // Save the new value and refresh
+        this.mStrokeColorsGradient = values;
+        this.invalidate();
+    }
+
 
     /**
      * Public properties
@@ -688,8 +734,9 @@ public class ScArc extends ScWidget {
     public void setStrokeColor(int value) {
         // Check if value is changed
         if (this.mStrokeColor != value) {
-            // Store the new value
+            // Store the new value and reset the other
             this.mStrokeColor = value;
+            this.mStrokeColorsGradient = null;
             // Fix the painter and refresh the component
             this.mStrokePaint.setColor(this.mStrokeColor);
             this.invalidate();
