@@ -24,10 +24,8 @@ public class MainActivity extends AppCompatActivity {
         // Hide the notchs.
         // You can obtain the same result setting the notchs number to zero.
         gauge.show(true, false, true);
-        // Rounded cap
-        gauge.setStrokesCap(Paint.Cap.ROUND);
         // He set the value to 80% take as reference a range of 0, 100.
-        gauge.setValue(80, 0, 100);
+        gauge.setValue(40, 0, 100);
 
         // Event
         gauge.setOnEventListener(new ScGauge.OnEventListener() {

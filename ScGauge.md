@@ -129,54 +129,11 @@ The notchs line length.
 
 ## Let's play
 
-### Simple and beauty
+### [Simple and beauty](ScGauge_SimpleAndBeauty.md)
+Press to above link for see the code application.
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/2.jpg"> 
-```xml
-    <declare-styleable name="ScComponents">
-        <attr name="scc_angle_start" format="float" />
-        <attr name="scc_angle_sweep" format="float" />
-        <attr name="scc_stroke_size" format="dimension" />
-        <attr name="scc_stroke_color" format="color" />
-        <attr name="scc_progress_size" format="dimension" />
-        <attr name="scc_progress_color" format="color" />
-        <attr name="scc_value" format="float" />
-        <attr name="scc_notchs" format="integer" />
-        <attr name="scc_notchs_length" format="dimension" />
-    </declare-styleable>
-```
-
-```java
-        // Get the gauge
-        final ScGauge gauge = (ScGauge) this.findViewById(R.id.gauge);
-        assert gauge != null;
-
-        // Hide the notchs.
-        // You can obtain the same result setting the notchs number to zero.
-        gauge.show(true, false, true);
-        // Rounded cap
-        gauge.setStrokesCap(Paint.Cap.ROUND);
-        // Set the value to 80% take as reference a range of 0, 100.
-        gauge.setValue(80, 0, 100);
-
-        // Event
-        gauge.setOnEventListener(new ScGauge.OnEventListener() {
-            @Override
-            public void onValueChange(float degrees) {
-                // Get the text control
-                TextView counter = (TextView) MainActivity.this.findViewById(R.id.counter);
-                assert counter != null;
-
-                // Note that I used translateAngleToValue but in this case is nonsense.
-                // In this case I could use getValue(0, 100) for have the same result.
-                // This is right if you are using the animator for move the value because the
-                // degrees changes over time gradually instead the getValue methods return always
-                // the final value to reach.
-                int value = (int) gauge.translateAngleToValue(degrees, 0, 100);
-                counter.setText(value + "%");
-            }
-        });
-```
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/3.jpg"> 
 
 
 # License
