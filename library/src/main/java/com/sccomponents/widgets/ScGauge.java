@@ -524,7 +524,7 @@ public class ScGauge
     // Start angle.
     // Use this method change the start angle of all component inside this gauge.
     @SuppressWarnings("unused")
-    public float getAngleStart(int value) {
+    public float getAngleStart() {
         return this.mAngleStart;
     }
 
@@ -546,7 +546,7 @@ public class ScGauge
     // Sweep angle.
     // Use this method change the start angle of all component inside this gauge.
     @SuppressWarnings("unused")
-    public float getAngleSweep(int value) {
+    public float getAngleSweep() {
         return this.mAngleSweep;
     }
 

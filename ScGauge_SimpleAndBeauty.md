@@ -202,6 +202,66 @@ Some examples or go back to the class [documentation](ScGauge.md).
 ```
 
 
+### Indicator
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/5.jpg"> 
+```xml
+    <FrameLayout
+        android:layout_width="300dp"
+        android:layout_height="200dp"
+        android:background="#cccccc"
+        android:padding="10dp">
+
+        <com.sccomponents.widgets.ScGauge
+            xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:id="@+id/gauge"
+            sc:scc_angle_start="-180"
+            sc:scc_angle_sweep="180"
+            sc:scc_progress_color="#ff35c44a"
+            sc:scc_progress_size="50dp"
+            sc:scc_stroke_color="#f5f5f5"
+            sc:scc_stroke_size="50dp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:id="@+id/indicator"
+            android:src="@drawable/indicator"
+            android:layout_marginLeft="50dp"
+            android:layout_marginBottom="24dp"/>
+
+    </FrameLayout>
+```
+
+```java
+        // Get the indicator image
+        final ImageView indicator = (ImageView) this.findViewById(R.id.indicator);
+        assert indicator != null;
+        // Set the center pivot for a right rotation
+        indicator.setPivotX(35f);
+        indicator.setPivotY(35f);
+
+        // Get the gauge
+        final ScGauge gauge = (ScGauge) this.findViewById(R.id.gauge);
+        assert gauge != null;
+        // Set the value to 75% take as reference a range of 0, 100.
+        gauge.setValue(75, 0, 100);
+
+        // Event
+        gauge.setOnEventListener(new ScGauge.OnEventListener() {
+            @Override
+            public void onValueChange(float degrees) {
+                // Transform the relative angle in an absolute one
+                indicator.setRotation(degrees - gauge.getAngleStart());
+            }
+        });
+```
+
+
 # License
 <pre>
  Copyright 2015 Samuele Carassai
