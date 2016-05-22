@@ -164,6 +164,7 @@ Press on above link to see the code application.
 
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/6.jpg)
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/7.jpg)
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/8.jpg)
 
 
 # License

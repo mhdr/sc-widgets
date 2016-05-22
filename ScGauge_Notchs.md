@@ -177,7 +177,7 @@ Some examples or go back to the class [documentation](ScGauge.md).
 
 ### Custom padding and notchs emphasis
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/7.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/8.jpg"> 
 ```xml
     <FrameLayout
         android:layout_width="wrap_content"
