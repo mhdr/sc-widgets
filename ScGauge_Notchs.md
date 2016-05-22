@@ -93,9 +93,9 @@ Some examples or go back to the class [documentation](ScGauge.md).
 ```
 
 
-### Play with colors and filters
+### Changing the component configuration
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/6.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/7.jpg"> 
 ```xml
     <FrameLayout
         android:layout_width="200dp"
