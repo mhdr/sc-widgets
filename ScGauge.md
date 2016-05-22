@@ -21,10 +21,15 @@ Take in mind that this object consider the "progress" is always the last one.
 
 #### Public methods
 
-- **ScArc[] getArcs()**<br />
-Get the arcs.<br />
-This method is implemented only for have an advanced management of this component.<br />
-A wrong use of arcs can generate a malfunction of this component.
+- **ScArc getBaseArc()**<br />
+Get the base arc.
+
+- **ScArc getNotchsArc()**<br />
+Get the notchs arc.<br />
+Note that the notchs will be returned ad a ScArc because in the advanced use of the gauge it could be an ScArc, so you need to cast it for use as ScNotchs.
+
+- **ScArc getProgressArc()**<br />
+Get the progress arc.
 
 - **void setStrokesCap(Paint.Cap cap)**<br />
 Set stroke cap of painter for all components inside the gauge.<br />
@@ -79,9 +84,13 @@ The value must be passed in pixel.
 - **get/setProgressColor**  -> int value, default <code>Color.GRAY</code><br />
 The base stroke color.
 
-- **get/setValue**  -> float value, default <code>0</code><br />
-The current progress value.<br />
-IMPORTANT! This getter/setter have a overload where you can pass a range of float values and the methods translate the reference value to the angle in degrees and call the base methods.
+- **get/setNotchsSize**  -> float value, default <code>3dp</code><br />
+The value must be passed in pixel.<br />
+This method have on the notchs component.
+
+- **get/setNotchsColor**  -> int value, default <code>Color.BLACK</code><br />
+The notchs stroke color.<br />
+This method have on the notchs component.
 
 - **get/setNotchs**  -> float value, default <code>0</code><br />
 The number of sector where the arc will be divided.<br />
@@ -90,6 +99,14 @@ Note that if the arc is NOT closed you will see one more notch that will represe
 
 - **get/setNotchsLength**  -> float value, default is double of stroke size<br />
 The notchs line length.
+
+- **get/setSnapToNotchs**  -> boolean value, default <code>false</code><br />
+Round the progress value to the near notch degrees.
+
+- **get/setValue**  -> float value, default <code>0</code><br />
+The current progress value.<br />
+IMPORTANT! This getter/setter have a overload where you can pass a range of float values and the methods translate the reference value to the angle in degrees and call the base methods.
+
 
 
 ---
@@ -136,6 +153,12 @@ Press on above link to see the code application.
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/3.jpg)
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/4.jpg)
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/5.jpg)
+
+
+### [Notchs](ScGauge_Notchs.md)
+Press on above link to see the code application.
+
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/6.jpg)
 
 
 # License

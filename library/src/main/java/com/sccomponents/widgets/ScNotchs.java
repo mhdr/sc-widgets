@@ -172,10 +172,10 @@ public class ScNotchs extends ScArc {
             info.source = this;
             info.angle = currentAngle + this.getAngleStart();
             info.color = this.getStrokeColor();
-            info.distanceFromBorder = 0.0f;
             info.index = index;
             info.length = this.mNotchsLength;
             info.size = this.getStrokeSize();
+            info.type = this.mNotchsType;
 
             // Check if the listener is linked
             if (this.mOnDrawListener != null) {
@@ -187,16 +187,19 @@ public class ScNotchs extends ScArc {
                 this.getPainter().setColor(info.color);
             }
 
-            // Draw the line by the case
-            switch (this.mNotchsType) {
-                case LINE:
-                    this.drawLine(canvas, info, area);
-                    break;
+            // Draw only if visible
+            if (info.visible) {
+                // Draw the line by the case
+                switch (info.type) {
+                    case LINE:
+                        this.drawLine(canvas, info, area);
+                        break;
 
-                case CIRCLE:
-                case CIRCLE_FILLED:
-                    this.drawCircle(canvas, info, area);
-                    break;
+                    case CIRCLE:
+                    case CIRCLE_FILLED:
+                        this.drawCircle(canvas, info, area);
+                        break;
+                }
             }
         }
     }
@@ -245,8 +248,17 @@ public class ScNotchs extends ScArc {
      * Public methods
      */
 
-    // This class was created only for pass the notch information to the listener as you
-    // can see in the following code.
+    // Enum for define what type of draw method calling for render the notch
+    @SuppressWarnings("unused")
+    public enum NotchsTypes {
+        LINE,
+        CIRCLE,
+        CIRCLE_FILLED
+    }
+
+    // The following specific class was created only for pass the notch information to the listener
+    // as you can see in the following code.
+    // Changing the values of properties inside this you will manage the single notch rendering.
     @SuppressWarnings("unused")
     public class NotchInfo {
 
@@ -257,14 +269,9 @@ public class ScNotchs extends ScArc {
         public float size = 0.0f;
         public int color = Color.BLACK;
         public float distanceFromBorder = 0.0f;
+        public NotchsTypes type = NotchsTypes.LINE;
+        public boolean visible = true;
 
-    }
-
-    @SuppressWarnings("unused")
-    public enum NotchsTypes {
-        LINE,
-        CIRCLE,
-        CIRCLE_FILLED
     }
 
 

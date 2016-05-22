@@ -1,28 +1,43 @@
-package com.sccomponents.widgets.demo;
+# ScGauge - Notchs
+Some examples or go back to the class [documentation](ScGauge.md).
 
-import android.graphics.Color;
-import android.graphics.EmbossMaskFilter;
-import android.graphics.MaskFilter;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.SweepGradient;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+### Play with color and filters
 
-import com.sccomponents.widgets.ScArc;
-import com.sccomponents.widgets.ScGauge;
-import com.sccomponents.widgets.ScNotchs;
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/6.jpg"> 
+```xml
+    <FrameLayout
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:background="#fff5f5f5"
+        android:padding="10dp">
 
-public class MainActivity extends AppCompatActivity {
+        <com.sccomponents.widgets.ScGauge
+            xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/gauge"
+            sc:scc_angle_start="180"
+            sc:scc_angle_sweep="180"
+            sc:scc_progress_size="30dp"
+            sc:scc_progress_color="#000000"
+            sc:scc_stroke_size="30dp"
+            sc:scc_notchs_size="2dp"
+            sc:scc_notchs_color="#ffffff"
+            sc:scc_notchs="4"
+            sc:scc_notchs_length="30dp" />
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="100%"
+            android:id="@+id/counter"
+            android:layout_gravity="bottom|center_horizontal"
+            android:textSize="30dp" />
 
+    </FrameLayout>
+```
+
+```java
         // Get the gauge
         final ScGauge gauge = (ScGauge) this.findViewById(R.id.gauge);
         assert gauge != null;
@@ -74,6 +89,22 @@ public class MainActivity extends AppCompatActivity {
                 counter.setText((int) gauge.getValue(0, 100) + "%");
             }
         });
+```
 
-    }
-}
+
+# License
+<pre>
+ Copyright 2015 Samuele Carassai
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in  writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,  either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+</pre>

@@ -41,9 +41,6 @@ Some examples or go back to the class [documentation](ScGauge.md).
         final ScGauge gauge = (ScGauge) this.findViewById(R.id.gauge);
         assert gauge != null;
 
-        // Hide the notchs.
-        // You can obtain the same result setting the notchs number to zero.
-        gauge.show(true, false, true);
         // Rounded cap
         gauge.setStrokesCap(Paint.Cap.ROUND);
         // Set the value to 80% take as reference a range of 0, 100.

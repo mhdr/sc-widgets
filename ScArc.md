@@ -52,12 +52,12 @@ This method consider the angles limits settings and return a relative angle valu
 **boolean belongsToArc(float x, float y)**<br />
 Check if a point belongs to the arc.
 
-- **void setStrokeColors(int... values)*<br />
-Create a gradient color and apply it to the stroke.
-
-
+- **int getCurrentGradientColor()**<br />
+**int getCurrentGradientColor(float angle)**<br />
+Get the current gradient color by the current draw angle or a reference one.
 
 #### Getter and Setter
+
 - **get/setAngleStart**  -> float value, default <code>0</code><br />
 The start angle in degrees.
 
@@ -74,6 +74,9 @@ The value must be passed in pixel.
 
 - **get/setStrokeColor**  -> int value, default <code>Color.BLACK</code><br />
 Set the solid color of the stroke.
+
+- **get/setStrokeColors**  -> int[] value, default <code>null</code><br />
+Create a gradient color and apply it to the stroke.
 
 - **get/setMaxWidth**  -> int value, default <code>Int.MAX_VALUE</code><br />
 The value must be passed in pixel.

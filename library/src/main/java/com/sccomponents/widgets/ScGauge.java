@@ -50,8 +50,11 @@ public class ScGauge
     private float mProgressSize;
     private int mProgressColor;
 
+    private float mNotchsSize;
+    private int mNotchsColor;
     private int mNotchsCount;
     private float mNotchsLength;
+    private boolean mSnapToNotchs;
 
 
     /**
@@ -98,8 +101,6 @@ public class ScGauge
         // Fill the settings
         arc.setAngleStart(this.mAngleStart);
         arc.setAngleSweep(this.mAngleSweep);
-        arc.setStrokeSize(isProgress ? this.mProgressSize : this.mStrokeSize);
-        arc.setStrokeColor(isProgress ? this.mProgressColor : this.mStrokeColor);
 
         // If progress set also the draw angle
         if (isProgress) {
@@ -108,11 +109,29 @@ public class ScGauge
 
         // Check if notchs instance
         if (arc instanceof ScNotchs) {
+            // Cast to notchs
+            ScNotchs notchs = (ScNotchs) arc;
+
             // Set the particular notchs properties
-            ((ScNotchs) arc).setNotchs(this.mNotchsCount);
-            ((ScNotchs) arc).setNotchsLength(this.mNotchsLength);
-            ((ScNotchs) arc).setOnDrawListener(this);
+            notchs.setStrokeSize(this.mNotchsSize);
+            notchs.setStrokeColor(this.mNotchsColor);
+            notchs.setNotchs(this.mNotchsCount);
+            notchs.setNotchsLength(this.mNotchsLength);
+            notchs.setOnDrawListener(this);
+
+        } else {
+            // The arc size and color
+            arc.setStrokeSize(isProgress ? this.mProgressSize : this.mStrokeSize);
+            arc.setStrokeColor(isProgress ? this.mProgressColor : this.mStrokeColor);
         }
+    }
+
+    // Round the degree angle to the near notch value
+    private float snapToNotchs(float degrees) {
+        // Calc the delta angle and the middle stroke
+        float deltaAngle = this.mAngleSweep / this.mNotchsCount;
+        // Round at notchs value
+        return Math.round(degrees / deltaAngle) * deltaAngle;
     }
 
     // Init the component.
@@ -141,16 +160,32 @@ public class ScGauge
         this.mProgressColor = attrArray.getColor(
                 R.styleable.ScComponents_scc_progress_color, ScGauge.DEFAULT_PROGRESS_COLOR);
 
-        this.mAngleDraw = attrArray.getFloat(
-                R.styleable.ScComponents_scc_value, 0);
-
+        this.mNotchsSize = attrArray.getDimension(
+                R.styleable.ScComponents_scc_notchs_size, this.dipToPixel(ScGauge.DEFAULT_STROKE_SIZE));
+        this.mNotchsColor = attrArray.getColor(
+                R.styleable.ScComponents_scc_notchs_color, ScGauge.DEFAULT_STROKE_COLOR);
         this.mNotchsCount = attrArray.getInt(
                 R.styleable.ScComponents_scc_notchs, 0);
         this.mNotchsLength = attrArray.getDimension(
                 R.styleable.ScComponents_scc_notchs_length, this.mStrokeSize * 2);
+        this.mSnapToNotchs = attrArray.getBoolean(
+                R.styleable.ScComponents_scc_snap_to_notchs, false);
+
+        this.mAngleDraw = attrArray.getFloat(
+                R.styleable.ScComponents_scc_value, 0);
+
 
         // Recycle
         attrArray.recycle();
+
+        // INTERNAL
+        //--------------------------------------------------
+
+        // Check for snap to notchs the new degrees value
+        if (this.mSnapToNotchs) {
+            // Get the current value and round at the closed notchs value
+            this.mAngleDraw = this.snapToNotchs(this.mAngleDraw);
+        }
 
         //--------------------------------------------------
         // ARCS
@@ -247,6 +282,11 @@ public class ScGauge
         this.mArcNotchs.setPadding(
                 notchs.left, notchs.top, notchs.right, notchs.bottom
         );
+    }
+
+    // Get the arcs that compose this component.
+    private ScArc[] getArcs() {
+        return new ScArc[]{this.mArcBase, this.mArcNotchs, this.mArcProgress};
     }
 
 
@@ -372,6 +412,7 @@ public class ScGauge
         state.putInt("mProgressColor", this.mProgressColor);
         state.putInt("mNotchsCount", this.mNotchsCount);
         state.putFloat("mNotchsLength", this.mNotchsLength);
+        state.putBoolean("mSnapToNotchs", this.mSnapToNotchs);
 
         // Return the new state
         return state;
@@ -397,6 +438,7 @@ public class ScGauge
         this.mProgressColor = savedState.getInt("mProgressColor");
         this.mNotchsCount = savedState.getInt("mNotchsCount");
         this.mNotchsLength = savedState.getFloat("mNotchsLength");
+        this.mSnapToNotchs = savedState.getBoolean("mSnapToNotchs");
     }
 
 
@@ -404,12 +446,24 @@ public class ScGauge
      * Public methods
      */
 
-    // Get the arcs.
-    // This method is implemented only for have an advanced management of this component.
-    // A wrong use of arcs can generate a malfunction of this component.
+    // Get the base arc.
     @SuppressWarnings("unused")
-    public ScArc[] getArcs() {
-        return new ScArc[]{this.mArcBase, this.mArcNotchs, this.mArcProgress};
+    public ScArc getBaseArc() {
+        return this.getArcs()[0];
+    }
+
+    // Get the notchs arc.
+    // Note that the notchs will be returned ad a ScArc because in the advanced use of the gauge
+    // it could be an ScArc, so you need to cast it for use as ScNotchs.
+    @SuppressWarnings("unused")
+    public ScArc getNotchsArc() {
+        return this.getArcs()[1];
+    }
+
+    // Get the progress arc.
+    @SuppressWarnings("unused")
+    public ScArc getProgressArc() {
+        return this.getArcs()[2];
     }
 
     // Set stroke cap of painter for all components inside the gauge.
@@ -577,9 +631,7 @@ public class ScGauge
         if (this.mStrokeSize != value) {
             // Store the new value
             this.mStrokeSize = value;
-            // Apply to the arcs
             this.mArcBase.setStrokeSize(value);
-            this.mArcNotchs.setStrokeSize(value);
             // Refresh the component
             this.requestLayout();
         }
@@ -597,9 +649,7 @@ public class ScGauge
         if (this.mStrokeColor != value) {
             // Store the new value
             this.mStrokeColor = value;
-            // Apply to the arcs
             this.mArcBase.setStrokeColor(value);
-            this.mArcNotchs.setStrokeColor(value);
             // Refresh the component
             this.invalidate();
         }
@@ -639,53 +689,38 @@ public class ScGauge
         }
     }
 
-    // Progress value in degrees
+    // Notchs size
     @SuppressWarnings("unused")
-    public float getValue() {
-        return this.mAngleDraw;
+    public float getNotchsSize() {
+        return this.mNotchsSize;
     }
 
     @SuppressWarnings("unused")
-    public void setValue(float degrees) {
+    public void setNotchsSize(float value) {
         // Check if value is changed
-        if (this.mAngleDraw != degrees) {
-            // Save the new value
-            this.mAngleDraw = degrees;
-            // Set and start animation
-            this.mAnimator.setFloatValues(
-                    this.mAngleDraw,
-                    ScGauge.valueRangeLimit(degrees, 0, this.mAngleSweep)
-            );
-            this.mAnimator.start();
+        if (this.mNotchsSize != value) {
+            // Store the new value and refresh the component
+            this.mNotchsSize = value;
+            this.mArcNotchs.setStrokeSize(value);
+            this.requestLayout();
         }
     }
 
-    // Progress value but based on a values range.
-    // Translate the reference value to the angle in degrees and call the base methods.
+    // Progress color
     @SuppressWarnings("unused")
-    public float getValue(float startRange, float endRange) {
-        // Return the translated value
-        return this.translateAngleToValue(
-                this.mAngleDraw,
-                startRange,
-                endRange
-        );
+    public int getNotchsColor() {
+        return this.mNotchsColor;
     }
 
     @SuppressWarnings("unused")
-    public void setValue(float value, float startRange, float endRange) {
-        // Limit the value within the range
-        value = ScGauge.valueRangeLimit(value, startRange, endRange);
-        // Check for the division domain
-        if (endRange == startRange) {
-            value = 0;
-
-        } else {
-            // Convert the value in the relative angle respect the arc length
-            value = ((value - startRange) / (endRange - startRange)) * this.mAngleSweep;
+    public void setNotchsColor(int value) {
+        // Check if value is changed
+        if (this.mNotchsColor != value) {
+            // Store the new value and refresh the component
+            this.mNotchsColor = value;
+            this.mArcNotchs.setStrokeColor(value);
+            this.invalidate();
         }
-        // Call the base method
-        this.setValue(value);
     }
 
     // Notchs count
@@ -736,6 +771,75 @@ public class ScGauge
             // Refresh the component
             this.requestLayout();
         }
+    }
+
+    // Round the progress value to the near notch degrees
+    @SuppressWarnings("unused")
+    public boolean getSnapToNotchs() {
+        return this.mSnapToNotchs;
+    }
+
+    @SuppressWarnings("unused")
+    public void setSnapToNotchs(boolean value) {
+        // Fix the trigger
+        this.mSnapToNotchs = value;
+        // Recall the set value method for apply the new setting
+        this.setValue(this.getValue());
+    }
+
+    // Progress value in degrees
+    @SuppressWarnings("unused")
+    public float getValue() {
+        return this.mAngleDraw;
+    }
+
+    @SuppressWarnings("unused")
+    public void setValue(float degrees) {
+        // Check for snap to notchs the new degrees value
+        if (this.mSnapToNotchs) {
+            // Round at the closed notchs value
+            degrees = this.snapToNotchs(degrees);
+        }
+
+        // Check if value is changed
+        if (this.mAngleDraw != degrees) {
+            // Save the new value
+            this.mAngleDraw = degrees;
+            // Set and start animation
+            this.mAnimator.setFloatValues(
+                    this.mAngleDraw,
+                    ScGauge.valueRangeLimit(degrees, 0, this.mAngleSweep)
+            );
+            this.mAnimator.start();
+        }
+    }
+
+    // Progress value but based on a values range.
+    // Translate the reference value to the angle in degrees and call the base methods.
+    @SuppressWarnings("unused")
+    public float getValue(float startRange, float endRange) {
+        // Return the translated value
+        return this.translateAngleToValue(
+                this.mAngleDraw,
+                startRange,
+                endRange
+        );
+    }
+
+    @SuppressWarnings("unused")
+    public void setValue(float value, float startRange, float endRange) {
+        // Limit the value within the range
+        value = ScGauge.valueRangeLimit(value, startRange, endRange);
+        // Check for the division domain
+        if (endRange == startRange) {
+            value = 0;
+
+        } else {
+            // Convert the value in the relative angle respect the arc length
+            value = ((value - startRange) / (endRange - startRange)) * this.mAngleSweep;
+        }
+        // Call the base method
+        this.setValue(value);
     }
 
 

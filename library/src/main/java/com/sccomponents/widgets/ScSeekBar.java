@@ -35,7 +35,6 @@ public class ScSeekBar extends ScGauge {
     private float mPointerRadius;
     private int mPointerColor;
     private float mHaloSize;
-    private boolean mSnapToNotchs;
 
 
     /**
@@ -81,32 +80,6 @@ public class ScSeekBar extends ScGauge {
         if (this.mHaloSize < 0) this.mHaloSize = 0;
     }
 
-    // Get the base arc.
-    // Should be always the first of the components of ScGauge.
-    private ScArc getBaseArc() {
-        return this.getArcs()[0];
-    }
-
-    // Get the notchs arc.
-    // Should be always the second of the components of ScGauge.
-    private ScNotchs getNotchsArc() {
-        return (ScNotchs) this.getArcs()[1];
-    }
-
-    // Get the progress arc.
-    // Should be always the third of the components of ScGauge.
-    private ScArc getProgressArc() {
-        return this.getArcs()[2];
-    }
-
-    // Round the degree angle to the near notch value
-    private float snapToNotchs(float degrees) {
-        // Calc the delta angle and the middle stroke
-        float deltaAngle = this.getBaseArc().getAngleSweep() / this.getNotchs();
-        // Round at notchs value
-        return Math.round(degrees / deltaAngle) * deltaAngle;
-    }
-
     // Init the component
     private void init(Context context, AttributeSet attrs, int defStyle) {
         //--------------------------------------------------
@@ -124,9 +97,6 @@ public class ScSeekBar extends ScGauge {
         this.mHaloSize = attrArray.getDimension(
                 R.styleable.ScComponents_scc_halo_size, this.dipToPixel(ScSeekBar.DEFAULT_HALO_SIZE));
 
-        this.mSnapToNotchs = attrArray.getBoolean(
-                R.styleable.ScComponents_scc_snap_to_notchs, false);
-
         // Recycle
         attrArray.recycle();
 
@@ -135,15 +105,6 @@ public class ScSeekBar extends ScGauge {
 
         this.mArcPressed = false;
         this.checkValues();
-
-        // Check for snap to notchs the new degrees value
-        if (this.mSnapToNotchs) {
-            // Get the current value and round at the closed notchs value
-            float drawAngle = this.getProgressArc().getAngleDraw();
-            drawAngle = this.snapToNotchs(drawAngle);
-            // Apply to the progress arc
-            this.getProgressArc().setAngleDraw(drawAngle);
-        }
 
         //--------------------------------------------------
         // PAINTER
@@ -300,20 +261,6 @@ public class ScSeekBar extends ScGauge {
         return true;
     }
 
-    // Progress value in degrees
-    @SuppressWarnings("unused")
-    @Override
-    public void setValue(float degrees) {
-
-        // Check for snap to notchs the new degrees value
-        if (this.mSnapToNotchs) {
-            // Round at the closed notchs value
-            degrees = this.snapToNotchs(degrees);
-        }
-        // Call the super
-        super.setValue(degrees);
-    }
-
 
     /**
      * Instance state
@@ -329,7 +276,6 @@ public class ScSeekBar extends ScGauge {
         state.putFloat("mPointerRadius", this.mPointerRadius);
         state.putInt("mPointerColor", this.mPointerColor);
         state.putFloat("mHaloSize", this.mHaloSize);
-        state.putBoolean("mSnapToNotchs", this.mSnapToNotchs);
 
         return state;
     }
@@ -345,7 +291,6 @@ public class ScSeekBar extends ScGauge {
         this.mPointerRadius = savedState.getFloat("mPointerRadius");
         this.mPointerColor = savedState.getInt("mPointerColor");
         this.mHaloSize = savedState.getFloat("mHaloSize");
-        this.mSnapToNotchs = savedState.getBoolean("mSnapToNotchs");
     }
 
 
@@ -392,20 +337,6 @@ public class ScSeekBar extends ScGauge {
         this.mPointerPaint.setColor(this.mPointerColor);
         this.mHaloPaint.setColor(this.mPointerColor);
         this.requestLayout();
-    }
-
-    // Snap the values to the notchs
-    @SuppressWarnings("unused")
-    public boolean getSnapToNotchs() {
-        return this.mSnapToNotchs;
-    }
-
-    @SuppressWarnings("unused")
-    public void setSnapToNotchs(boolean color) {
-        // Fix the trigger
-        this.mSnapToNotchs = color;
-        // Recall the set value method for apply the new setting
-        this.setValue(this.getValue());
     }
 
 
