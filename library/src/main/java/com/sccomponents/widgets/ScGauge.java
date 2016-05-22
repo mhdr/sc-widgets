@@ -101,6 +101,8 @@ public class ScGauge
         // Fill the settings
         arc.setAngleStart(this.mAngleStart);
         arc.setAngleSweep(this.mAngleSweep);
+        arc.setStrokeSize(isProgress ? this.mProgressSize : this.mStrokeSize);
+        arc.setStrokeColor(isProgress ? this.mProgressColor : this.mStrokeColor);
 
         // If progress set also the draw angle
         if (isProgress) {
@@ -113,16 +115,11 @@ public class ScGauge
             ScNotchs notchs = (ScNotchs) arc;
 
             // Set the particular notchs properties
-            notchs.setStrokeSize(this.mNotchsSize);
-            notchs.setStrokeColor(this.mNotchsColor);
+            notchs.setStrokeSize(isProgress ? this.mProgressSize : this.mNotchsSize);
+            notchs.setStrokeColor(isProgress ? this.mProgressColor : this.mNotchsColor);
             notchs.setNotchs(this.mNotchsCount);
             notchs.setNotchsLength(this.mNotchsLength);
             notchs.setOnDrawListener(this);
-
-        } else {
-            // The arc size and color
-            arc.setStrokeSize(isProgress ? this.mProgressSize : this.mStrokeSize);
-            arc.setStrokeColor(isProgress ? this.mProgressColor : this.mStrokeColor);
         }
     }
 
@@ -547,8 +544,8 @@ public class ScGauge
             this.arcObjectSetter(this.mArcNotchs, false);
         }
 
-        // Transform the base arc to a notchs object
-        if (baseArcToNotchs) {
+        // Transform the progress arc to a notchs object
+        if (progressArcToNotchs) {
             // Create a new instance of the ScNotchs
             this.mArcProgress = new ScNotchs(this.getContext());
             this.arcObjectSetter(this.mArcProgress, true);

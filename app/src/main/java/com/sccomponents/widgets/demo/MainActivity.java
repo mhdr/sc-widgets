@@ -26,42 +26,36 @@ public class MainActivity extends AppCompatActivity {
         // Get the gauge
         final ScGauge gauge = (ScGauge) this.findViewById(R.id.gauge);
         assert gauge != null;
-        // Set the value to 30% take as reference a range of 0, 100.
-        gauge.setValue(30, 0, 100);
+
+        // Convert the progress arc to notchs arc and hide the base arc.
+        // This method create a new object for this reason better do it for first operation.
+        gauge.changeComponentsConfiguration(false, false, true);
+        gauge.show(false, true, true);
+
+        // Set the value to 60% take as reference a range of 0, 100.
+        gauge.setValue(60, 0, 100);
 
         // Set the color gradient on the progress arc
-        gauge.getBaseArc().setStrokeColors(
+        gauge.getProgressArc().setStrokeColors(
                 Color.parseColor("#EA3A3C"),
                 Color.parseColor("#FDE401"),
                 Color.parseColor("#55B20C"),
                 Color.parseColor("#3FA8F9")
         );
 
-        // As the mask filter not support the hardware acceleration I must set the layer type
-        // to software.
-        gauge.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-
-        // Apply the filter on the progress painter
-        EmbossMaskFilter filter = new EmbossMaskFilter(new float[]{0.0f, 1.0f, 0.5f}, 0.8f, 3.0f, 5.0f);
-        gauge.getBaseArc().getPainter().setMaskFilter(filter);
-        gauge.getProgressArc().getPainter().setMaskFilter(filter);
-
         // Events
         gauge.setOnDrawListener(new ScGauge.OnDrawListener() {
             @Override
             public void onBeforeDraw(Paint baseArc, Paint notchsArc, Paint progressArc) {
-                // Set the progress color by taking the color from the base arc gradient.
-                // Note that I passed the current gauge value because if not the current gradient
-                // color if relative at the base arc draw angle.
-                int color = gauge.getBaseArc()
-                        .getCurrentGradientColor(gauge.getValue());
-                progressArc.setColor(color);
+                // Do nothing
             }
 
             @Override
             public void onDrawNotch(ScNotchs.NotchInfo info) {
-                // Hide the first and the last notchs
-                info.visible = info.index > 0 && info.index < info.source.getNotchs() + 1;
+                // Hide the first notch to prevent a visual color filling issue
+                info.visible = info.index > 0;
+                // Change the length of the notch by the position index
+                info.length += info.index + 2;
             }
         });
 

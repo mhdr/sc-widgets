@@ -1,7 +1,8 @@
 # ScGauge - Notchs
 Some examples or go back to the class [documentation](ScGauge.md).
 
-### Play with color and filters
+
+### Play with colors and filters
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/6.jpg"> 
 ```xml
@@ -56,7 +57,7 @@ Some examples or go back to the class [documentation](ScGauge.md).
         // to software.
         gauge.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
-        // Apply the filter on the progress painter
+        // Apply the filter on the painters
         EmbossMaskFilter filter = new EmbossMaskFilter(new float[]{0.0f, 1.0f, 0.5f}, 0.8f, 3.0f, 5.0f);
         gauge.getBaseArc().getPainter().setMaskFilter(filter);
         gauge.getProgressArc().getPainter().setMaskFilter(filter);
@@ -77,6 +78,88 @@ Some examples or go back to the class [documentation](ScGauge.md).
             public void onDrawNotch(ScNotchs.NotchInfo info) {
                 // Hide the first and the last notchs
                 info.visible = info.index > 0 && info.index < info.source.getNotchs() + 1;
+            }
+        });
+
+        gauge.setOnEventListener(new ScGauge.OnEventListener() {
+            @Override
+            public void onValueChange(float degrees) {
+                // Get the text control and write the value
+                TextView counter = (TextView) MainActivity.this.findViewById(R.id.counter);
+                assert counter != null;
+                counter.setText((int) gauge.getValue(0, 100) + "%");
+            }
+        });
+```
+
+
+### Play with colors and filters
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/6.jpg"> 
+```xml
+    <FrameLayout
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:background="#fff5f5f5">
+
+        <com.sccomponents.widgets.ScGauge
+            xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/gauge"
+            android:padding="10dp"
+            sc:scc_angle_start="180"
+            sc:scc_angle_sweep="90"
+            sc:scc_progress_size="3dp"
+            sc:scc_notchs="32" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="100%"
+            android:id="@+id/counter"
+            android:layout_gravity="bottom|right"
+            android:textSize="40dp"
+            android:textColor="#000000"
+            android:layout_margin="20dp"/>
+
+    </FrameLayout>
+```
+
+```java
+        // Get the gauge
+        final ScGauge gauge = (ScGauge) this.findViewById(R.id.gauge);
+        assert gauge != null;
+
+        // Convert the progress arc to notchs arc and hide the base arc.
+        // This method create a new object for this reason better do it for first operation.
+        gauge.changeComponentsConfiguration(false, false, true);
+        gauge.show(false, true, true);
+
+        // Set the value to 60% take as reference a range of 0, 100.
+        gauge.setValue(60, 0, 100);
+
+        // Set the color gradient on the progress arc
+        gauge.getProgressArc().setStrokeColors(
+                Color.parseColor("#EA3A3C"),
+                Color.parseColor("#FDE401"),
+                Color.parseColor("#55B20C"),
+                Color.parseColor("#3FA8F9")
+        );
+
+        // Events
+        gauge.setOnDrawListener(new ScGauge.OnDrawListener() {
+            @Override
+            public void onBeforeDraw(Paint baseArc, Paint notchsArc, Paint progressArc) {
+                // Do nothing
+            }
+
+            @Override
+            public void onDrawNotch(ScNotchs.NotchInfo info) {
+                // Hide the first notch to prevent a visual color filling issue
+                info.visible = info.index > 0;
+                // Change the length of the notch by the position index
+                info.length += info.index + 2;
             }
         });
 

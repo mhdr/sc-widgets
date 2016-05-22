@@ -12,32 +12,29 @@
 
     <FrameLayout
         android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:background="#fff5f5f5"
-        android:padding="10dp">
+        android:layout_height="200dp"
+        android:background="#fff5f5f5">
 
         <com.sccomponents.widgets.ScGauge
             xmlns:sc="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:id="@+id/gauge"
+            android:padding="10dp"
             sc:scc_angle_start="180"
-            sc:scc_angle_sweep="180"
-            sc:scc_progress_size="30dp"
-            sc:scc_progress_color="#000000"
-            sc:scc_stroke_size="30dp"
-            sc:scc_notchs_size="2dp"
-            sc:scc_notchs_color="#ffffff"
-            sc:scc_notchs="4"
-            sc:scc_notchs_length="30dp" />
+            sc:scc_angle_sweep="90"
+            sc:scc_progress_size="3dp"
+            sc:scc_notchs="32" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="100%"
             android:id="@+id/counter"
-            android:layout_gravity="bottom|center_horizontal"
-            android:textSize="30dp" />
+            android:layout_gravity="bottom|right"
+            android:textSize="40dp"
+            android:textColor="#000000"
+            android:layout_margin="20dp"/>
 
     </FrameLayout>
 
