@@ -142,6 +142,8 @@ IMPORTANT! This getter/setter have a overload where you can pass a range of floa
         <attr name="scc_progress_size" format="dimension" />
         <attr name="scc_progress_color" format="color" />
         <attr name="scc_value" format="float" />
+        <attr name="scc_notchs_size" format="dimension" />
+        <attr name="scc_notchs_color" format="color" />
         <attr name="scc_notchs" format="integer" />
         <attr name="scc_notchs_length" format="dimension" />
     </declare-styleable>
