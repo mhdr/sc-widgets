@@ -152,6 +152,15 @@ IMPORTANT! This getter/setter have a overload where you can pass a range of floa
 
 ## Let's play
 
+> **DON'T FORGET**<br />
+> You can use the <code>getAnimator()</code> to animate the progress value.<br />
+> Is enough to set the animation duration to a value over zero for see the value changing using an interpolator.<br />
+
+> **FUNNY**<br />
+> Can be funny to create new examples.<br />
+> So if you created new one please send me the picture and the xml/java code and I'll insert in.
+
+
 ### [Simple and beauty](ScGauge_SimpleAndBeauty.md)
 Press on above link to see the code application.
 
