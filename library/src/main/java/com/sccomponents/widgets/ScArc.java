@@ -206,6 +206,16 @@ public class ScArc extends ScWidget {
 
     // Create a sweep gradient shader
     private SweepGradient createSweepGradient(RectF area) {
+        // Check no values inside the array
+        if (this.mStrokeColorsGradient.length == 0)
+            return null;
+
+        // If have only one value set directly to the painter and return null
+        if (this.mStrokeColorsGradient.length == 1) {
+            this.mStrokePaint.setColor(this.mStrokeColorsGradient[0]);
+            return null;
+        }
+
         // Create the position holder
         float[] positions = new float[this.mStrokeColorsGradient.length];
         float deltaAngle = this.mAngleSweep / (this.mStrokeColorsGradient.length - 1);
@@ -364,8 +374,7 @@ public class ScArc extends ScWidget {
         RectF drawingArea = this.calcDrawingArea(canvasArea);
 
         // Check if need to create a gradient
-        if (this.mStrokeColorsGradient != null && this.mStrokeColorsGradient.length > 0 &&
-                this.mAngleSweep != 0) {
+        if (this.mStrokeColorsGradient != null) {
             // Create the gradient and apply it to the painter
             this.mStrokePaint.setShader(this.createSweepGradient(drawingArea));
         }

@@ -270,6 +270,88 @@ Some examples or go back to the class [documentation](ScGauge.md).
 ```
 
 
+### Custom padding and notchs emphasis
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/9.jpg"> 
+```xml
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#0B5785">
+
+        <com.sccomponents.widgets.ScGauge
+            xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/gauge"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            sc:scc_angle_start="-90"
+            sc:scc_notchs="45"
+            sc:scc_notchs_color="#5097C3"
+            sc:scc_notchs_length="10dp"
+            sc:scc_notchs_size="5dp"
+            sc:scc_progress_color="#5097C3"
+            sc:scc_progress_size="5dp" />
+
+        <TextView
+            android:id="@+id/counter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="100%"
+            android:textColor="#ffffff"
+            android:textSize="52dp" />
+
+    </FrameLayout>
+```
+
+```java
+        // Get the gauge
+        final ScGauge gauge = (ScGauge) this.findViewById(R.id.gauge);
+        assert gauge != null;
+
+        // This method create a new object for this reason better do it for first operation.
+        // As we cannot apply more than one mask effect to a single paint we need to have three
+        // ScNotchs so we will convert the base arc to notchs and the progress arc too.
+        // We'll use the base as usual, apply the blur on the notchs arc and apply the emboss on
+        // the progress.
+        gauge.changeComponentsConfiguration(true, false, true);
+
+        // Now the base and progress arcs have inherited the color and the size from the notchs
+        // setting so we need to change the base arc color programmatically.
+        gauge.getBaseArc().setStrokeColor(Color.parseColor("#0D0B09"));
+
+        // As the mask filter not support the hardware acceleration I must set the layer type
+        // to software.
+        gauge.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+
+        // Blur filter
+        BlurMaskFilter blur = new BlurMaskFilter(5.0f, BlurMaskFilter.Blur.SOLID);
+        gauge.getNotchsArc().getPainter().setMaskFilter(blur);
+
+        // Emboss filter
+        EmbossMaskFilter emboss = new EmbossMaskFilter(new float[]{0.0f, 1.0f, 0.5f}, 0.8f, 3.0f, 0.5f);
+        gauge.getProgressArc().getPainter().setMaskFilter(emboss);
+
+        // Set the value to 60% take as reference a range of 0, 100.
+        gauge.setValue(60, 0, 100);
+
+        // Events
+        gauge.setOnEventListener(new ScGauge.OnEventListener() {
+            @Override
+            public void onValueChange(float degrees) {
+                // Set the
+                gauge.getNotchsArc().setAngleDraw(degrees);
+
+                // Get the text control and write the value
+                TextView counter = (TextView) MainActivity.this.findViewById(R.id.counter);
+                assert counter != null;
+                counter.setText((int) gauge.getValue(0, 100) + "%");
+            }
+        });
+```
+
+
 # License
 <pre>
  Copyright 2015 Samuele Carassai

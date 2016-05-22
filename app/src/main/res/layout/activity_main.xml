@@ -13,7 +13,7 @@
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#fff5f5f5">
+        android:background="#0B5785">
 
         <com.sccomponents.widgets.ScGauge
             android:id="@+id/gauge"
@@ -21,21 +21,23 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            sc:scc_angle_start="155"
-            sc:scc_angle_sweep="230"
-            sc:scc_stroke_size="5dp"
-            sc:scc_progress_size="20dp"
-            sc:scc_notchs="16" />
+            sc:scc_angle_start="-90"
+            sc:scc_notchs="45"
+            sc:scc_notchs_color="#5097C3"
+            sc:scc_notchs_length="10dp"
+            sc:scc_notchs_size="5dp"
+            sc:scc_progress_color="#5097C3"
+            sc:scc_progress_size="5dp"/>
 
         <TextView
+            android:id="@+id/counter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="100%"
-            android:id="@+id/counter"
-            android:textSize="40dp"
-            android:textColor="#000000"
             android:layout_gravity="center"
-            android:layout_marginTop="20dp"/>
+            android:text="100%"
+            android:textColor="#ffffff"
+            android:textSize="52dp"
+            />
 
     </FrameLayout>
 
