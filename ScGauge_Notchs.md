@@ -340,7 +340,7 @@ Some examples or go back to the class [documentation](ScGauge.md).
         gauge.setOnEventListener(new ScGauge.OnEventListener() {
             @Override
             public void onValueChange(float degrees) {
-                // Set the
+                // Set the drawing angle to the notchs arc
                 gauge.getNotchsArc().setAngleDraw(degrees);
 
                 // Get the text control and write the value
