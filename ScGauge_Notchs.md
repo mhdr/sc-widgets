@@ -270,7 +270,7 @@ Some examples or go back to the class [documentation](ScGauge.md).
 ```
 
 
-### Custom padding and notchs emphasis
+### All notchs
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/9.jpg"> 
 ```xml
