@@ -59,6 +59,10 @@ So, if you did some change about inner properties before call this method, you m
 Set the notchs style for all ScNotchs components inside this component.
 For the style possibilities please refer to the [ScNotchs](ScNotchs.md) documentation.
 
+- **void setDrawNotchsForLast(boolean value)**<br />
+Draw the notchs for the last in the drawing method.<br />
+The default sequence of drawing is base arc, notchs arc and progress arc for last.
+
 
 #### Getter and Setter
 

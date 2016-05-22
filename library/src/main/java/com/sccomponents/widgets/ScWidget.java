@@ -9,7 +9,7 @@ import android.view.WindowManager;
 
 /**
  * The base widget class.
- *
+ * <p/>
  * This class contain only some utility methods useful for next components implementation.
  * v1.0
  */
@@ -137,4 +137,13 @@ public abstract class ScWidget extends View {
         newRect.offset(-newRect.left, -newRect.top);
         return newRect;
     }
+
+    // Swap two array elements position
+    @SuppressWarnings("unused")
+    public static <T> void swapArrayPosition(T[] source, int first, int second) {
+        T temp = source[first];
+        source[first] = source[second];
+        source[second] = temp;
+    }
+
 }

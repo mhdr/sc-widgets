@@ -159,7 +159,102 @@ Some examples or go back to the class [documentation](ScGauge.md).
                 // Hide the first notch to prevent a visual color filling issue
                 info.visible = info.index > 0;
                 // Change the length of the notch by the position index
-                info.length += info.index + 2;
+                info.length += info.index;
+            }
+        });
+
+        gauge.setOnEventListener(new ScGauge.OnEventListener() {
+            @Override
+            public void onValueChange(float degrees) {
+                // Get the text control and write the value
+                TextView counter = (TextView) MainActivity.this.findViewById(R.id.counter);
+                assert counter != null;
+                counter.setText((int) gauge.getValue(0, 100) + "%");
+            }
+        });
+```
+
+
+### Custom padding and notchs emphasis
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/7.jpg"> 
+```xml
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#fff5f5f5">
+
+        <com.sccomponents.widgets.ScGauge
+            android:id="@+id/gauge"
+            xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            sc:scc_angle_start="155"
+            sc:scc_angle_sweep="230"
+            sc:scc_stroke_size="5dp"
+            sc:scc_progress_size="20dp"
+            sc:scc_notchs="16" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="100%"
+            android:id="@+id/counter"
+            android:textSize="40dp"
+            android:textColor="#000000"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"/>
+
+    </FrameLayout>
+```
+
+```java
+        // Get the gauge
+        final ScGauge gauge = (ScGauge) this.findViewById(R.id.gauge);
+        assert gauge != null;
+
+        // Set the value to 60% take as reference a range of 0, 100.
+        gauge.setValue(60, 0, 100);
+        // Draw the notchs arc for last
+        gauge.setDrawNotchsForLast(true);
+
+        // Set the color gradient on the progress arc
+        gauge.getProgressArc().setStrokeColors(
+                Color.parseColor("#EA3A3C"),
+                Color.parseColor("#FDE401"),
+                Color.parseColor("#55B20C"),
+                Color.parseColor("#3FA8F9")
+        );
+
+        // Events
+        gauge.setOnDrawListener(new ScGauge.OnDrawListener() {
+            @Override
+            public void onBeforeDraw(Paint baseArc, Paint notchsArc, Paint progressArc) {
+                // Do nothing
+            }
+
+            @Override
+            public void onDrawNotch(ScNotchs.NotchInfo info) {
+                // Notch emphasis
+                if (info.index % 4 == 0) {
+                    info.length = gauge.getBaseArc().getStrokeSize() + gauge.getProgressArc().getStrokeSize();
+                }
+            }
+        });
+
+        gauge.setOnCustomPaddingListener(new ScGauge.OnCustomPaddingListener() {
+            @Override
+            public void onCustomPadding(Rect baseArc, Rect notchsArc, Rect progressArc) {
+                // Move the progress inside.
+                // Noted that this rect NOT contain an area but contain the four padding used
+                // for draw the component.
+                // Noted also that in the bottom setting I used a number for adjust a typical
+                // visual issue about inscribed arcs.
+                progressArc.left += gauge.getBaseArc().getStrokeSize();
+                progressArc.right += gauge.getBaseArc().getStrokeSize();
+                progressArc.top += gauge.getBaseArc().getStrokeSize();
+                progressArc.bottom += gauge.getBaseArc().getStrokeSize() - 5;
             }
         });
 

@@ -29,6 +29,10 @@ The method return a new inflated rectangle and can alter the origin too.
 - **RectF resetRectToOrigin(RectF rect)**<br />
 Reset the rectangle to its origin.
 
+- **void swapArrayPosition(T[] source, int first, int second)**<br />
+Swap two array elements position.
+
+
 #### Public methods
 
 - **float dipToPixel(float dip)**<br />

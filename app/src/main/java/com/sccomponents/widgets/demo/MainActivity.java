@@ -1,18 +1,12 @@
 package com.sccomponents.widgets.demo;
 
 import android.graphics.Color;
-import android.graphics.EmbossMaskFilter;
-import android.graphics.MaskFilter;
-import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.SweepGradient;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.sccomponents.widgets.ScArc;
 import com.sccomponents.widgets.ScGauge;
 import com.sccomponents.widgets.ScNotchs;
 
@@ -27,13 +21,10 @@ public class MainActivity extends AppCompatActivity {
         final ScGauge gauge = (ScGauge) this.findViewById(R.id.gauge);
         assert gauge != null;
 
-        // Convert the progress arc to notchs arc and hide the base arc.
-        // This method create a new object for this reason better do it for first operation.
-        gauge.changeComponentsConfiguration(false, false, true);
-        gauge.show(false, true, true);
-
         // Set the value to 60% take as reference a range of 0, 100.
         gauge.setValue(60, 0, 100);
+        // Draw the notchs arc for last
+        gauge.setDrawNotchsForLast(true);
 
         // Set the color gradient on the progress arc
         gauge.getProgressArc().setStrokeColors(
@@ -52,10 +43,25 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onDrawNotch(ScNotchs.NotchInfo info) {
-                // Hide the first notch to prevent a visual color filling issue
-                info.visible = info.index > 0;
-                // Change the length of the notch by the position index
-                info.length += info.index + 2;
+                // Notch emphasis
+                if (info.index % 4 == 0) {
+                    info.length = gauge.getBaseArc().getStrokeSize() + gauge.getProgressArc().getStrokeSize();
+                }
+            }
+        });
+
+        gauge.setOnCustomPaddingListener(new ScGauge.OnCustomPaddingListener() {
+            @Override
+            public void onCustomPadding(Rect baseArc, Rect notchsArc, Rect progressArc) {
+                // Move the progress inside.
+                // Noted that this rect NOT contain an area but contain the four padding used
+                // for draw the component.
+                // Noted also that in the bottom setting I used a number for adjust a typical
+                // visual issue about inscribed arcs.
+                progressArc.left += gauge.getBaseArc().getStrokeSize();
+                progressArc.right += gauge.getBaseArc().getStrokeSize();
+                progressArc.top += gauge.getBaseArc().getStrokeSize();
+                progressArc.bottom += gauge.getBaseArc().getStrokeSize() - 5;
             }
         });
 

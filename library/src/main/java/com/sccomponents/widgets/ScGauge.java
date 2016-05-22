@@ -66,6 +66,7 @@ public class ScGauge
     private ScArc mArcNotchs;
 
     private ValueAnimator mAnimator;
+    private boolean mDrawNotchsForLast;
 
     private OnDrawListener mOnDrawListener;
     private OnCustomPaddingListener mOnCustomPaddingListener;
@@ -232,18 +233,21 @@ public class ScGauge
     // This method setting padding automatically of all component inside the gauge centering the
     // the stroke one above the other.
     // Note that if have a custom padding listener linked the procedure will be bypassed and
-    // the user should setting. If not the padding rectangle will be empty for all components.
+    // the user should setting.
     private void fixArcsPadding() {
         // Define the padding holder
-        Rect baseArc = new Rect();
-        Rect progressArc = new Rect();
-        Rect notchs = new Rect();
+        Rect baseArc = new Rect(
+                this.getPaddingLeft(), this.getPaddingTop(),
+                this.getPaddingRight(), this.getPaddingBottom()
+        );
+        Rect progressArc = new Rect(baseArc);
+        Rect notchsArc = new Rect(baseArc);
 
         // If have instantiate the customer padding listener the padding will be decided by
         // the final user inside the calling function
         if (this.mOnCustomPaddingListener != null) {
             // Call the method
-            this.mOnCustomPaddingListener.onCustomPadding(baseArc, progressArc, notchs);
+            this.mOnCustomPaddingListener.onCustomPadding(baseArc, notchsArc, progressArc);
 
         } else {
             // Find the middle of max stroke sizes
@@ -263,7 +267,7 @@ public class ScGauge
                     this.getPaddingLeft() + progressPadding, this.getPaddingTop() + progressPadding,
                     this.getPaddingRight() + progressPadding, this.getPaddingBottom() + progressPadding
             );
-            notchs = new Rect(
+            notchsArc = new Rect(
                     this.getPaddingLeft() + notchsPadding, this.getPaddingTop() + notchsPadding,
                     this.getPaddingRight() + notchsPadding, this.getPaddingBottom() + notchsPadding
             );
@@ -277,7 +281,7 @@ public class ScGauge
                 progressArc.left, progressArc.top, progressArc.right, progressArc.bottom
         );
         this.mArcNotchs.setPadding(
-                notchs.left, notchs.top, notchs.right, notchs.bottom
+                notchsArc.left, notchsArc.top, notchsArc.right, notchsArc.bottom
         );
     }
 
@@ -350,8 +354,13 @@ public class ScGauge
             );
         }
 
+        // Create a copy of the arcs array
+        ScArc[] copy = this.getArcs().clone();
+        // If need to draw the notchs for last invert its position
+        if (this.mDrawNotchsForLast) ScGauge.swapArrayPosition(copy, 1, 2);
+
         // Cycle all arcs for draw it
-        for (ScArc arc : this.getArcs()) {
+        for (ScArc arc : copy) {
             // Only if visible
             if (arc.getVisibility() == View.VISIBLE) {
                 // Draw
@@ -446,7 +455,7 @@ public class ScGauge
     // Get the base arc.
     @SuppressWarnings("unused")
     public ScArc getBaseArc() {
-        return this.getArcs()[0];
+        return this.mArcBase;
     }
 
     // Get the notchs arc.
@@ -454,13 +463,13 @@ public class ScGauge
     // it could be an ScArc, so you need to cast it for use as ScNotchs.
     @SuppressWarnings("unused")
     public ScArc getNotchsArc() {
-        return this.getArcs()[1];
+        return this.mArcNotchs;
     }
 
     // Get the progress arc.
     @SuppressWarnings("unused")
     public ScArc getProgressArc() {
-        return this.getArcs()[2];
+        return this.mArcProgress;
     }
 
     // Set stroke cap of painter for all components inside the gauge.
@@ -565,6 +574,18 @@ public class ScGauge
         }
         // Refresh the component
         this.requestLayout();
+    }
+
+    // Draw the notchs for the last in the drawing method.
+    // The default sequence of drawing is base arc, notchs arc and progress arc for last.
+    @SuppressWarnings("unused")
+    public void setDrawNotchsForLast(boolean value) {
+        // Check for changed value
+        if (this.mDrawNotchsForLast != value) {
+            // Fix the new value and refresh the component
+            this.mDrawNotchsForLast = value;
+            this.invalidate();
+        }
     }
 
 
@@ -859,18 +880,7 @@ public class ScGauge
         this.mOnDrawListener = listener;
     }
 
-    // Custom padding
-    @SuppressWarnings("unused")
-    public interface OnCustomPaddingListener {
-        void onCustomPadding(Rect baseArc, Rect progressArc, Rect notchs);
-    }
-
-    @SuppressWarnings("unused")
-    public void setCustomPaddingListener(OnCustomPaddingListener listener) {
-        this.mOnCustomPaddingListener = listener;
-    }
-
-    // Value changing
+    // Generic gauge event
     @SuppressWarnings("unused")
     public interface OnEventListener {
         void onValueChange(float degrees);
@@ -879,6 +889,17 @@ public class ScGauge
     @SuppressWarnings("unused")
     public void setOnEventListener(OnEventListener listener) {
         this.mOnEventListener = listener;
+    }
+
+    // Custom padding
+    @SuppressWarnings("unused")
+    public interface OnCustomPaddingListener {
+        void onCustomPadding(Rect baseArc, Rect notchsArc, Rect progressArc);
+    }
+
+    @SuppressWarnings("unused")
+    public void setOnCustomPaddingListener(OnCustomPaddingListener listener) {
+        this.mOnCustomPaddingListener = listener;
     }
 
 }
