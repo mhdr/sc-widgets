@@ -82,7 +82,7 @@ The pointer color.
 
 ## Examples
 
-As wrote above this class extend the [ScGauge](ScGauge.md) class so it is applicable to all example that you will find inside the [ScGauge](ScGauge.md) claaa documentation.
+As wrote above this class extend the [ScGauge](ScGauge.md) class so it is applicable to all examples that you will find inside the [ScGauge](ScGauge.md) class documentation.
 Please to have an idea take a look to gauge examples.<br />
 
 Following a simple example

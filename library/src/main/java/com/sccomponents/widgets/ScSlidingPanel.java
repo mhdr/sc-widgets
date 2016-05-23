@@ -97,18 +97,18 @@ public class ScSlidingPanel
     // Init the component
     private void init(Context context, AttributeSet attrs, int defStyle) {
         // Get the attributes list
-        final TypedArray attrArray = context.obtainStyledAttributes(attrs, R.styleable.ScSlidingPanel, defStyle, 0);
+        final TypedArray attrArray = context.obtainStyledAttributes(attrs, R.styleable.ScComponents, defStyle, 0);
 
         // Read all attributes from xml and assign the value to linked variables
-        this.mLayout = attrArray.getResourceId(R.styleable.ScSlidingPanel_scsl_layout, -1);
-        this.mStartOpen = attrArray.getBoolean(R.styleable.ScSlidingPanel_scsl_start_open, true);
-        this.mToggleOnTouch = attrArray.getBoolean(R.styleable.ScSlidingPanel_scsl_toggle_ontouch, true);
-        this.mAnimateAlpha = attrArray.getBoolean(R.styleable.ScSlidingPanel_scsl_animate_alpha, false);
-        this.mAnimateTranslation = attrArray.getBoolean(R.styleable.ScSlidingPanel_scsl_animate_translation, true);
-        this.mDuration = attrArray.getInt(R.styleable.ScSlidingPanel_scsl_duration, 500);
-        this.mHandleSize = attrArray.getDimensionPixelSize(R.styleable.ScSlidingPanel_scsl_handle_size, 0);
-        this.mOffset = attrArray.getDimensionPixelSize(R.styleable.ScSlidingPanel_scsl_offset, 0);
-        this.mHideOnClose = attrArray.getBoolean(R.styleable.ScSlidingPanel_scsl_hide_onclose, true);
+        this.mLayout = attrArray.getResourceId(R.styleable.ScComponents_scc_layout, -1);
+        this.mStartOpen = attrArray.getBoolean(R.styleable.ScComponents_scc_start_open, true);
+        this.mToggleOnTouch = attrArray.getBoolean(R.styleable.ScComponents_scc_toggle_ontouch, true);
+        this.mAnimateAlpha = attrArray.getBoolean(R.styleable.ScComponents_scc_animate_alpha, false);
+        this.mAnimateTranslation = attrArray.getBoolean(R.styleable.ScComponents_scc_animate_translation, true);
+        this.mDuration = attrArray.getInt(R.styleable.ScComponents_scc_duration, 500);
+        this.mHandleSize = attrArray.getDimensionPixelSize(R.styleable.ScComponents_scc_handle_size, 0);
+        this.mOffset = attrArray.getDimensionPixelSize(R.styleable.ScComponents_scc_offset, 0);
+        this.mHideOnClose = attrArray.getBoolean(R.styleable.ScComponents_scc_hide_onclose, true);
 
         // Recycle
         attrArray.recycle();

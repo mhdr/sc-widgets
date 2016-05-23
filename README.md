@@ -24,6 +24,11 @@ This class extend the [ScGauge](ScGauge.md) class add the possibility to input t
 Also create the pointer for slide the current value.<br />
 Noted than this class class offer a infinite possibilities of customization for understand it better first I can suggest to take a look to the [ScGauge](ScGauge.md) documentation.
 
+- **[ScSlidingPanel](ScSlidingPanel.md)**<br />
+This is a very simple sliding panel manager.<br />
+Respect to others components same this it follow the parent alignment.
+Put the component inside a RelativeLayout, give an alignment and the panel slide from.
+
 
 # Usage
 
