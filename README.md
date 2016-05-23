@@ -19,6 +19,12 @@ Considering that this component inherit from the [ScArc](ScArc.md) component ple
 A fusion of [ScArc](ScArc.md) and [ScNotchs](ScNotchs.md) components, this create a gauge with many possibilities of customize.<br />
 The class has been designed to starting simple and user friendly but provides all needed functions to customize it in every parts.
 
+- **[ScSeekBar](ScSeekBar.md)**<br />
+This class extend the [ScGauge](ScGauge.md) class add the possibility to input the progress value by touching on the component.<br />
+Also create the pointer for slide the current value.<br />
+Noted than this class class offer a infinite possibilities of customization for understand it better first I can suggest to take a look to the [ScGauge](ScGauge.md) documentation.
+
+
 # Usage
 
 via Gradle:

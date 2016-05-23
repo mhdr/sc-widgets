@@ -21,7 +21,7 @@ public class ScSeekBar extends ScGauge {
      * Constants
      */
 
-    public static final float DEFAULT_POINTER_RADIUS = 10.0f;
+    public static final float DEFAULT_POINTER_RADIUS = 0.0f;
     public static final int DEFAULT_POINTER_COLOR = Color.GRAY;
 
     public static final float DEFAULT_HALO_SIZE = 5.0f;
@@ -173,9 +173,13 @@ public class ScSeekBar extends ScGauge {
 
     // Draw pointer
     private void drawPointer(Canvas canvas) {
+        // Check for null values
+        if (this.mPointerRadius <= 0) return;
+
         // The actual pointer position
         Point position = this.getProgressArc()
                 .getPointFromAngle(this.getProgressArc().getAngleDraw());
+
         // Draw the circle and the halo
         canvas.drawCircle(position.x, position.y, this.mPointerRadius, this.mPointerPaint);
         canvas.drawCircle(position.x, position.y, this.mPointerRadius + this.mHaloSize / 2, this.mHaloPaint);
@@ -207,8 +211,10 @@ public class ScSeekBar extends ScGauge {
             );
         }
 
-        // Draw all
+        // Draw the component from ScGauge
         super.onDraw(canvas);
+
+        // Draw the pointer if needed
         this.drawPointer(canvas);
     }
 

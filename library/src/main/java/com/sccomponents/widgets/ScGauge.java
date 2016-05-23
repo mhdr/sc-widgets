@@ -883,7 +883,9 @@ public class ScGauge
     // Generic gauge event
     @SuppressWarnings("unused")
     public interface OnEventListener {
+
         void onValueChange(float degrees);
+
     }
 
     @SuppressWarnings("unused")
@@ -894,7 +896,9 @@ public class ScGauge
     // Custom padding
     @SuppressWarnings("unused")
     public interface OnCustomPaddingListener {
+
         void onCustomPadding(Rect baseArc, Rect notchsArc, Rect progressArc);
+
     }
 
     @SuppressWarnings("unused")

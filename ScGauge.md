@@ -63,6 +63,15 @@ For the style possibilities please refer to the [ScNotchs](ScNotchs.md) document
 Draw the notchs for the last in the drawing method.<br />
 The default sequence of drawing is base arc, notchs arc and progress arc for last.
 
+- **void setOnDrawListener(OnDrawListener listener)**<br />
+Set the drawing listener.
+
+- **void setOnEventListener(OnEventListener listener)**<br />
+Set the generic event listener.
+
+- **void setOnCustomPaddingListener(OnCustomPaddingListener listener)**<br />
+Set the custom padding listener.
+
 
 #### Getter and Setter
 
@@ -112,6 +121,34 @@ The current progress value.<br />
 IMPORTANT! This getter/setter have a overload where you can pass a range of float values and the methods translate the reference value to the angle in degrees and call the base methods.
 
 
+#### Interfaces
+
+```java
+    public interface OnDrawListener {
+
+        void onBeforeDraw(Paint baseArc, Paint notchsArc, Paint progressArc);
+
+        void onDrawNotch(ScNotchs.NotchInfo info);
+
+    }
+```
+
+```java
+    public interface OnEventListener {
+
+        void onValueChange(float degrees);
+        
+    }
+```
+
+```java
+    public interface OnCustomPaddingListener {
+        
+        void onCustomPadding(Rect baseArc, Rect notchsArc, Rect progressArc);
+        
+    }
+```
+
 
 ---
 ####### XML using
@@ -146,6 +183,7 @@ IMPORTANT! This getter/setter have a overload where you can pass a range of floa
         <attr name="scc_notchs_color" format="color" />
         <attr name="scc_notchs" format="integer" />
         <attr name="scc_notchs_length" format="dimension" />
+        <attr name="scc_snap_to_notchs" format="boolean" />
     </declare-styleable>
 ```
 
