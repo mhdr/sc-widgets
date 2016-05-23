@@ -82,12 +82,12 @@ The pointer color.
 
 ## Examples
 
-As wrote above this class extend the [ScGauge](ScGauge.md) class so it is applicable to all example that you will find inside the [ScGauge](ScGauge.md) claaa documentation.<br />
-Please to have an idea take a look for it.<br />
+As wrote above this class extend the [ScGauge](ScGauge.md) class so it is applicable to all example that you will find inside the [ScGauge](ScGauge.md) claaa documentation.
+Please to have an idea take a look to gauge examples.<br />
 
 Following a simple example
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/4.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scseekbar/4.jpg"> 
 ```xml
     <FrameLayout
         android:layout_width="200dp"
