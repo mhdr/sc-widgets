@@ -11,30 +11,35 @@
     tools:context="com.sccomponents.widgets.demo.MainActivity">
 
     <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:background="#f5f5f5">
 
         <com.sccomponents.widgets.ScSeekBar
-            android:id="@+id/gauge"
             xmlns:sc="http://schemas.android.com/apk/res-auto"
-            android:layout_width="200dp"
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            sc:scc_notchs="16"
+            sc:scc_angle_start="135"
+            sc:scc_angle_sweep="270"
+            sc:scc_progress_color="#ffff00ff"
+            sc:scc_progress_size="8dp"
+            sc:scc_stroke_color="@color/accent_material_light"
+            sc:scc_stroke_size="8dp"
             sc:scc_pointer_radius="10dp"
-            sc:scc_snap_to_notchs="true"
+            sc:scc_pointer_color="#ffff00ff"
             />
 
         <TextView
             android:id="@+id/counter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="20dp"
             android:text="0%"
-            android:textColor="#000000"
-            android:textSize="32dp"
-            />
+            android:textColor="@color/accent_material_light"
+            android:textSize="38dp"/>
 
     </FrameLayout>
 

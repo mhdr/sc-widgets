@@ -173,8 +173,9 @@ public class ScSeekBar extends ScGauge {
 
     // Draw pointer
     private void drawPointer(Canvas canvas) {
-        // Check for null values
+        // Check for constraints
         if (this.mPointerRadius <= 0) return;
+        if (this.getSnapToNotchs() && this.getNotchs() == 0) return ;
 
         // The actual pointer position
         Point position = this.getProgressArc()

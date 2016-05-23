@@ -57,20 +57,16 @@ The pointer color.
 ---
 ####### XML using
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scseekbar/1.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scseekbar/3.jpg"> 
 ```xml
-    <com.sccomponents.widgets.ScGauge
-        xmlns:sc="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/notchs"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:background="#cccccc"
-        android:padding="10dp"
-        sc:scc_angle_sweep="270"
-        sc:scc_stroke_size="6dp"
-        sc:scc_progress_size="3dp"
-        sc:scc_value="135"
-        sc:scc_notchs="12" />
+        <com.sccomponents.widgets.ScSeekBar
+            android:id="@+id/seekBar"
+            xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            sc:scc_value="90"
+            sc:scc_pointer_radius="10dp" />
 ```
 
 ####### XML Properties
@@ -83,6 +79,72 @@ The pointer color.
     </declare-styleable>
 ```
 
+
+## Examples
+
+As wrote above this class extend the [ScGauge](ScGauge.md) class so it is applicable to all example that you will find inside the [ScGauge](ScGauge.md) claaa documentation.<br />
+Please to have an idea take a look for it.<br />
+
+Following a simple example
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/4.jpg"> 
+```xml
+    <FrameLayout
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:background="#f5f5f5">
+
+        <com.sccomponents.widgets.ScSeekBar
+            xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            sc:scc_angle_start="135"
+            sc:scc_angle_sweep="270"
+            sc:scc_progress_color="#ffff00ff"
+            sc:scc_progress_size="8dp"
+            sc:scc_stroke_color="@color/accent_material_light"
+            sc:scc_stroke_size="8dp"
+            sc:scc_pointer_radius="10dp"
+            sc:scc_pointer_color="#ffff00ff"
+            />
+
+        <TextView
+            android:id="@+id/counter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="20dp"
+            android:text="0%"
+            android:textColor="@color/accent_material_light"
+            android:textSize="38dp"/>
+
+    </FrameLayout>
+```
+
+```java
+        // Get the seek bar
+        final ScSeekBar seekBar = (ScSeekBar) this.findViewById(R.id.seekBar);
+        assert seekBar != null;
+
+        // Rounded cap
+        seekBar.setStrokesCap(Paint.Cap.ROUND);
+        // Set the value to 80% take as reference a range of 0, 100.
+        seekBar.setValue(80, 0, 100);
+
+        // Event
+        seekBar.setOnEventListener(new ScGauge.OnEventListener() {
+            @Override
+            public void onValueChange(float degrees) {
+                // Get the text control and write the value
+                TextView counter = (TextView) MainActivity.this.findViewById(R.id.counter);
+                assert counter != null;
+                int value = (int) seekBar.translateAngleToValue(degrees, 0, 100);
+                counter.setText(value + "%");
+            }
+        });
+```
 
 
 # License

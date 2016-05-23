@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.sccomponents.widgets.ScGauge;
 import com.sccomponents.widgets.ScNotchs;
+import com.sccomponents.widgets.ScSeekBar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,20 +21,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Get the gauge
-        final ScGauge gauge = (ScGauge) this.findViewById(R.id.gauge);
-        assert gauge != null;
+        // Get the seek bar
+        final ScSeekBar seekBar = (ScSeekBar) this.findViewById(R.id.seekBar);
+        assert seekBar != null;
 
-        // Events
-        gauge.setOnEventListener(new ScGauge.OnEventListener() {
+        // Rounded cap
+        seekBar.setStrokesCap(Paint.Cap.ROUND);
+        // Set the value to 80% take as reference a range of 0, 100.
+        seekBar.setValue(80, 0, 100);
+
+        // Event
+        seekBar.setOnEventListener(new ScGauge.OnEventListener() {
             @Override
             public void onValueChange(float degrees) {
                 // Get the text control and write the value
                 TextView counter = (TextView) MainActivity.this.findViewById(R.id.counter);
                 assert counter != null;
-                counter.setText((int) gauge.getValue(0, 100) + "%");
+                int value = (int) seekBar.translateAngleToValue(degrees, 0, 100);
+                counter.setText(value + "%");
             }
         });
-
     }
 }
