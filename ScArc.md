@@ -57,7 +57,7 @@ Check if a point belongs to the arc.
 Get the current gradient color by the current draw angle or a reference one.
 
 - **float getDistanceFromCenter(float x, float y)**<br />
-float getDistanceFromCenter(float degrees)<br />
+**float getDistanceFromCenter(float degrees)**<br />
 Get the distance from center passed an angle or a point.<br />
 If an angle will passed the method find the relative point on the arc and than will calculate the distance from center.
 
