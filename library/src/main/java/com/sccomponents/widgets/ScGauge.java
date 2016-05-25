@@ -16,7 +16,8 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 
 /**
- * Create a Gauge
+ * Create a Gauge component.
+ * v1.0.3
  */
 public class ScGauge
         extends ScWidget
@@ -40,21 +41,21 @@ public class ScGauge
      * Private attributes
      */
 
-    private float mAngleStart;
-    private float mAngleSweep;
-    private float mAngleDraw;
+    protected float mAngleStart;
+    protected float mAngleSweep;
+    protected float mAngleDraw;
 
-    private float mStrokeSize;
-    private int mStrokeColor;
+    protected float mStrokeSize;
+    protected int mStrokeColor;
 
-    private float mProgressSize;
-    private int mProgressColor;
+    protected float mProgressSize;
+    protected int mProgressColor;
 
-    private float mNotchsSize;
-    private int mNotchsColor;
-    private int mNotchsCount;
-    private float mNotchsLength;
-    private boolean mSnapToNotchs;
+    protected float mNotchsSize;
+    protected int mNotchsColor;
+    protected int mNotchsCount;
+    protected float mNotchsLength;
+    protected boolean mSnapToNotchs;
 
 
     /**
@@ -224,8 +225,8 @@ public class ScGauge
         // Consider all the arcs
         return ScGauge.findMaxValue(
                 this.getStrokeSize(this.mArcBase),
-                this.getStrokeSize(this.mArcBase),
-                this.getStrokeSize(this.mArcNotchs)
+                this.getStrokeSize(this.mArcNotchs),
+                this.getStrokeSize(this.mArcProgress)
         );
     }
 
@@ -240,8 +241,8 @@ public class ScGauge
                 this.getPaddingLeft(), this.getPaddingTop(),
                 this.getPaddingRight(), this.getPaddingBottom()
         );
-        Rect progressArc = new Rect(baseArc);
         Rect notchsArc = new Rect(baseArc);
+        Rect progressArc = new Rect(baseArc);
 
         // If have instantiate the customer padding listener the padding will be decided by
         // the final user inside the calling function
@@ -255,33 +256,24 @@ public class ScGauge
 
             // Calc the padding by the case for both arcs
             int basePadding = Math.round((maxSize - this.getStrokeSize(this.mArcBase)) / 2);
-            int progressPadding = Math.round((maxSize - this.getStrokeSize(this.mArcProgress)) / 2);
             int notchsPadding = Math.round((maxSize - this.getStrokeSize(this.mArcNotchs)) / 2);
+            int progressPadding = Math.round((maxSize - this.getStrokeSize(this.mArcProgress)) / 2);
 
-            // Fill the padding holder variables
-            baseArc = new Rect(
-                    this.getPaddingLeft() + basePadding, this.getPaddingTop() + basePadding,
-                    this.getPaddingRight() + basePadding, this.getPaddingBottom() + basePadding
-            );
-            progressArc = new Rect(
-                    this.getPaddingLeft() + progressPadding, this.getPaddingTop() + progressPadding,
-                    this.getPaddingRight() + progressPadding, this.getPaddingBottom() + progressPadding
-            );
-            notchsArc = new Rect(
-                    this.getPaddingLeft() + notchsPadding, this.getPaddingTop() + notchsPadding,
-                    this.getPaddingRight() + notchsPadding, this.getPaddingBottom() + notchsPadding
-            );
+            // Increase all points of the relating calculated padding
+            baseArc.offset(basePadding, basePadding);
+            notchsArc.offset(notchsPadding, notchsPadding);
+            progressArc.offset(progressPadding, progressPadding);
         }
 
         // Apply the padding to the related arc
         this.mArcBase.setPadding(
                 baseArc.left, baseArc.top, baseArc.right, baseArc.bottom
         );
-        this.mArcProgress.setPadding(
-                progressArc.left, progressArc.top, progressArc.right, progressArc.bottom
-        );
         this.mArcNotchs.setPadding(
                 notchsArc.left, notchsArc.top, notchsArc.right, notchsArc.bottom
+        );
+        this.mArcProgress.setPadding(
+                progressArc.left, progressArc.top, progressArc.right, progressArc.bottom
         );
     }
 
@@ -559,21 +551,6 @@ public class ScGauge
             this.mArcProgress = new ScNotchs(this.getContext());
             this.arcObjectSetter(this.mArcProgress, true);
         }
-    }
-
-    // Set the notchs style for all ScNotchs components inside this component
-    @SuppressWarnings("unused")
-    public void setNotchsStyle(ScNotchs.NotchsTypes value) {
-        // Apply to all notchs object
-        for (ScArc arc : this.getArcs()) {
-            // Check for ScNotchs class
-            if (arc instanceof ScNotchs) {
-                // Cast and setting
-                ((ScNotchs) arc).setNotchsType(value);
-            }
-        }
-        // Refresh the component
-        this.requestLayout();
     }
 
     // Draw the notchs for the last in the drawing method.

@@ -30,6 +30,7 @@ The method return a new inflated rectangle and can alter the origin too.
 Reset the rectangle to its origin.
 
 - **void swapArrayPosition(T[] source, int first, int second)**<br />
+**void swapArrayPosition(int[] source, int first, int second)**<br />
 Swap two array elements position.
 
 

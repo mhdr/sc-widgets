@@ -13,7 +13,8 @@ import android.view.MotionEvent;
 
 
 /**
- * ScCircularSeekBar
+ * Apply to the gauge an input by touching the arc.
+ * v1.0.1
  */
 public class ScSeekBar extends ScGauge {
 
@@ -32,9 +33,9 @@ public class ScSeekBar extends ScGauge {
      * Private attributes
      */
 
-    private float mPointerRadius;
-    private int mPointerColor;
-    private float mHaloSize;
+    protected float mPointerRadius;
+    protected int mPointerColor;
+    protected float mHaloSize;
 
 
     /**
@@ -175,7 +176,7 @@ public class ScSeekBar extends ScGauge {
     private void drawPointer(Canvas canvas) {
         // Check for constraints
         if (this.mPointerRadius <= 0) return;
-        if (this.getSnapToNotchs() && this.getNotchs() == 0) return ;
+        if (this.mSnapToNotchs && this.mNotchsCount == 0) return ;
 
         // The actual pointer position
         Point position = this.getProgressArc()

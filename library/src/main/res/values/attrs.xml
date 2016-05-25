@@ -8,6 +8,7 @@
         <attr name="scc_angle_draw" format="float" />
         <attr name="scc_stroke_size" format="dimension" />
         <attr name="scc_stroke_color" format="color" />
+        <attr name="scc_stroke_type" />
         <attr name="scc_progress_size" format="dimension" />
         <attr name="scc_progress_color" format="color" />
         <attr name="scc_value" format="float" />
@@ -16,11 +17,11 @@
         <attr name="scc_halo_size" format="dimension" />
         <attr name="scc_fill_area" />
         <attr name="scc_fill_mode" />
+        <attr name="scc_fill_colors" />
         <attr name="scc_notchs_size" format="dimension" />
         <attr name="scc_notchs_color" format="color" />
         <attr name="scc_notchs" format="integer" />
         <attr name="scc_notchs_length" format="dimension" />
-        <attr name="scc_notch_type" />
         <attr name="scc_snap_to_notchs" format="boolean" />
         <attr name="scc_max_width" format="dimension" />
         <attr name="scc_max_height" format="dimension" />
@@ -47,10 +48,15 @@
         <enum name="draw" value="1" />
     </attr>
 
-    <attr name="scc_notch_type" format="enum">
+    <attr name="scc_fill_colors" format="enum">
+        <enum name="solid" value="0" />
+        <enum name="gradient" value="1" />
+    </attr>
+
+    <attr name="scc_stroke_type" format="enum">
         <enum name="line" value="0" />
-        <enum name="circle" value="1" />
-        <enum name="circle_filled" value="2" />
+        <enum name="closed_arc" value="1" />
+        <enum name="filled_arc" value="2" />
     </attr>
 
 </resources>

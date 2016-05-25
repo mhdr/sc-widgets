@@ -116,6 +116,75 @@ Some examples or go back to the class [documentation](ScGauge.md).
 ```
 
 
+### Nagative values
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/3.jpg"> 
+```xml
+    <FrameLayout
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:background="#f5f5f5"
+        android:padding="10dp">
+
+        <com.sccomponents.widgets.ScGauge
+            android:id="@+id/gauge"
+            xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            sc:scc_angle_start="0"
+            sc:scc_angle_sweep="-135"
+            sc:scc_progress_color="#ffffff"
+            sc:scc_progress_size="6dp"
+            sc:scc_stroke_size="16dp"/>
+
+        <TextView
+            android:id="@+id/counter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="5dp"
+            android:text=""
+            android:textSize="32dp"
+            android:textColor="#333333"/>
+
+    </FrameLayout>
+```
+
+```java
+        // Get the gauge
+        final ScGauge gauge = (ScGauge) this.findViewById(R.id.gauge);
+        assert gauge != null;
+
+        gauge.setCanvasFilling(ScArc.FillingArea.NONE, ScArc.FillingMode.DRAW);
+
+        // Set the colors on the base arc
+        gauge.getBaseArc().setFillingColors(ScArc.FillingColors.SOLID);
+        gauge.getBaseArc().setStrokeColors(
+                Color.parseColor("#EA3A3C"),
+                Color.parseColor("#FDE401"),
+                Color.parseColor("#55B20C"),
+                Color.parseColor("#3FA8F9")
+        );
+
+        // Set the value.
+        gauge.setValue(-15, 0, -40);
+
+
+        // Event
+        gauge.setOnEventListener(new ScGauge.OnEventListener() {
+            @Override
+            public void onValueChange(float degrees) {
+                // Get the text control
+                TextView counter = (TextView) MainActivity.this.findViewById(R.id.counter);
+                assert counter != null;
+
+                // Set the value
+                counter.setText("" + (int) gauge.getValue(0, -40));
+            }
+        });
+```
+
+
 ### More than one
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/4.jpg"> 

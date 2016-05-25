@@ -1,17 +1,24 @@
 package com.sccomponents.widgets;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.WindowManager;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * The base widget class.
  * <p/>
  * This class contain only some utility methods useful for next components implementation.
- * v1.0
+ * v1.0.1
  */
 public abstract class ScWidget extends View {
 
@@ -142,6 +149,13 @@ public abstract class ScWidget extends View {
     @SuppressWarnings("unused")
     public static <T> void swapArrayPosition(T[] source, int first, int second) {
         T temp = source[first];
+        source[first] = source[second];
+        source[second] = temp;
+    }
+
+    @SuppressWarnings("unused")
+    public static void swapArrayPosition(int[] source, int first, int second) {
+        int temp = source[first];
         source[first] = source[second];
         source[second] = temp;
     }

@@ -55,10 +55,6 @@ This method is only for advanced use of ScGauge and use it improperly can be cau
 Changing the component type mean create a new one and lost old information like visibility and cap stroke style.<br />
 So, if you did some change about inner properties before call this method, you must remember to apply again these settings.
 
-- **void setNotchsStyle(ScNotchs.NotchsTypes value)**<br />
-Set the notchs style for all ScNotchs components inside this component.
-For the style possibilities please refer to the [ScNotchs](ScNotchs.md) documentation.
-
 - **void setDrawNotchsForLast(boolean value)**<br />
 Draw the notchs for the last in the drawing method.<br />
 The default sequence of drawing is base arc, notchs arc and progress arc for last.
@@ -194,6 +190,9 @@ IMPORTANT! This getter/setter have a overload where you can pass a range of floa
 > You can use the <code>getAnimator()</code> to animate the progress value.<br />
 > Is enough to set the animation duration to a value over zero for see the value changing using an interpolator.<br />
 
+> **DON'T FORGET**<br />
+> The gauge work also width negative values.
+
 > **FUNNY**<br />
 > Can be funny to create new examples.<br />
 > So if you created new one please send me the picture and the xml/java code and I'll insert in.
@@ -215,6 +214,7 @@ Press on above link to see the code application.
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/7.jpg)
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/8.jpg)
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/9.jpg)
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/10.jpg)
 
 
 # License

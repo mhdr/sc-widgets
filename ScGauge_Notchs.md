@@ -352,6 +352,62 @@ Some examples or go back to the class [documentation](ScGauge.md).
 ```
 
 
+### Only one
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/10.jpg"> 
+```xml
+    <com.sccomponents.widgets.ScGauge
+        android:id="@+id/gauge"
+        xmlns:sc="http://schemas.android.com/apk/res-auto"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:background="#f5f5f5"
+        android:padding="10dp"
+        sc:scc_angle_start="180"
+        sc:scc_angle_sweep="180"
+        sc:scc_stroke_size="0dp"
+        sc:scc_stroke_color="#7c1a1a"
+        sc:scc_progress_size="0dp"
+        sc:scc_progress_color="#30592d"
+        sc:scc_notchs="180"
+        sc:scc_notchs_color="#ffffff"
+        sc:scc_notchs_size="3dp"
+        sc:scc_notchs_length="0dp" />
+```
+
+```java
+        // Set the value and draw the notchs for last
+        gauge.setValue(75, 0, 100);
+        gauge.setDrawNotchsForLast(true);
+
+        // Set the round cap to all strokes for avoid an visual issue
+        gauge.setStrokesCap(Paint.Cap.ROUND);
+
+        // Set the stroke type to fill the arc
+        gauge.getBaseArc().setStrokeType(ScArc.StrokeTypes.FILLED_ARC);
+        gauge.getProgressArc().setStrokeType(ScArc.StrokeTypes.FILLED_ARC);
+
+        // Events
+        gauge.setOnDrawListener(new ScGauge.OnDrawListener() {
+            @Override
+            public void onBeforeDraw(Paint baseArc, Paint notchsArc, Paint progressArc) {
+                // Do nothing
+            }
+
+            @Override
+            public void onDrawNotch(ScNotchs.NotchInfo info) {
+                // Could have an ovel arc so I must calculate the distance from the center each time
+                // before print the notch.
+                info.length = gauge.getNotchsArc().getDistanceFromCenter(info.angle);
+                
+                // Show only the notch equal at the current angle value
+                info.visible =
+                        Math.round(info.angle - gauge.getAngleStart()) == Math.round(gauge.getValue());
+            }
+        });
+```
+
+
 # License
 <pre>
  Copyright 2015 Samuele Carassai

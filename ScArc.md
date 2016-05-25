@@ -56,6 +56,12 @@ Check if a point belongs to the arc.
 **int getCurrentGradientColor(float angle)**<br />
 Get the current gradient color by the current draw angle or a reference one.
 
+- **float getDistanceFromCenter(float x, float y)**<br />
+float getDistanceFromCenter(float degrees)<br />
+Get the distance from center passed an angle or a point.<br />
+If an angle will passed the method find the relative point on the arc and than will calculate the distance from center.
+
+
 #### Getter and Setter
 
 - **get/setAngleStart**  -> float value, default <code>0</code><br />
@@ -78,6 +84,10 @@ Set the solid color of the stroke.
 - **get/setStrokeColors**  -> int[] value, default <code>null</code><br />
 Create a gradient color and apply it to the stroke.
 
+- **get/setStrokeType**  -> StrokeTypes value, default <code>StrokeTypes.LINE</code><br />
+Possibly values by enum: LINE, CLOSED_ARC, FILLED_ARC
+This indicate how will draw the sector on the arc.
+
 - **get/setMaxWidth**  -> int value, default <code>Int.MAX_VALUE</code><br />
 The value must be passed in pixel.
 
@@ -86,10 +96,15 @@ The value must be passed in pixel.
 
 - **get/setFillingArea**  -> FillingArea value, default <code>FillingArea.BOTH</code><br />
 Possibly values by enum: NONE, BOTH, HORIZONTAL, VERTICAL
+This indicate what kind of dimension will filled.
 
 - **get/setFillingMode**  -> FillingMode value, default <code>FillingMode.DRAW</code><br />
 Possibly values by enum: DRAW, STRETCH<br />
 Please look above for a short explain of this feature.
+
+- **get/setFillingColors**  -> FillingColors value, default <code>FillingColors.GRADIENT</code><br />
+Possibly values by enum: SOLID, GRADIENT<br />
+This set the way to draw the filling colors component.
 
 
 ---
@@ -103,6 +118,7 @@ Please look above for a short explain of this feature.
         android:padding="10dp"
     />
 ```
+
 
 ####### XML Properties
 ```xml
@@ -119,13 +135,26 @@ Please look above for a short explain of this feature.
     </declare-styleable>
 ```
 
-####### Example images
+
+####### Understanding the canvas and area filling
 
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/1.jpg)
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/2.jpg)
 
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/3.jpg)
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/4.jpg)
+
+
+####### Understanding the colors filling
+
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/6.jpg)
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/7.jpg)
+
+####### Understanding the stroke type
+
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/8.jpg)
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/9.jpg)
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/scarc/10.jpg)
 
 
 # License

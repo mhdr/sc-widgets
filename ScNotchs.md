@@ -27,7 +27,9 @@ Note that if the arc is NOT closed you will see one more notch that will represe
 The notchs line length.
 
 - **get/setNotchsType**  -> NotchsTypes value, default <code>NotchsTypes.LINE</code><br />
-Define the notchs type: LINE, CIRCLE, CIRCLE_FILLED.
+> **DEPRECATED**<br />
+> Use get/setStrokeType property
+Define the notchs type.
 
 
 #### Interfaces
@@ -98,10 +100,10 @@ Take a look to the [ScArc](ScArc.md) class documentation
             @Override
             public void onDrawNotch(ScNotchs.NotchInfo info) {
                 // ATTENTION!
-                // In this exercise you will note that I never used the class setter to set the
-                // stroke size, notchs length or the stroke color.
-                // This because call the standard setter doing a component invalidate that
-                // would call again this method going into an infinite loop.
+                // In this exercise I self calculated the color by code but you can do 
+                // this automatically using the setColors method.
+                // This is only a demastration how can change the notch parameters 
+                // via the info class.
 
                 // Emphasis every 4 notchs
                 if (info.index % 4 == 0) {
@@ -133,7 +135,7 @@ Take a look to the [ScArc](ScArc.md) class documentation
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:background="#cccccc"
-        sc:scc_notch_type="circle_filled"
+        sc:scc_stroke_type="filled_arc"
         sc:scc_notchs="20"
         sc:scc_notchs_length="2dp"
         sc:scc_stroke_size="1dp" />
