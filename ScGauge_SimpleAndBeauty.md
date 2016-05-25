@@ -118,7 +118,7 @@ Some examples or go back to the class [documentation](ScGauge.md).
 
 ### Nagative values
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/3.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/11.jpg"> 
 ```xml
     <FrameLayout
         android:layout_width="200dp"
