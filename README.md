@@ -47,7 +47,7 @@ android {
 ...
 dependencies {
     ...
-    compile 'com.github.paroca72:sc-widgets:1.0.0'
+    compile 'com.github.paroca72:sc-widgets:1.1.0'
 }
 ```
 
