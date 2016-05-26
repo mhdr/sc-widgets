@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.Shader;
@@ -16,18 +17,19 @@ import android.graphics.SweepGradient;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.Arrays;
 
 /**
  * Draw an arc
- * v1.1.3
+ *
+ * @author Samuele Carassai
+ * @version 2.0.0
+ * @since 2016-05-26
  */
-public class ScArc extends ScWidget {
+public class ScArc extends ScDrawer {
 
-    /**
+    /****************************************************************************************
      * Constants
      */
 
@@ -35,42 +37,41 @@ public class ScArc extends ScWidget {
     public static final float DEFAULT_ANGLE_START = 0.0f;
     public static final float DEFAULT_ANGLE_SWEEP = 360.0f;
 
-    public static final float DEFAULT_STROKE_SIZE = 3.0f;
-    public static final int DEFAULT_STROKE_COLOR = Color.BLACK;
 
+    /****************************************************************************************
+     * Enumerators
+     */
 
     /**
+     * Enum for define what type of draw method calling for render the notch
+     */
+    @SuppressWarnings("unused")
+    public enum ArcTypes {
+        LINE,
+        CLOSED,
+        FILLED
+    }
+
+
+    /****************************************************************************************
      * Private attributes
      */
 
     protected float mAngleStart;
     protected float mAngleSweep;
     protected float mAngleDraw;
-
-    protected float mStrokeSize;
-    protected int mStrokeColor;
-    protected StrokeTypes mStrokeType;
-
-    protected int mMaxWidth;
-    protected int mMaxHeight;
-
-    protected FillingArea mFillingArea;
-    protected FillingMode mFillingMode;
-    protected FillingColors mFillingColors;
+    protected ArcTypes mArcType;
 
 
-    /**
+    /****************************************************************************************
      * Private variables
      */
 
-    private int[] mStrokeColors;
-    private RectF mTrimmedArea;
-
-    private Paint mStrokePaint;
+    private Path mPath;
     private Paint mPiePaint;
 
 
-    /**
+    /****************************************************************************************
      * Constructors
      */
 
@@ -90,16 +91,23 @@ public class ScArc extends ScWidget {
     }
 
 
-    /**
+    /****************************************************************************************
      * Privates methods
      */
 
-    // Limit an angle in degrees within a range.
-    // When press on the arc space the system return always an positive angle but the ScArc accept
-    // also negative value for the start and end angles.
-    // So in case of negative setting the normal range limit method not work proper and we must
-    // implement a specific method that consider to return all kind of angle value, positive and
-    // negative.
+    /**
+     * Limit an angle in degrees within a range.
+     * When press on the arc space the system return always an positive angle but the ScArc accept
+     * also negative value for the start and end angles.
+     * So in case of negative setting the normal range limit method not work proper and we must
+     * implement a specific method that consider to return all kind of angle value, positive and
+     * negative.
+     *
+     * @param angle      The current angle in degrees
+     * @param startAngle The start angle limit in degrees
+     * @param endAngle   The end angle limit in degrees
+     * @return The fixed angle in degrees
+     */
     private float angleRangeLimit(float angle, float startAngle, float endAngle) {
         // Find the opposite of the same angle
         float positive = ScArc.normalizeAngle(angle + ScArc.DEFAULT_ANGLE_MAX);
@@ -131,29 +139,29 @@ public class ScArc extends ScWidget {
         }
     }
 
-    // Check all input values if over the limits
+    /**
+     * Check all input values if over the limits
+     */
     private void checkValues() {
-        // Size
-        if (this.mStrokeSize < 0.0f) this.mStrokeSize = 0.0f;
-
         // Angle
         if (Math.abs(this.mAngleSweep) > ScArc.DEFAULT_ANGLE_MAX)
             this.mAngleSweep = ScArc.normalizeAngle(this.mAngleSweep);
         if (Math.abs(this.mAngleDraw) > ScArc.DEFAULT_ANGLE_MAX)
             this.mAngleDraw = ScArc.normalizeAngle(this.mAngleDraw);
 
-        // Dimension
-        if (this.mMaxWidth < 0) this.mMaxWidth = 0;
-        if (this.mMaxHeight < 0) this.mMaxHeight = 0;
-
         // Check the draw angle limits
         this.mAngleDraw = ScArc.valueRangeLimit(this.mAngleDraw, 0, this.mAngleSweep);
     }
 
-    // Init the component.
-    // Retrieve all attributes with the default values if needed.
-    // Check the values for internal use.
-    // Create the painter and enable the touch event response.
+    /**
+     * Init the component.
+     * Retrieve all attributes with the default values if needed.
+     * Check the values for internal use and create the painters.
+     *
+     * @param context  the owner context
+     * @param attrs    the attribute set
+     * @param defStyle the style
+     */
     private void init(Context context, AttributeSet attrs, int defStyle) {
         //--------------------------------------------------
         // ATTRIBUTES
@@ -169,28 +177,9 @@ public class ScArc extends ScWidget {
         this.mAngleDraw = attrArray.getFloat(
                 R.styleable.ScComponents_scc_angle_draw, this.mAngleSweep);
 
-        this.mStrokeSize = attrArray.getDimension(
-                R.styleable.ScComponents_scc_stroke_size, this.dipToPixel(ScArc.DEFAULT_STROKE_SIZE));
-        this.mStrokeColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_stroke_color, ScArc.DEFAULT_STROKE_COLOR);
-        // StrokeTypes.LINE
-        this.mStrokeType =
-                StrokeTypes.values()[attrArray.getInt(R.styleable.ScComponents_scc_stroke_type, 0)];
-
-        this.mMaxWidth = attrArray.getDimensionPixelSize(
-                R.styleable.ScComponents_scc_max_width, Integer.MAX_VALUE);
-        this.mMaxHeight = attrArray.getDimensionPixelSize(
-                R.styleable.ScComponents_scc_max_height, Integer.MAX_VALUE);
-
-        // FillingArea.BOTH
-        this.mFillingArea =
-                FillingArea.values()[attrArray.getInt(R.styleable.ScComponents_scc_fill_area, 1)];
-        // FillingMode.DRAW
-        this.mFillingMode =
-                FillingMode.values()[attrArray.getInt(R.styleable.ScComponents_scc_fill_mode, 1)];
-        // FillingColors.GRADIENT
-        this.mFillingColors =
-                FillingColors.values()[attrArray.getInt(R.styleable.ScComponents_scc_fill_colors, 1)];
+        // ArcTypes.LINE
+        this.mArcType =
+                ArcTypes.values()[attrArray.getInt(R.styleable.ScComponents_scc_stroke_type, 0)];
 
         // Recycle
         attrArray.recycle();
@@ -203,30 +192,20 @@ public class ScArc extends ScWidget {
         //--------------------------------------------------
         // PAINTS
 
-        this.mStrokePaint = new Paint();
-        this.mStrokePaint.setColor(this.mStrokeColor);
-        this.mStrokePaint.setAntiAlias(true);
-        this.mStrokePaint.setStrokeWidth(this.mStrokeSize);
-        this.mStrokePaint.setStyle(Paint.Style.STROKE);
-        this.mStrokePaint.setStrokeCap(Paint.Cap.BUTT);
-
         this.mPiePaint = new Paint();
         this.mPiePaint.setAntiAlias(true);
         this.mPiePaint.setStyle(Paint.Style.FILL);
-
-        //--------------------------------------------------
-        // EVENTS
-
-        // Enable for touch
-        this.setFocusable(true);
-        this.setFocusableInTouchMode(true);
     }
 
-    // Create a bitmap shader.
-    // If the colors filling mode is SOLID we cannot use a gradient but we must separate colors
-    // each other.
-    // For do it we will use a trick creating a bitmap and filling it with a colored pies. After
-    // that create a bitmap shader that will going to apply to the Painter.
+    /**
+     * Create a bitmap shader.
+     * If the colors filling mode is SOLID we cannot use a gradient but we must separate colors
+     * each other. For do it we will use a trick creating a bitmap and filling it with a colored
+     * pies. After that create a bitmap shader that will going to apply to the Painter.
+     *
+     * @param area The area boundaries reference
+     * @return The bitmap shader
+     */
     private BitmapShader createBitmapShader(RectF area) {
         // Create a temporary bitmap and get its canvas
         Bitmap bitmap = Bitmap.createBitmap((int) area.width(), (int) area.height(), Bitmap.Config.ARGB_8888);
@@ -264,9 +243,14 @@ public class ScArc extends ScWidget {
         return new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
     }
 
-    // Create a sweep gradient shader.
-    // Since the sweep angle can be minor of 360° we must create an array storing the colors
-    // position respect to the arc (sectors).
+    /**
+     * Create a sweep gradient shader.
+     * Since the sweep angle can be minor of 360° we must create an array storing the colors
+     * position respect to the arc (sectors).
+     *
+     * @param area The area boundaries reference
+     * @return The gradient shader
+     */
     private SweepGradient createSweepGradient(RectF area) {
         // Create a copy of colors because not want lost the original values
         int[] colors = Arrays.copyOf(this.mStrokeColors, this.mStrokeColors.length);
@@ -314,17 +298,116 @@ public class ScArc extends ScWidget {
         return gradient;
     }
 
-    // Get the right paint shader by the case
-    private Shader getPaintShader(RectF area) {
+    /**
+     * Calculate the virtual drawing area
+     */
+    private RectF calculateVirtualDrawingArea() {
+        // Calculate the real drawing area measures considering the padding
+        int width = this.getMeasuredWidth() - (this.getPaddingLeft() + this.getPaddingRight());
+        int height = this.getMeasuredWidth() - (this.getPaddingTop() + this.getPaddingBottom());
+
+        // Scale the dimension
+        width *= this.getPathHorizontalScale(width);
+        height *= this.getPathVerticalScale(height);
+
+        // Scale the canvas area
+        RectF area = new RectF(0, 0, width, height);
+        area.offset(this.getPaddingLeft(), this.getPaddingTop());
+
+        // Return the area
+        return area;
+    }
+
+
+    /****************************************************************************************
+     * Overrides
+     */
+
+    /**
+     * Override the super method adding the style to apply to the painter in relation to the
+     * the value settled in the arc type.
+     *
+     * @param canvas the view canvas
+     */
+    @Override
+    protected void onDraw(Canvas canvas) {
+        // Define the painter style by the current stroke type
+        this.getPainter().setStyle(
+                this.mArcType == ArcTypes.FILLED ? Paint.Style.FILL_AND_STROKE : Paint.Style.STROKE
+        );
+
+        // Call the super
+        super.draw(canvas);
+    }
+
+    /**
+     * On measure
+     *
+     * @param widthMeasureSpec  the reference width
+     * @param heightMeasureSpec the reference height
+     */
+    @Override
+    @SuppressWarnings("all")
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        // Force to recalculate the path and call the super
+        this.mPath = null;
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    /**
+     * Get the current path
+     *
+     * @return The path
+     */
+    @Override
+    public Path getPath() {
+        // To avoid to calculate the path to every call will use a local variable to store it
+        if (this.mPath == null) {
+            // The new path and the area
+            Path path = new Path();
+            RectF area = new RectF(0, 0, this.getMeasuredWidth(), this.getMeasuredHeight());
+
+            // If must to be closed move the CP in center of area
+            if (this.mArcType == ArcTypes.CLOSED)
+                path.moveTo(area.centerX(), area.centerY());
+
+            // Draw the arc
+            path.addArc(area, this.mAngleStart, this.mAngleSweep);
+
+            // If the arc is closed
+            if (this.mArcType == ArcTypes.CLOSED)
+                path.close();
+
+            // Save the new path
+            this.mPath = path;
+        }
+
+        // Return the path
+        return this.mPath;
+    }
+
+    /**
+     * Return the paint shader.
+     * This methods need to define what kind of shader using about coloring the draw path.
+     * Is important do a distinction between the filling colors type as the case want have two
+     * different type of filling: GRADIENT or SOLID.
+     *
+     * @return Return the shader
+     */
+    @Override
+    public Shader getPaintShader() {
         // Check no values inside the array
         if (this.mStrokeColors.length == 0)
             return null;
 
         // If have only one value set directly to the painter and return null
         if (this.mStrokeColors.length == 1) {
-            this.mStrokePaint.setColor(this.mStrokeColors[0]);
+            this.getPainter().setColor(this.mStrokeColors[0]);
             return null;
         }
+
+        // Calculate the virtual area
+        RectF area = this.calculateVirtualDrawingArea();
 
         // Select the draw colors method by the case
         switch (this.mFillingColors) {
@@ -343,236 +426,15 @@ public class ScArc extends ScWidget {
     }
 
 
-    /**
-     * Area methods
-     */
-
-    // Calc the trimmed area.
-    // This is only an image of the arc dimensions inside the space, not contains the real arc
-    // dimensions but only a proportional representation.
-    // This method essentially hold the left/top padding and the arc width/height.
-    private RectF calcTrimmedArea() {
-        // Check for sweep angle.
-        // If 0 return and empty rectangle
-        if (this.mAngleSweep == 0.0f) return new RectF();
-
-        // Init the area rectangle with the inverted values that will be replaced with the real
-        // values.
-        RectF area = new RectF(1.0f, 1.0f, -1.0f, -1.0f);
-
-        // Calc the start and end angles in radians.
-        double startAngle = Math.toRadians(this.mAngleStart);
-        double endAngle = startAngle + Math.toRadians(this.mAngleSweep);
-
-        // Sort the angles to find the min and the max
-        double minAngle = startAngle < endAngle ? startAngle : endAngle;
-        double maxAngle = startAngle > endAngle ? startAngle : endAngle;
-
-        // Cycle all angles and compare the found sin and cos values for find the bounds of the
-        // area.
-        while (minAngle <= maxAngle) {
-            // Convert the current angle in radiant and find the sin and cos values
-            float sin = (float) Math.sin(minAngle);
-            float cos = (float) Math.cos(minAngle);
-
-            // Check the the precedents limits and update they if needed
-            if (cos < area.left) area.left = cos;
-            if (cos > area.right) area.right = cos;
-
-            if (sin < area.top) area.top = sin;
-            if (sin > area.bottom) area.bottom = sin;
-
-            // Increment the current angle
-            minAngle += 0.01;
-        }
-
-        // Return the area.
-        // Inside this could have an image of the trimmed area used to draw this arc.
-        return area;
-    }
-
-    // Calc starting area from width and height dimensions and apply padding.
-    private RectF calcCanvasArea(int width, int height) {
-        return new RectF(
-                this.getPaddingLeft(),
-                this.getPaddingTop(),
-                width - this.getPaddingRight(),
-                height - this.getPaddingBottom()
-        );
-    }
-
-    // Calc complete circle drawing area.
-    // This methods calc the virtual drawing area not taking into consideration the many adjustments
-    // like the stroke size or the area padding.
-    private RectF calcDrawingArea(RectF startingArea) {
-        // Check for empty values
-        if (this.mTrimmedArea == null || this.mTrimmedArea.isEmpty()) return new RectF();
-
-        // Default working area calculated consider the padding and the stroke size
-        RectF newArea = new RectF(startingArea);
-
-        // Layout wrapping
-        boolean hWrap = this.getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT;
-        boolean vWrap = this.getLayoutParams().height == ViewGroup.LayoutParams.WRAP_CONTENT;
-
-        // If fill the area expand the area to have the full filling working space with the arc.
-        // In the wrapping case the horizontal filling it is executed in anyway while the component
-        // dimension will be elaborated before inside the component measuring.
-        if (hWrap ||
-                this.mFillingArea == FillingArea.BOTH || this.mFillingArea == FillingArea.HORIZONTAL) {
-            // Find the multiplier based on the trimmed area and apply the proportion to the
-            // horizontal dimensions.
-            float hMultiplier = newArea.width() / this.mTrimmedArea.width();
-            float left = this.mTrimmedArea.left * hMultiplier;
-
-            // Apply the new values to the area and modify the horizontal offset
-            newArea.left = -hMultiplier;
-            newArea.right = hMultiplier;
-            newArea.offset(-left + this.getPaddingLeft(), 0);
-        }
-
-        // If fill the area expand the area to have the full filling working space with the arc
-        // In the wrapping case the vertical filling it is executed in anyway while the component
-        // dimension will be elaborated before inside the component measuring.
-        if (vWrap ||
-                this.mFillingArea == FillingArea.BOTH || this.mFillingArea == FillingArea.VERTICAL) {
-            // Find the multiplier based on the trimmed area and apply the proportion to the
-            // vertical dimensions.
-            float vMultiplier = newArea.height() / this.mTrimmedArea.height();
-            float top = this.mTrimmedArea.top * vMultiplier;
-
-            // Apply the new values to the area and modify the vertical offset
-            newArea.top = -vMultiplier;
-            newArea.bottom = vMultiplier;
-            newArea.offset(0, -top + this.getPaddingTop());
-        }
-
-        // Return the calculated area
-        return newArea;
-    }
-
-    // Draw arc on the canvas using the passed area reference
-    // This is an important method can be override for future inherit class implementation.
-    protected void internalDraw(Canvas canvas, RectF area) {
-        // Check for null values
-        if (this.mStrokeSize > 0 || this.mStrokeType == StrokeTypes.FILLED_ARC) {
-            // Consider the stroke size and draw
-            canvas.drawArc(
-                    ScArc.inflateRect(area, this.mStrokeSize / 2),
-                    this.mAngleStart,
-                    this.mAngleDraw,
-                    this.mStrokeType != StrokeTypes.LINE,
-                    this.mStrokePaint);
-        }
-    }
-
-    /**
-     * Overrides
-     */
-
-    // This method is used to calc the areas and filling it by call/set the right draw plan.
-    // Are to consider two type of draw:
-    //      DRAW ask to render simply on an area.
-    //      STRETCH before scale and transpose the canvas and after render on it using the default
-    //      render method.
-    @Override
-    protected void onDraw(Canvas canvas) {
-        // Find the canvas and drawing area
-        RectF canvasArea = this.calcCanvasArea(canvas.getWidth(), canvas.getHeight());
-        RectF drawingArea = this.calcDrawingArea(canvasArea);
-
-        // Check if need to create a gradient
-        if (this.mStrokeColors != null) {
-            // Create the shader and apply it to the painter
-            this.mStrokePaint.setShader(this.getPaintShader(drawingArea));
-        }
-
-        // Define the painter style by the current stroke type
-        this.mStrokePaint.setStyle(
-                this.mStrokeType == StrokeTypes.FILLED_ARC ? Paint.Style.FILL_AND_STROKE : Paint.Style.STROKE
-        );
-
-        // Select the drawing mode by the case
-        switch (this.mFillingMode) {
-            // Draw
-            case DRAW:
-                // Draw the arc on the calculated drawing area
-                this.internalDraw(canvas, drawingArea);
-                break;
-
-            // Stretch
-            case STRETCH:
-                // Save the current canvas status
-                canvas.save();
-
-                // Translate and scale the canvas
-                canvas.translate(drawingArea.left, drawingArea.top);
-                canvas.scale(
-                        drawingArea.width() / canvasArea.width(),
-                        drawingArea.height() / canvasArea.height()
-                );
-
-                // Draw the arc on the reset canvas
-                canvasArea = ScArc.resetRectToOrigin(canvasArea);
-                this.internalDraw(canvas, canvasArea);
-
-                // Restore the last saved canvas status
-                canvas.restore();
-                break;
-        }
-    }
-
-    // On measure
-    @Override
-    @SuppressWarnings("all")
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // Calc the trimmed virtual area
-        this.mTrimmedArea = this.calcTrimmedArea();
-
-        // Get suggested dimensions
-        int width = View.getDefaultSize(this.getSuggestedMinimumWidth(), widthMeasureSpec);
-        int height = View.getDefaultSize(this.getSuggestedMinimumHeight(), heightMeasureSpec);
-
-        // Layout wrapping
-        boolean hWrap = this.getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT;
-        boolean vWrap = this.getLayoutParams().height == ViewGroup.LayoutParams.WRAP_CONTENT;
-
-        // Find the horizontal and vertical global padding amount
-        float hGlobalPadding = this.getPaddingLeft() + this.getPaddingRight();
-        float vGlobalPadding = this.getPaddingTop() + this.getPaddingBottom();
-
-        // If have a horizontal wrap content we want to obtain a perfect circle radius so we must
-        // set the new height equal to the current width.
-        // For do this I must also consider the horizontal padding to remove before trimming the
-        // area and to add after trimmed.
-        if (hWrap) {
-            width = (int) ((height - hGlobalPadding) * (this.mTrimmedArea.width() / 2));
-            width += hGlobalPadding;
-        }
-
-        // If have a vertical wrap content we want to obtain a perfect circle radius so we must
-        // set the new width equal to the current height.
-        // For do this I must also consider the vertical padding to remove before trimming the
-        // area and to add after trimmed.
-        if (vWrap) {
-            height = (int) ((width - vGlobalPadding) * (this.mTrimmedArea.height() / 2));
-            height += vGlobalPadding;
-        }
-
-        // Check the dimensions limits
-        width = this.valueRangeLimit(width, 0, this.mMaxWidth);
-        height = this.valueRangeLimit(height, 0, this.mMaxHeight);
-
-        // Set the finded dimensions
-        this.setMeasuredDimension(width, height);
-    }
-
-
-    /**
+    /****************************************************************************************
      * Instance state
      */
 
-    // Save
+    /**
+     * Save the current instance state
+     *
+     * @return The state
+     */
     @Override
     protected Parcelable onSaveInstanceState() {
         // Call the super and get the parent state
@@ -585,20 +447,17 @@ public class ScArc extends ScWidget {
         state.putFloat("mAngleStart", this.mAngleStart);
         state.putFloat("mAngleSweep", this.mAngleSweep);
         state.putFloat("mAngleDraw", this.mAngleDraw);
-        state.putFloat("mStrokeSize", this.mStrokeSize);
-        state.putInt("mStrokeColor", this.mStrokeColor);
-        state.putInt("mStrokeType", this.mStrokeType.ordinal());
-        state.putInt("mMaxWidth", this.mMaxWidth);
-        state.putInt("mMaxHeight", this.mMaxHeight);
-        state.putInt("mFillingArea", this.mFillingArea.ordinal());
-        state.putInt("mFillingMode", this.mFillingMode.ordinal());
-        state.putInt("mFillingColors", this.mFillingColors.ordinal());
+        state.putInt("mArcType", this.mArcType.ordinal());
 
         // Return the new state
         return state;
     }
 
-    // Restore
+    /**
+     * Restore the current instance state
+     *
+     * @param state The state
+     */
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
         // Implicit conversion in a bundle
@@ -612,31 +471,36 @@ public class ScArc extends ScWidget {
         this.mAngleStart = savedState.getFloat("mAngleStart");
         this.mAngleSweep = savedState.getFloat("mAngleSweep");
         this.mAngleDraw = savedState.getFloat("mAngleDraw");
-        this.mStrokeSize = savedState.getFloat("mStrokeSize");
-        this.mStrokeColor = savedState.getInt("mStrokeColor");
-        this.mStrokeType = StrokeTypes.values()[savedState.getInt("mStrokeType")];
-        this.mMaxWidth = savedState.getInt("mMaxWidth");
-        this.mMaxHeight = savedState.getInt("mMaxHeight");
-        this.mFillingArea = FillingArea.values()[savedState.getInt("mFillingArea")];
-        this.mFillingMode = FillingMode.values()[savedState.getInt("mFillingMode")];
-        this.mFillingColors = FillingColors.values()[savedState.getInt("mFillingColors")];
+        this.mArcType = ArcTypes.values()[savedState.getInt("mArcType")];
     }
 
 
-    /**
+    /****************************************************************************************
      * Static methods
      */
 
-    // Normalize a angle in degrees.
-    // If the angle is over 360° will be normalized.
-    // This method work for negative and positive angle values.
+    /**
+     * Normalize a angle in degrees.
+     * If the angle is over 360° will be normalized.
+     * This method work for negative and positive angle values.
+     *
+     * @param degrees The start angle in degrees
+     * @return The normalized angle in degrees
+     */
     @SuppressWarnings("unused")
     public static float normalizeAngle(float degrees) {
         return (degrees + (degrees < 0 ? -360.0f : +360.0f)) % 360.0f;
     }
 
-    // Check if point is inside a circle (Pitagora).
-    // Supposed that the origin of the circle is 0, 0.
+    /**
+     * Check if point is inside a circle (Pitagora).
+     * Supposed that the origin of the circle is 0, 0.
+     *
+     * @param x      The x point
+     * @param y      The y point
+     * @param radius The radius of the circle
+     * @return True if the point is inside the circle
+     */
     @SuppressWarnings("all")
     public static boolean pointInsideCircle(float x, float y, float radius) {
         return Math.pow(x, 2) + Math.pow(y, 2) < Math.pow(radius, 2);
@@ -659,85 +523,63 @@ public class ScArc extends ScWidget {
         return new Point(x, y);
     }
 
-    // The area filling types.
-    // Decide what filling in drawing area.
-    @SuppressWarnings("unused")
-    public enum FillingArea {
-        NONE,
-        BOTH,
-        HORIZONTAL,
-        VERTICAL
-    }
 
-    // The area filling mode.
-    // STRETCH action on the canvas scale instead DRAW draw all the points respect the
-    // the drawing area.
-    @SuppressWarnings("unused")
-    public enum FillingMode {
-        STRETCH,
-        DRAW
-    }
-
-    // The colors filling mode.
-    @SuppressWarnings("unused")
-    public enum FillingColors {
-        SOLID,
-        GRADIENT
-    }
-
-    // Enum for define what type of draw method calling for render the notch
-    @SuppressWarnings("unused")
-    public enum StrokeTypes {
-        LINE,
-        CLOSED_ARC,
-        FILLED_ARC
-    }
-
-
-    /**
+    /****************************************************************************************
      * Public methods
      */
 
-    // Get the arc painter
-    @SuppressWarnings("unused")
-    public Paint getPainter() {
-        return this.mStrokePaint;
-    }
-
-    // Calc point position from relative angle in degrees.
-    // Note that the angle must be relative to the start angle defined by the component settings
-    // and not intended as a global angle.
+    /**
+     * Calc point position from relative angle in degrees.
+     * Note that the angle must be relative to the start angle defined by the component settings
+     * and not intended as a global angle.
+     *
+     * @param degrees       The passed angle in degrees
+     * @param radiusAdjust  The radius adjustment
+     * @return              The point on the arc
+     */
     @SuppressWarnings("unused")
     public Point getPointFromAngle(float degrees, float radiusAdjust) {
-        // Get the drawing area
-        RectF canvasArea = this.calcCanvasArea(this.getMeasuredWidth(), this.getMeasuredHeight());
-        RectF drawingArea = this.calcDrawingArea(canvasArea);
         // Adjust the area by the passed value and the half stroke size
-        RectF adjustedArea = ScArc.inflateRect(drawingArea, radiusAdjust + this.mStrokeSize / 2);
+        RectF adjustedArea = ScArc.inflateRect(
+                this.calculateVirtualDrawingArea(),
+                radiusAdjust
+        );
 
         // Create the point by the angle relative at the start angle defined in the component
         // settings and return it.
         return ScArc.getPointFromAngle(degrees + this.mAngleStart, adjustedArea);
     }
 
+    /**
+     * Calc point position from relative angle in degrees.
+     * Note that the angle must be relative to the start angle defined by the component settings
+     * and not intended as a global angle.
+     *
+     * @param degrees       The passed angle in degrees
+     * @return              The point on the arc
+     */
     @SuppressWarnings("unused")
     public Point getPointFromAngle(float degrees) {
         return this.getPointFromAngle(degrees, 0.0f);
     }
 
-    // Find the angle from position on the component.
-    // This method consider the angles limits settings and return a relative angle value within
-    // this limits.
+    /**
+     * Find the angle from position on the component.
+     * This method consider the angles limits settings and return a relative angle value within
+     * this limits.
+     *
+     * @param x The x coordinate of the point
+     * @param y The y coordinate of the point
+     * @return  The calculated angle in degrees
+     */
     @SuppressWarnings("unused")
     public float getAngleFromPoint(float x, float y) {
         // Get the drawing area
-        RectF canvasArea = this.calcCanvasArea(this.getMeasuredWidth(), this.getMeasuredHeight());
-        RectF drawingArea = this.calcDrawingArea(canvasArea);
-
+        RectF area = this.calculateVirtualDrawingArea();
         // Get angle from position
         double angle = Math.atan2(
-                (y - drawingArea.centerY()) / drawingArea.height(),
-                (x - drawingArea.centerX()) / drawingArea.width()
+                (y - area.centerY()) / area.height(),
+                (x - area.centerX()) / area.width()
         );
 
         // Normalize the degrees angle by the start angle defined by component settings.
@@ -746,38 +588,45 @@ public class ScArc extends ScWidget {
         return this.angleRangeLimit(degrees, 0, this.mAngleSweep);
     }
 
-    // Check if a point belongs to the arc
+    /**
+     * Check if path contains a point.
+     *
+     * @param x The x coordinate of the point
+     * @param y The y coordinate of the point
+     * @return  True if the paint contain the passed point
+     */
     @SuppressWarnings("unused")
-    public boolean belongsToArc(float x, float y, float precision) {
-        // Find the angle from the passed point and get the point on the arc
-        float angle = this.getAngleFromPoint(x, y);
-        Point pointOnArc = this.getPointFromAngle(angle);
-
-        // Find the delta distance between the points and check if is inside a circle build on
-        // the precision radius.
-        return ScArc.pointInsideCircle(x - pointOnArc.x, y - pointOnArc.y, precision);
+    public boolean contains(float x, float y) {
+        return this.contains(x, y, this.mStrokeSize);
     }
 
-    @SuppressWarnings("unused")
-    public boolean belongsToArc(float x, float y) {
-        return this.belongsToArc(x, y, this.mStrokeSize);
-    }
-
-    // Get the distance from center passed an angle or a point.
-    // If an angle will passed the method find the relative point on the arc and than will
-    // calculate the distance from center.
+    /**
+     * Get the distance from center passed an angle or a point.
+     * If an angle will passed the method find the relative point on the arc and than will
+     * calculate the distance from center.
+     *
+     * @param x The x coordinate of the point
+     * @param y The y coordinate of the point
+     * @return  The distance from the center
+     */
     @SuppressWarnings("unused")
     public float getDistanceFromCenter(float x, float y) {
         // Get the drawing area
-        RectF canvasArea = this.calcCanvasArea(this.getMeasuredWidth(), this.getMeasuredHeight());
-        RectF drawingArea = this.calcDrawingArea(canvasArea);
-
+        RectF area = this.calculateVirtualDrawingArea();
         // Return the calculated distance
         return (float) Math.sqrt(
-                Math.pow(x - drawingArea.centerX(), 2) + Math.pow(y - drawingArea.centerY(), 2)
+                Math.pow(x - area.centerX(), 2) + Math.pow(y - area.centerY(), 2)
         );
     }
 
+    /**
+     * Get the distance from center passed an angle or a point.
+     * If an angle will passed the method find the relative point on the arc and than will
+     * calculate the distance from center.
+     *
+     * @param degrees   The angle in degrees
+     * @return          The distance from the center
+     */
     @SuppressWarnings("unused")
     public float getDistanceFromCenter(float degrees) {
         // Find the point on the arc
@@ -786,9 +635,14 @@ public class ScArc extends ScWidget {
         return this.getDistanceFromCenter(point.x, point.y);
     }
 
-    // Get the current gradient color by the current draw angle
+    /**
+     * Get the current painter color by the current draw angle
+     *
+     * @param angle The angle in degrees
+     * @return      The calculated color
+     */
     @SuppressWarnings("unused")
-    public int getCurrentGradientColor(float angle) {
+    public int getPainterColor(float angle) {
         // Check if have colors settled
         if (this.mStrokeColors == null) return Color.TRANSPARENT;
 
@@ -805,34 +659,60 @@ public class ScArc extends ScWidget {
         float deltaAngle = this.mAngleSweep / this.mStrokeColors.length;
         int sector = Math.round(angle / deltaAngle);
 
-        // Reduce the angle to be relative to the sector and find the fraction
-        float sectorAngle = angle - sector * deltaAngle;
-        float fraction = sectorAngle / deltaAngle;
+        // Choice by the color filling
+        switch (this.mFillingColors) {
+            case SOLID:
+                // Return the color
+                return this.mStrokeColors[sector];
 
-        // First color and last color
-        int firstColor = this.mStrokeColors[sector];
-        int lastColor = this.mStrokeColors[sector + 1];
+            case GRADIENT:
+                // Reduce the angle to be relative to the sector and find the fraction
+                float sectorAngle = angle - sector * deltaAngle;
+                float fraction = sectorAngle / deltaAngle;
 
-        // Return the color
-        return (int) new ArgbEvaluator().evaluate(fraction, firstColor, lastColor);
+                // First color and last color
+                int firstColor = this.mStrokeColors[sector];
+                int lastColor = this.mStrokeColors[sector + 1];
+
+                // Return the color
+                return (int) new ArgbEvaluator().evaluate(fraction, firstColor, lastColor);
+
+            default:
+                // Return the default color
+                return Color.BLACK;
+        }
     }
-
-    @SuppressWarnings("unused")
-    public int getCurrentGradientColor() {
-        return this.getCurrentGradientColor(this.mAngleDraw);
-    }
-
 
     /**
+     * Get the current painter color by the current draw angle
+     *
+     * @return  The calculated color
+     */
+    @SuppressWarnings("unused")
+    public int getPainterColor() {
+        return this.getPainterColor(this.mAngleDraw);
+    }
+
+
+    /****************************************************************************************
      * Public properties
      */
 
-    // Start angle
+    /**
+     * Return the start angle
+     *
+     * @return  The start angle in degrees
+     */
     @SuppressWarnings("unused")
     public float getAngleStart() {
         return this.mAngleStart;
     }
 
+    /**
+     * Set the start angle
+     *
+     * @param value The start angle in degrees
+     */
     @SuppressWarnings("unused")
     public void setAngleStart(float value) {
         // Check if value is changed
@@ -845,12 +725,21 @@ public class ScArc extends ScWidget {
         }
     }
 
-    // Sweep angle
+    /**
+     * Return the sweep angle
+     *
+     * @return The sweep angle in degrees
+     */
     @SuppressWarnings("unused")
     public float getAngleSweep() {
         return this.mAngleSweep;
     }
 
+    /**
+     * Set the sweep angle
+     *
+     * @param value The sweep angle in degrees
+     */
     @SuppressWarnings("unused")
     public void setAngleSweep(float value) {
         // Check if value is changed
@@ -864,12 +753,21 @@ public class ScArc extends ScWidget {
         }
     }
 
-    // Draw angle
+    /**
+     * Return the drawing angle
+     *
+     * @return The drawing angle in degrees
+     */
     @SuppressWarnings("unused")
     public float getAngleDraw() {
         return this.mAngleDraw;
     }
 
+    /**
+     * Set the drawing angle
+     *
+     * @return The drawing angle in degrees
+     */
     @SuppressWarnings("unused")
     public void setAngleDraw(float value) {
         // Check if value is changed
@@ -882,153 +780,29 @@ public class ScArc extends ScWidget {
         }
     }
 
-    // Stroke size
+    /**
+     * Return the arc type.
+     * This define how the arc will be drawed: LINE, CLOSED or FILLED.
+     *
+     * @return The arc type
+     */
     @SuppressWarnings("unused")
-    public float getStrokeSize() {
-        return this.mStrokeSize;
+    public ArcTypes getArcType() {
+        return this.mArcType;
     }
 
+    /**
+     * Set the arc type.
+     * This define how the arc will be drawed: LINE, CLOSED or FILLED.
+     *
+     * @return The arc type
+     */
     @SuppressWarnings("unused")
-    public void setStrokeSize(float value) {
+    public void setArcType(ArcTypes value) {
         // Check if value is changed
-        if (this.mStrokeSize != value) {
-            // Store the new value and check it
-            this.mStrokeSize = value;
-            this.checkValues();
-            // Fix the painter and refresh the component
-            this.mStrokePaint.setStrokeWidth(this.mStrokeSize);
-            this.requestLayout();
-        }
-    }
-
-    // Stroke color
-    @SuppressWarnings("unused")
-    public int getStrokeColor() {
-        return this.mStrokeColor;
-    }
-
-    @SuppressWarnings("unused")
-    public void setStrokeColor(int value) {
-        // Check if value is changed
-        if (this.mStrokeColor != value) {
-            // Store the new value and reset the other
-            this.mStrokeColor = value;
-            this.mStrokeColors = null;
-            // Fix the painter and refresh the component
-            this.mStrokePaint.setColor(this.mStrokeColor);
-            this.invalidate();
-        }
-    }
-
-    // Create a gradient color and apply it to the stroke
-    @SuppressWarnings("unused")
-    public int[] getStrokesColors() {
-        return this.mStrokeColors;
-    }
-
-    @SuppressWarnings("unused")
-    public void setStrokeColors(int... values) {
-        // Save the new value and refresh
-        this.mStrokeColors = values;
-        this.invalidate();
-    }
-
-    // Stroke type
-    @SuppressWarnings("unused")
-    public StrokeTypes getStrokeType() {
-        return this.mStrokeType;
-    }
-
-    @SuppressWarnings("unused")
-    public void setStrokeType(StrokeTypes value) {
-        // Check if value is changed
-        if (this.mStrokeType != value) {
+        if (this.mArcType != value) {
             // Store the new value and refresh the component
-            this.mStrokeType = value;
-            this.invalidate();
-        }
-    }
-
-    // Max width
-    @SuppressWarnings("unused")
-    public int getMaxWidth() {
-        return this.mMaxWidth;
-    }
-
-    @SuppressWarnings("unused")
-    public void setMaxWidth(int value) {
-        // Check if value is changed
-        if (this.mMaxWidth != value) {
-            // Store the new value
-            this.mMaxWidth = value;
-            // Check and refresh the component
-            this.checkValues();
-            this.requestLayout();
-        }
-    }
-
-    // Max height
-    @SuppressWarnings("unused")
-    public int getMaxHeight() {
-        return this.mMaxHeight;
-    }
-
-    @SuppressWarnings("unused")
-    public void setMaxHeight(int value) {
-        // Check if value is changed
-        if (this.mMaxHeight != value) {
-            // Store the new value
-            this.mMaxHeight = value;
-            // Check and refresh the component
-            this.checkValues();
-            this.requestLayout();
-        }
-    }
-
-    // Area filling type
-    @SuppressWarnings("unused")
-    public FillingArea getFillingArea() {
-        return this.mFillingArea;
-    }
-
-    @SuppressWarnings("unused")
-    public void setFillingArea(FillingArea value) {
-        // Check if value is changed
-        if (this.mFillingArea != value) {
-            // Store the new value and refresh the component
-            this.mFillingArea = value;
-            this.invalidate();
-        }
-    }
-
-    // Area filling mode
-    @SuppressWarnings("unused")
-    public FillingMode getFillingMode() {
-        return this.mFillingMode;
-    }
-
-    @SuppressWarnings("unused")
-    public void setFillingMode(FillingMode value) {
-        // Check if value is changed
-        if (this.mFillingMode != value) {
-            // Store the new value and refresh the component
-            this.mFillingMode = value;
-            this.invalidate();
-        }
-    }
-
-    // Colors filling mode
-    @SuppressWarnings("unused")
-    public FillingColors getFillingColors() {
-        return this.mFillingColors;
-    }
-
-    @SuppressWarnings("unused")
-    public void setFillingColors(FillingColors value) {
-        // Check if value is changed
-        if (this.mFillingColors != value) {
-            // Store the new value and refresh the component
-            this.mFillingColors = value;
+            this.mArcType = value;
             this.invalidate();
         }
     }
