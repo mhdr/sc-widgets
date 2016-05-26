@@ -66,7 +66,7 @@ public class ScNotchs extends ScArc {
     // Set the painter type
     private void setPainterType() {
         // Set the stroke type
-        switch (this.mStrokeType) {
+        switch (this.mArcType) {
             case LINE:
             case CLOSED_ARC:
                 this.getPainter().setStyle(Paint.Style.STROKE);
@@ -170,7 +170,7 @@ public class ScNotchs extends ScArc {
             info.index = index;
             info.length = this.mNotchsLength;
             info.size = this.mStrokeSize;
-            info.type = this.mStrokeType;
+            info.type = this.mArcType;
 
             // Check if the listener is linked
             if (this.mOnDrawListener != null) {
@@ -254,7 +254,7 @@ public class ScNotchs extends ScArc {
         public float size = 0.0f;
         public int color = Color.BLACK;
         public float distanceFromBorder = 0.0f;
-        public StrokeTypes type = StrokeTypes.LINE;
+        public ArcTypes type = ArcTypes.LINE;
         public boolean visible = true;
 
     }
@@ -318,13 +318,13 @@ public class ScNotchs extends ScArc {
     @SuppressWarnings("unused")
     @Deprecated
     public NotchsTypes getNotchsType() {
-        return NotchsTypes.values()[this.mStrokeType.ordinal()];
+        return NotchsTypes.values()[this.mArcType.ordinal()];
     }
 
     @SuppressWarnings("unused")
     @Deprecated
     public void setNotchsType(NotchsTypes value) {
-        this.mStrokeType = StrokeTypes.values()[value.ordinal()];
+        this.mArcType = ArcTypes.values()[value.ordinal()];
     }
 
 

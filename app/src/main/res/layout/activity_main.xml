@@ -11,31 +11,17 @@
     tools:context="com.sccomponents.widgets.demo.MainActivity">
 
     <FrameLayout
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:background="#f5f5f5"
-        android:padding="10dp">
+        android:layout_width="300dp"
+        android:layout_height="300dp">
 
-        <com.sccomponents.widgets.ScGauge
-            android:id="@+id/gauge"
+        <com.sccomponents.widgets.ScArc
+            android:id="@+id/drawer"
             xmlns:sc="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            sc:scc_angle_start="0"
-            sc:scc_angle_sweep="-135"
-            sc:scc_progress_color="#ffffff"
-            sc:scc_progress_size="6dp"
-            sc:scc_stroke_size="16dp"/>
-
-        <TextView
-            android:id="@+id/counter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="5dp"
-            android:text=""
-            android:textSize="32dp"
-            android:textColor="#333333"/>
+            android:padding="10dp"
+            android:background="#cccccc"
+            />
 
     </FrameLayout>
 
