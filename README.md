@@ -1,4 +1,4 @@
-# ScWidget
+# ScWidgets
 This is a library of widgets
 
 - **[ScWidget](ScWidget.md)**<br />
