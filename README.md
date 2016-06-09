@@ -3,6 +3,7 @@
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/4.jpg" height="100px" />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/5.jpg" height="100px" />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/11.jpg" height="100px" />
+<br />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/6.jpg" height="100px" />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/7.jpg" height="100px" />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scgauge/8.jpg" height="100px" />
