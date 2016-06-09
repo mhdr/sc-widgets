@@ -8,8 +8,7 @@ This class extend the [ScArc](ScArc.md) class.
 
 > **KNOWED ISSUES**<br />
 > When the arc is stretched have some visual issues about the notchs direction.<br />
-> This problem will be fixed in the new version is possible.<br />
-> About this and other any help will be **appreciated**.<br />
+> This problem is already fixed in the new version (2.0.0) that will be released soon.<br />
 
 #### Public methods
 
