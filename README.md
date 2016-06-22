@@ -45,18 +45,19 @@ Put the component inside a RelativeLayout, give an alignment and the panel slide
 # Usage
 
 via Gradle:
+<br />
+Add it in your root build.gradle at the end of repositories:
 ```java
-android {
-    ...
-    buildTypes {
-        ...
-        repositories {
-            ...
-            maven { url "https://jitpack.io" }
-        }
-    }
+allprojects {
+	repositories {
+		...
+		maven { url "https://jitpack.io" }
+	}
 }
-...
+```
+
+Add the dependency
+```java
 dependencies {
     ...
     compile 'com.github.paroca72:sc-widgets:1.1.0'
