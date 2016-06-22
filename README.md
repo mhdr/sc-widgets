@@ -1,28 +1,16 @@
-# ScUtils
-This is a library of widgets
+# sc-widgets
+This is a library of widgets.<br />
+The 2.x version change completely the way to draw using the [ScDrawer](..\sc-drawer\ScDrawer.md) as base for create the [ScGauge](..\sc-gauge\ScGauge.md) and all classes inherited from it.
+This using a path to follow and applying some features to draw extra on the path.
+This way to think leaves a lot of freedom to the users to create particular components limited only by his imagination. 
 
-- **[ScWidget](ScWidget.md)**<br />
-The base class for all widget component of this series.<br />
+> **IMPORTANT**
+> The 2.x version it is NOT compatible with the previous versions.
+
+
+- **[ScWidget](sc-widget\ScWidget.md)**<br />
+The base class for all (or almost) widget components of this series.<br />
 Contains just utility methods for facilitate the building of a component.
-
-- **[ScArc](ScArc.md)**<br />
-This components create an arc inscribed inside a rectangle area.<br />
-The arc can be build staring from any angle and the length of the arc will be defined with an sweep angle.
-All the angle can be positive or negative and you can decide the filling area methods by many options.
-Please press on the link above to see some picture example of the possibility of this component.
-
-- **[ScNotchs](ScNotchs.md)**<br />
-This components create a notchs arc inscribed inside a rectangle area.<br />
-Considering that this component inherit from the [ScArc](ScArc.md) component please take a look to the related documentation before use it.
-
-- **[ScGauge](ScGauge.md)**<br />
-A fusion of [ScArc](ScArc.md) and [ScNotchs](ScNotchs.md) components, this create a gauge with many possibilities of customize.<br />
-The class has been designed to starting simple and user friendly but provides all needed functions to customize it in every parts.
-
-- **[ScSeekBar](ScSeekBar.md)**<br />
-This class extend the [ScGauge](ScGauge.md) class add the possibility to input the progress value by touching on the component.<br />
-Also create the pointer for slide the current value.<br />
-Noted than this class class offer a infinite possibilities of customization for understand it better first I can suggest to take a look to the [ScGauge](ScGauge.md) documentation.
 
 - **[ScSlidingPanel](ScSlidingPanel.md)**<br />
 This is a very simple sliding panel manager.<br />
@@ -33,23 +21,25 @@ Put the component inside a RelativeLayout, give an alignment and the panel slide
 # Usage
 
 via Gradle:
+<br />
+Add it in your root build.gradle at the end of repositories:
 ```java
-android {
-    ...
-    buildTypes {
-        ...
-        repositories {
-            ...
-            maven { url "https://jitpack.io" }
-        }
-    }
-}
-...
-dependencies {
-    ...
-    compile 'com.github.paroca72:sc-widgets:1.0.0'
+allprojects {
+	repositories {
+		...
+		maven { url "https://jitpack.io" }
+	}
 }
 ```
+
+Add the dependency
+```java
+dependencies {
+    ...
+    compile 'com.github.paroca72:sc-widgets:1.1.0'
+}
+```
+
 
 #License
 <pre>
