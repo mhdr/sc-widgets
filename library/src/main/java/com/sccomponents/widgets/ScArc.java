@@ -17,6 +17,7 @@ import android.graphics.SweepGradient;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
 
 import java.util.Arrays;
 
@@ -27,7 +28,7 @@ import java.util.Arrays;
  * @version 2.0.0
  * @since 2016-05-26
  */
-public class ScArc extends ScDrawer {
+public class ScArc extends ScGauge {
 
     /****************************************************************************************
      * Constants
@@ -43,7 +44,7 @@ public class ScArc extends ScDrawer {
      */
 
     /**
-     * Enum for define what type of draw method calling for render the notch
+     * Enum for define what type of draw method calling for render the arc
      */
     @SuppressWarnings("unused")
     public enum ArcTypes {
@@ -59,7 +60,6 @@ public class ScArc extends ScDrawer {
 
     protected float mAngleStart;
     protected float mAngleSweep;
-    protected float mAngleDraw;
     protected ArcTypes mArcType;
 
 
@@ -67,7 +67,6 @@ public class ScArc extends ScDrawer {
      * Private variables
      */
 
-    private Path mPath;
     private Paint mPiePaint;
 
 
@@ -96,64 +95,6 @@ public class ScArc extends ScDrawer {
      */
 
     /**
-     * Limit an angle in degrees within a range.
-     * When press on the arc space the system return always an positive angle but the ScArc accept
-     * also negative value for the start and end angles.
-     * So in case of negative setting the normal range limit method not work proper and we must
-     * implement a specific method that consider to return all kind of angle value, positive and
-     * negative.
-     *
-     * @param angle      The current angle in degrees
-     * @param startAngle The start angle limit in degrees
-     * @param endAngle   The end angle limit in degrees
-     * @return The fixed angle in degrees
-     */
-    private float angleRangeLimit(float angle, float startAngle, float endAngle) {
-        // Find the opposite of the same angle
-        float positive = ScArc.normalizeAngle(angle + ScArc.DEFAULT_ANGLE_MAX);
-        float negative = positive - ScArc.DEFAULT_ANGLE_MAX;
-
-        // Try both case of angle is positive and is negative.
-        float firstCase = ScArc.valueRangeLimit(positive, startAngle, endAngle);
-        float secondCase = ScArc.valueRangeLimit(negative, startAngle, endAngle);
-
-        // If the first case is equal to the positive angle than the correct angle is the
-        // positive one
-        if (firstCase == positive) {
-            return positive;
-
-        } else {
-            // If the second case is equal to the negative angle than the correct angle is the
-            // negative one
-            if (secondCase == negative) {
-                return negative;
-
-            } else {
-                // The angle if over the limit.
-                // Try to find the nearest limit and return it.
-                if (Math.abs(firstCase - positive) < Math.abs(secondCase - negative))
-                    return firstCase;
-                else
-                    return secondCase;
-            }
-        }
-    }
-
-    /**
-     * Check all input values if over the limits
-     */
-    private void checkValues() {
-        // Angle
-        if (Math.abs(this.mAngleSweep) > ScArc.DEFAULT_ANGLE_MAX)
-            this.mAngleSweep = ScArc.normalizeAngle(this.mAngleSweep);
-        if (Math.abs(this.mAngleDraw) > ScArc.DEFAULT_ANGLE_MAX)
-            this.mAngleDraw = ScArc.normalizeAngle(this.mAngleDraw);
-
-        // Check the draw angle limits
-        this.mAngleDraw = ScArc.valueRangeLimit(this.mAngleDraw, 0, this.mAngleSweep);
-    }
-
-    /**
      * Init the component.
      * Retrieve all attributes with the default values if needed.
      * Check the values for internal use and create the painters.
@@ -167,19 +108,14 @@ public class ScArc extends ScDrawer {
         // ATTRIBUTES
 
         // Get the attributes list
-        final TypedArray attrArray = context.obtainStyledAttributes(attrs, R.styleable.ScComponents, defStyle, 0);
+        final TypedArray attrArray = context
+                .obtainStyledAttributes(attrs, R.styleable.ScComponents, defStyle, 0);
 
         // Read all attributes from xml and assign the value to linked variables
         this.mAngleStart = attrArray.getFloat(
                 R.styleable.ScComponents_scc_angle_start, ScArc.DEFAULT_ANGLE_START);
         this.mAngleSweep = attrArray.getFloat(
                 R.styleable.ScComponents_scc_angle_sweep, ScArc.DEFAULT_ANGLE_SWEEP);
-        this.mAngleDraw = attrArray.getFloat(
-                R.styleable.ScComponents_scc_angle_draw, this.mAngleSweep);
-
-        // ArcTypes.LINE
-        this.mArcType =
-                ArcTypes.values()[attrArray.getInt(R.styleable.ScComponents_scc_stroke_type, 0)];
 
         // Recycle
         attrArray.recycle();
@@ -187,7 +123,7 @@ public class ScArc extends ScDrawer {
         //--------------------------------------------------
         // INTERNAL
 
-        this.checkValues();
+        this.mArcType = ArcTypes.LINE;
 
         //--------------------------------------------------
         // PAINTS
@@ -198,14 +134,55 @@ public class ScArc extends ScDrawer {
     }
 
     /**
+     * Limit an angle in degrees within a range.
+     * When press on the arc space the system return always an positive angle but the ScArc accept
+     * also negative value for the start and end angles.
+     * So in case of negative setting the normal range limit method not work proper and we must
+     * implement a specific method that consider to return all kind of angle value, positive and
+     * negative.
+     *
+     * @param angle      the current angle in degrees
+     * @param startAngle the start angle limit in degrees
+     * @param endAngle   the end angle limit in degrees
+     * @return the fixed angle in degrees
+     */
+    private float angleRangeLimit(float angle, float startAngle, float endAngle) {
+        // Define the holders
+        float min = Math.min(startAngle, endAngle);
+        float max = Math.max(startAngle, endAngle);
+        float current = angle;
+        float increment = ScArc.DEFAULT_ANGLE_MAX * (current < min ? 1 : -1);
+
+        // Infinite cycle
+        while (true) {
+            // Check if the current angle is within the range
+            if (current >= min && current <= max) return current;
+            // Check if finished to check
+            if ((increment > 0 && current > max) || (increment < 0 && current < min)) break;
+
+            // Next step
+            current += increment;
+        }
+
+        // In this case the angle is outside the range so I can try to snap the value to the
+        // closed limit.
+        if (increment > 0)
+            return (min - angle) < (current - max) ? min : max;
+        else
+            return (angle - max) < (min - current) ? max : min;
+    }
+
+    /**
      * Create a bitmap shader.
      * If the colors filling mode is SOLID we cannot use a gradient but we must separate colors
      * each other. For do it we will use a trick creating a bitmap and filling it with a colored
      * pies. After that create a bitmap shader that will going to apply to the Painter.
      *
-     * @param area The area boundaries reference
-     * @return The bitmap shader
+     * @param area the area boundaries reference
+     * @return the bitmap shader
      */
+    // TODO: check
+    /*
     private BitmapShader createBitmapShader(RectF area) {
         // Create a temporary bitmap and get its canvas
         Bitmap bitmap = Bitmap.createBitmap((int) area.width(), (int) area.height(), Bitmap.Config.ARGB_8888);
@@ -242,15 +219,18 @@ public class ScArc extends ScDrawer {
         // Create the filter from the temporary bitmap
         return new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
     }
+    */
 
     /**
      * Create a sweep gradient shader.
      * Since the sweep angle can be minor of 360° we must create an array storing the colors
      * position respect to the arc (sectors).
      *
-     * @param area The area boundaries reference
-     * @return The gradient shader
+     * @param area the area boundaries reference
+     * @return the gradient shader
      */
+    // TODO: check
+    /*
     private SweepGradient createSweepGradient(RectF area) {
         // Create a copy of colors because not want lost the original values
         int[] colors = Arrays.copyOf(this.mStrokeColors, this.mStrokeColors.length);
@@ -297,26 +277,7 @@ public class ScArc extends ScDrawer {
         // Return the gradient
         return gradient;
     }
-
-    /**
-     * Calculate the virtual drawing area
-     */
-    private RectF calculateVirtualDrawingArea() {
-        // Calculate the real drawing area measures considering the padding
-        int width = this.getMeasuredWidth() - (this.getPaddingLeft() + this.getPaddingRight());
-        int height = this.getMeasuredWidth() - (this.getPaddingTop() + this.getPaddingBottom());
-
-        // Scale the dimension
-        width *= this.getPathHorizontalScale(width);
-        height *= this.getPathVerticalScale(height);
-
-        // Scale the canvas area
-        RectF area = new RectF(0, 0, width, height);
-        area.offset(this.getPaddingLeft(), this.getPaddingTop());
-
-        // Return the area
-        return area;
-    }
+    */
 
 
     /****************************************************************************************
@@ -337,65 +298,53 @@ public class ScArc extends ScDrawer {
         );
 
         // Call the super
-        super.draw(canvas);
+        super.onDraw(canvas);
     }
 
     /**
-     * On measure
+     * Create the path to draw.
+     * This is fundamental to draw something on the canvas.
      *
-     * @param widthMeasureSpec  the reference width
-     * @param heightMeasureSpec the reference height
+     * @return the path
      */
     @Override
     @SuppressWarnings("all")
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // Force to recalculate the path and call the super
-        this.mPath = null;
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    }
+    protected Path createPath(int maxWidth, int maxHeight) {
+        // If have any wrap dimensions to apply to the content we want to have a perfect circle
+        // so we'll update the dimensions for have equal.
+        if (this.getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT) maxWidth = maxHeight;
+        if (this.getLayoutParams().height == ViewGroup.LayoutParams.WRAP_CONTENT) maxHeight = maxWidth;
 
-    /**
-     * Get the current path
-     *
-     * @return The path
-     */
-    @Override
-    public Path getPath() {
-        // To avoid to calculate the path to every call will use a local variable to store it
-        if (this.mPath == null) {
-            // The new path and the area
-            Path path = new Path();
-            RectF area = new RectF(0, 0, this.getMeasuredWidth(), this.getMeasuredHeight());
+        // the new path and the area
+        Path path = new Path();
+        RectF area = new RectF(0, 0, maxWidth, maxHeight);
 
-            // If must to be closed move the CP in center of area
-            if (this.mArcType == ArcTypes.CLOSED)
-                path.moveTo(area.centerX(), area.centerY());
+        // If must to be closed move the CP in center of area
+        if (this.mArcType == ArcTypes.CLOSED)
+            path.moveTo(area.centerX(), area.centerY());
 
-            // Draw the arc
-            path.addArc(area, this.mAngleStart, this.mAngleSweep);
+        // Draw the arc
+        path.addArc(area, this.mAngleStart, this.mAngleSweep);
 
-            // If the arc is closed
-            if (this.mArcType == ArcTypes.CLOSED)
-                path.close();
-
-            // Save the new path
-            this.mPath = path;
-        }
+        // If the arc is closed
+        if (this.mArcType == ArcTypes.CLOSED)
+            path.close();
 
         // Return the path
-        return this.mPath;
+        return path;
     }
 
     /**
-     * Return the paint shader.
+     * Create the paint shader.
      * This methods need to define what kind of shader using about coloring the draw path.
      * Is important do a distinction between the filling colors type as the case want have two
      * different type of filling: GRADIENT or SOLID.
      *
      * @return Return the shader
      */
-    @Override
-    public Shader getPaintShader() {
+    // TODO: check
+    /*
+    protected Shader createShader(int width, int height) {
         // Check no values inside the array
         if (this.mStrokeColors.length == 0)
             return null;
@@ -406,24 +355,22 @@ public class ScArc extends ScDrawer {
             return null;
         }
 
-        // Calculate the virtual area
-        RectF area = this.calculateVirtualDrawingArea();
-
         // Select the draw colors method by the case
         switch (this.mFillingColors) {
             // Solid filling
             case SOLID:
-                return this.createBitmapShader(area);
+                return this.createBitmapShader(this.mVirtualArea);
 
             // Gradient filling
             case GRADIENT:
-                return this.createSweepGradient(area);
+                return this.createSweepGradient(this.mVirtualArea);
 
             // Else
             default:
                 return null;
         }
     }
+    */
 
 
     /****************************************************************************************
@@ -433,7 +380,7 @@ public class ScArc extends ScDrawer {
     /**
      * Save the current instance state
      *
-     * @return The state
+     * @return the state
      */
     @Override
     protected Parcelable onSaveInstanceState() {
@@ -446,7 +393,6 @@ public class ScArc extends ScDrawer {
         state.putParcelable("PARENT", superState);
         state.putFloat("mAngleStart", this.mAngleStart);
         state.putFloat("mAngleSweep", this.mAngleSweep);
-        state.putFloat("mAngleDraw", this.mAngleDraw);
         state.putInt("mArcType", this.mArcType.ordinal());
 
         // Return the new state
@@ -456,7 +402,7 @@ public class ScArc extends ScDrawer {
     /**
      * Restore the current instance state
      *
-     * @param state The state
+     * @param state the state
      */
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
@@ -470,7 +416,6 @@ public class ScArc extends ScDrawer {
         // Now can restore all the saved variables values
         this.mAngleStart = savedState.getFloat("mAngleStart");
         this.mAngleSweep = savedState.getFloat("mAngleSweep");
-        this.mAngleDraw = savedState.getFloat("mAngleDraw");
         this.mArcType = ArcTypes.values()[savedState.getInt("mArcType")];
     }
 
@@ -484,8 +429,8 @@ public class ScArc extends ScDrawer {
      * If the angle is over 360° will be normalized.
      * This method work for negative and positive angle values.
      *
-     * @param degrees The start angle in degrees
-     * @return The normalized angle in degrees
+     * @param degrees the start angle in degrees
+     * @return the normalized angle in degrees
      */
     @SuppressWarnings("unused")
     public static float normalizeAngle(float degrees) {
@@ -496,10 +441,10 @@ public class ScArc extends ScDrawer {
      * Check if point is inside a circle (Pitagora).
      * Supposed that the origin of the circle is 0, 0.
      *
-     * @param x      The x point
-     * @param y      The y point
-     * @param radius The radius of the circle
-     * @return True if the point is inside the circle
+     * @param x      the x point
+     * @param y      the y point
+     * @param radius the radius of the circle
+     * @return true if the point is inside the circle
      */
     @SuppressWarnings("all")
     public static boolean pointInsideCircle(float x, float y, float radius) {
@@ -533,34 +478,17 @@ public class ScArc extends ScDrawer {
      * Note that the angle must be relative to the start angle defined by the component settings
      * and not intended as a global angle.
      *
-     * @param degrees       The passed angle in degrees
-     * @param radiusAdjust  The radius adjustment
-     * @return              The point on the arc
+     * @param degrees      the passed angle in degrees
+     * @param radiusAdjust the radius adjustment
+     * @return the point on the arc
      */
     @SuppressWarnings("unused")
     public Point getPointFromAngle(float degrees, float radiusAdjust) {
         // Adjust the area by the passed value and the half stroke size
-        RectF adjustedArea = ScArc.inflateRect(
-                this.calculateVirtualDrawingArea(),
-                radiusAdjust
-        );
-
+        RectF adjustedArea = ScArc.inflateRect(this.mVirtualArea, radiusAdjust);
         // Create the point by the angle relative at the start angle defined in the component
         // settings and return it.
         return ScArc.getPointFromAngle(degrees + this.mAngleStart, adjustedArea);
-    }
-
-    /**
-     * Calc point position from relative angle in degrees.
-     * Note that the angle must be relative to the start angle defined by the component settings
-     * and not intended as a global angle.
-     *
-     * @param degrees       The passed angle in degrees
-     * @return              The point on the arc
-     */
-    @SuppressWarnings("unused")
-    public Point getPointFromAngle(float degrees) {
-        return this.getPointFromAngle(degrees, 0.0f);
     }
 
     /**
@@ -568,18 +496,16 @@ public class ScArc extends ScDrawer {
      * This method consider the angles limits settings and return a relative angle value within
      * this limits.
      *
-     * @param x The x coordinate of the point
-     * @param y The y coordinate of the point
-     * @return  The calculated angle in degrees
+     * @param x the x coordinate of the point
+     * @param y the y coordinate of the point
+     * @return the calculated angle in degrees
      */
     @SuppressWarnings("unused")
     public float getAngleFromPoint(float x, float y) {
-        // Get the drawing area
-        RectF area = this.calculateVirtualDrawingArea();
         // Get angle from position
         double angle = Math.atan2(
-                (y - area.centerY()) / area.height(),
-                (x - area.centerX()) / area.width()
+                (y - this.mVirtualArea.centerY()) / this.mVirtualArea.height(),
+                (x - this.mVirtualArea.centerX()) / this.mVirtualArea.width()
         );
 
         // Normalize the degrees angle by the start angle defined by component settings.
@@ -589,33 +515,19 @@ public class ScArc extends ScDrawer {
     }
 
     /**
-     * Check if path contains a point.
-     *
-     * @param x The x coordinate of the point
-     * @param y The y coordinate of the point
-     * @return  True if the paint contain the passed point
-     */
-    @SuppressWarnings("unused")
-    public boolean contains(float x, float y) {
-        return this.contains(x, y, this.mStrokeSize);
-    }
-
-    /**
      * Get the distance from center passed an angle or a point.
      * If an angle will passed the method find the relative point on the arc and than will
      * calculate the distance from center.
      *
-     * @param x The x coordinate of the point
-     * @param y The y coordinate of the point
-     * @return  The distance from the center
+     * @param x the x coordinate of the point
+     * @param y the y coordinate of the point
+     * @return the distance from the center
      */
     @SuppressWarnings("unused")
     public float getDistanceFromCenter(float x, float y) {
-        // Get the drawing area
-        RectF area = this.calculateVirtualDrawingArea();
         // Return the calculated distance
         return (float) Math.sqrt(
-                Math.pow(x - area.centerX(), 2) + Math.pow(y - area.centerY(), 2)
+                Math.pow(x - this.mVirtualArea.centerX(), 2) + Math.pow(y - this.mVirtualArea.centerY(), 2)
         );
     }
 
@@ -624,13 +536,13 @@ public class ScArc extends ScDrawer {
      * If an angle will passed the method find the relative point on the arc and than will
      * calculate the distance from center.
      *
-     * @param degrees   The angle in degrees
-     * @return          The distance from the center
+     * @param degrees the angle in degrees
+     * @return the distance from the center
      */
     @SuppressWarnings("unused")
     public float getDistanceFromCenter(float degrees) {
         // Find the point on the arc
-        Point point = this.getPointFromAngle(degrees);
+        Point point = this.getPointFromAngle(degrees, 0.0f);
         // Find the distance
         return this.getDistanceFromCenter(point.x, point.y);
     }
@@ -638,9 +550,11 @@ public class ScArc extends ScDrawer {
     /**
      * Get the current painter color by the current draw angle
      *
-     * @param angle The angle in degrees
-     * @return      The calculated color
+     * @param angle the angle in degrees
+     * @return the calculated color
      */
+    // TODO: check
+    /*
     @SuppressWarnings("unused")
     public int getPainterColor(float angle) {
         // Check if have colors settled
@@ -682,16 +596,7 @@ public class ScArc extends ScDrawer {
                 return Color.BLACK;
         }
     }
-
-    /**
-     * Get the current painter color by the current draw angle
-     *
-     * @return  The calculated color
-     */
-    @SuppressWarnings("unused")
-    public int getPainterColor() {
-        return this.getPainterColor(this.mAngleDraw);
-    }
+    */
 
 
     /****************************************************************************************
@@ -701,7 +606,7 @@ public class ScArc extends ScDrawer {
     /**
      * Return the start angle
      *
-     * @return  The start angle in degrees
+     * @return the start angle in degrees
      */
     @SuppressWarnings("unused")
     public float getAngleStart() {
@@ -711,7 +616,7 @@ public class ScArc extends ScDrawer {
     /**
      * Set the start angle
      *
-     * @param value The start angle in degrees
+     * @param value the start angle in degrees
      */
     @SuppressWarnings("unused")
     public void setAngleStart(float value) {
@@ -719,8 +624,6 @@ public class ScArc extends ScDrawer {
         if (this.mAngleStart != value) {
             // Store the new value
             this.mAngleStart = value;
-            // Check and refresh the component
-            this.checkValues();
             this.requestLayout();
         }
     }
@@ -728,7 +631,7 @@ public class ScArc extends ScDrawer {
     /**
      * Return the sweep angle
      *
-     * @return The sweep angle in degrees
+     * @return the sweep angle in degrees
      */
     @SuppressWarnings("unused")
     public float getAngleSweep() {
@@ -738,53 +641,23 @@ public class ScArc extends ScDrawer {
     /**
      * Set the sweep angle
      *
-     * @param value The sweep angle in degrees
+     * @param value the sweep angle in degrees
      */
     @SuppressWarnings("unused")
     public void setAngleSweep(float value) {
         // Check if value is changed
         if (this.mAngleSweep != value) {
             // Store the new value
-            this.mAngleDraw = this.mAngleSweep == this.mAngleDraw ? value : this.mAngleDraw;
             this.mAngleSweep = value;
-            // Check and refresh
-            this.checkValues();
             this.requestLayout();
         }
     }
 
     /**
-     * Return the drawing angle
-     *
-     * @return The drawing angle in degrees
-     */
-    @SuppressWarnings("unused")
-    public float getAngleDraw() {
-        return this.mAngleDraw;
-    }
-
-    /**
-     * Set the drawing angle
-     *
-     * @return The drawing angle in degrees
-     */
-    @SuppressWarnings("unused")
-    public void setAngleDraw(float value) {
-        // Check if value is changed
-        if (this.mAngleDraw != value) {
-            // Store the new value
-            this.mAngleDraw = value;
-            // Check and refresh
-            this.checkValues();
-            this.invalidate();
-        }
-    }
-
-    /**
      * Return the arc type.
-     * This define how the arc will be drawed: LINE, CLOSED or FILLED.
+     * This define how the arc will be draw: LINE, CLOSED or FILLED.
      *
-     * @return The arc type
+     * @return the arc type
      */
     @SuppressWarnings("unused")
     public ArcTypes getArcType() {
@@ -793,9 +666,9 @@ public class ScArc extends ScDrawer {
 
     /**
      * Set the arc type.
-     * This define how the arc will be drawed: LINE, CLOSED or FILLED.
+     * This define how the arc will be draw: LINE, CLOSED or FILLED.
      *
-     * @return The arc type
+     * @param value the arc type
      */
     @SuppressWarnings("unused")
     public void setArcType(ArcTypes value) {

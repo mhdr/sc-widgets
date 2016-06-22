@@ -1,0 +1,98 @@
+# ScFeature
+
+Create a feature to draw on a given path.
+The feature is independent and can be used with any path.
+Is enough to instantiate it passing the path object and call the draw function passing the canvas where draw.
+The original design of this class was for link it with the ScDrawer to have a base drawer (the ScDrawer linked) and many features applicable to it.
+The "feature" base class essentially do nothing.
+For draw something, hence for specialize the feature, you need to override the onDraw method.
+The base class provides only a common set of methods to display something on the path as the color manager, visibility, limits, ecc. that is useful to inherit it and create a specialized class.
+
+One of most important characteristic of this class is the possibility to create a paint shader.
+You need to define what kind of shader using about coloring the draw path and we can choice between two different type of filling: GRADIENT or SOLID.
+Note that this method was created to be a generic method to work proper on every path but can be slow given the big amount of calculations.
+This will create a filling that follow the path so in some case may be better to create a custom shader to attach directly to the painter.
+For example if you build a filled circle might be better to create a radial gradient.
+
+For better understand the colors mode will propose **some examples** at the end of this guide.
+
+
+## ScFeature class details
+This class expose a `draw` method to call to draw something on the passed canvas.
+When you use the colors properties to create a shader it will create as a BitmapShader and settle in the painter object.
+
+> **IMPORTANT**
+> The `draw` method of this class not do nothing. 
+> Is important to understand that you need to override the `void onDraw()` protected method for specialize this class.
+> So it is a not sense to use this class directly.
+
+> **NOTE**
+> About the shader you can override the `Shader createShader()` protected method to create a custom shader.
+> Or you can assign directly your shader to the painter calling the `getPainter` method.
+
+
+#### Public methods
+
+- **void draw(Canvas canvas)**<br />
+Draw something on the canvas.
+
+- **static PointF toPoint(float[] point)**<br />
+Convert a point represented by an array to an modern object.
+Supposed that the 0 array position correspond to the x coordinate and on the 1 array position correspond the y coordinate.
+
+- **static void translatePoint(PointF point, float offset, float angle)**<br />
+Translate a point considering the angle (in radiant) and the offset.
+Move the pointer on the tangent defined by the angle.
+
+- **static void translatePoint(PointF point, PointF offset, float angle)**<br />
+Translate a point considering the angle (in radiant) and the offset (x, y).
+Move the pointer on the tangent defined by the angle by the x value and move the pointer on the perpendicular defined by the angle by the y value.
+
+- **void setLimits(float start, float end)**<br />
+Set the drawing limits (in percentage).
+The assignment will do only if the values is different from infinity.
+
+
+#### Getter and Setter
+
+- **get/setPainter**  -> `Paint` value<br />
+Get or set the current painter.
+
+- **get/setTag**  -> `String` value, default `null`<br />
+Get or set the feature tag.
+This can useful when you must find a particular feature inside many others.
+
+- **get/setVisible**  -> `boolean` value, default `true`<br />
+Get or set the feature visibility.
+
+- **get/setColors**  -> `int[]` value, default `null`<br />
+Get or set the filling colors.
+When this properties is settle a shader will be created and assigned to the painter.
+
+- **get/setFillingColors**  -> `ShaderMode` value, default `ShaderMode.GRADIENT`<br />
+Define the way to fill the feature with the colors defined above.
+Possibly values by enum: `SOLID`, `GRADIENT`<br />
+
+
+####### Understanding the colors filling
+
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-feature/1.jpg)
+![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-feature/2.jpg)
+
+
+# License
+<pre>
+ Copyright 2015 Samuele Carassai
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in  writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,  either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+</pre>

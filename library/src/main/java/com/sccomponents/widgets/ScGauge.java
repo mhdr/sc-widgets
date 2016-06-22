@@ -6,47 +6,58 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.MotionEvent;
 import android.view.animation.DecelerateInterpolator;
 
-/**
- * Create a Gauge component.
- * v1.0.3
- */
-public class ScGauge
-        extends ScWidget
-        implements ValueAnimator.AnimatorUpdateListener, ScNotchs.OnDrawListener {
+import java.util.List;
 
-    /**
+/**
+ * Manage a generic gauge.
+ * <p>
+ * This class is studied to be an "helper class" to facilitate the user to create a gauge.
+ * The path is generic and the class start with a standard configuration of features.
+ * One base (inherited from the ScDrawer), one notchs manager, one writer manager, one copier to
+ * create the progress effect and two pointer for manage the user touch input.
+ * <p>
+ * Here are exposed many methods to drive the common feature from the code or directly by the XML.
+ * The features are recognized from the class by its tag so changing, for example, the color of
+ * notchs you will change the color of all notchs tagged.
+ * This is useful when you have a custom features configuration that use one more of feature per
+ * type. All the custom added features not tagged should be managed by the user by himself.
+ *
+ * @author Samuele Carassai
+ * @version 1.0.0
+ * @since 2016-05-26
+ */
+public abstract class ScGauge extends ScDrawer implements
+        ValueAnimator.AnimatorUpdateListener,
+        ScCopier.OnDrawListener,
+        ScPointer.OnDrawListener,
+        ScNotchs.OnDrawListener,
+        ScWriter.OnDrawListener {
+
+    /****************************************************************************************
      * Constants
      */
 
-    public static final float DEFAULT_ANGLE_START = 0.0f;
-    public static final float DEFAULT_ANGLE_SWEEP = 360.0f;
-
-    public static final float DEFAULT_STROKE_SIZE = 3.0f;
-    public static final int DEFAULT_STROKE_COLOR = Color.BLACK;
-
     public static final float DEFAULT_PROGRESS_SIZE = 1.0f;
     public static final int DEFAULT_PROGRESS_COLOR = Color.GRAY;
+    public static final float DEFAULT_TEXT_SIZE = 16.0f;
+    public static final float DEFAULT_HALO_SIZE = 10.0f;
+
+    public static final String NOTCHS_IDENTIFIER = "notchs";
+    public static final String WRITER_IDENTIFIER = "writer";
+    public static final String PROGRESS_IDENTIFIER = "progress";
+    public static final String HIGH_POINTER_IDENTIFIER = "high";
+    public static final String LOW_POINTER_IDENTIFIER = "low";
 
 
-    /**
-     * Private attributes
+    /****************************************************************************************
+     * Privates attribute
      */
-
-    protected float mAngleStart;
-    protected float mAngleSweep;
-    protected float mAngleDraw;
-
-    protected float mStrokeSize;
-    protected int mStrokeColor;
 
     protected float mProgressSize;
     protected int mProgressColor;
@@ -57,24 +68,35 @@ public class ScGauge
     protected float mNotchsLength;
     protected boolean mSnapToNotchs;
 
+    protected String[] mTextTokens;
+    protected float mTextSize;
+    protected int mTextColor;
 
-    /**
-     * Private variables
+    protected float mPointerRadius;
+    protected int mPointerColor;
+    protected float mPointerHaloWidth;
+
+    protected boolean mInputEnabled;
+
+
+    /****************************************************************************************
+     * Privates variable
      */
 
-    private ScArc mArcBase;
-    private ScArc mArcProgress;
-    private ScArc mArcNotchs;
+    private float mHighValue;
+    private float mLowValue;
 
-    private ValueAnimator mAnimator;
-    private boolean mDrawNotchsForLast;
+    private ValueAnimator mHighValueAnimator;
+    private ValueAnimator mLowValueAnimator;
 
-    private OnDrawListener mOnDrawListener;
-    private OnCustomPaddingListener mOnCustomPaddingListener;
+    private boolean mPathTouched;
+    private ScPointer mSelectedPointer;
+
     private OnEventListener mOnEventListener;
+    private OnDrawListener mOnDrawListener;
 
 
-    /**
+    /****************************************************************************************
      * Constructors
      */
 
@@ -94,71 +116,113 @@ public class ScGauge
     }
 
 
-    /**
+    /****************************************************************************************
      * Privates methods
      */
 
-    // Initialize a ScArc object with the defined settings of components
-    private void arcObjectSetter(ScArc arc, boolean isProgress) {
-        // Fill the settings
-        arc.setAngleStart(this.mAngleStart);
-        arc.setAngleSweep(this.mAngleSweep);
-        arc.setStrokeSize(isProgress ? this.mProgressSize : this.mStrokeSize);
-        arc.setStrokeColor(isProgress ? this.mProgressColor : this.mStrokeColor);
+    /**
+     * Set a feature with the default setting values by its type.
+     *
+     * @param feature the feature to settle
+     */
+    private void featureSetter(ScFeature feature) {
+        // Check for empty value
+        if (feature == null || feature.getTag() == null) return;
 
-        // If progress set also the draw angle
-        if (isProgress) {
-            arc.setAngleDraw(this.mAngleDraw);
+        // Hold the tag
+        String tag = feature.getTag();
+
+        // Progress
+        if (tag.equalsIgnoreCase(ScGauge.PROGRESS_IDENTIFIER)) {
+            // fill
+            feature.setLimits(this.mLowValue, this.mHighValue);
+            feature.getPainter().setColor(this.getProgressColor());
+            feature.getPainter().setStrokeWidth(this.getProgressSize());
         }
 
-        // Check if notchs instance
-        if (arc instanceof ScNotchs) {
-            // Cast to notchs
-            ScNotchs notchs = (ScNotchs) arc;
+        // Notchs
+        if (feature instanceof ScNotchs &&
+                tag.equalsIgnoreCase(ScGauge.NOTCHS_IDENTIFIER)) {
+            // Cast and fill
+            ScNotchs notchs = (ScNotchs) feature;
+            notchs.setLength(this.mNotchsLength);
+            notchs.setCount(this.mNotchsCount);
+            notchs.getPainter().setColor(this.mNotchsColor);
+            notchs.getPainter().setStrokeWidth(this.mNotchsSize);
+        }
 
-            // Set the particular notchs properties
-            notchs.setStrokeSize(isProgress ? this.mProgressSize : this.mNotchsSize);
-            notchs.setStrokeColor(isProgress ? this.mProgressColor : this.mNotchsColor);
-            notchs.setNotchs(this.mNotchsCount);
-            notchs.setNotchsLength(this.mNotchsLength);
-            notchs.setOnDrawListener(this);
+        // Writer
+        if (feature instanceof ScWriter &&
+                tag.equalsIgnoreCase(ScGauge.WRITER_IDENTIFIER)) {
+            // Cast and fill
+            ScWriter writer = (ScWriter) feature;
+            writer.getPainter().setColor(this.mTextColor);
+            writer.getPainter().setTextSize(this.mTextSize);
+
+            if (this.mTextTokens != null) {
+                writer.setTokens(this.mTextTokens);
+            }
+        }
+
+        // Pointers
+        boolean isHigh = tag.equalsIgnoreCase(ScGauge.HIGH_POINTER_IDENTIFIER);
+        boolean isLow = tag.equalsIgnoreCase(ScGauge.LOW_POINTER_IDENTIFIER);
+
+        if (feature instanceof ScPointer && (isHigh || isLow)) {
+            // Cast and fill
+            ScPointer pointer = (ScPointer) feature;
+            pointer.setRadius(this.mPointerRadius);
+            pointer.setHaloWidth(this.mPointerHaloWidth);
+            pointer.getPainter().setColor(this.mPointerColor);
+
+            // Switch the case
+            if (isHigh) pointer.setPosition(this.mHighValue);
+            if (isLow) pointer.setPosition(this.mLowValue);
         }
     }
 
-    // Round the degree angle to the near notch value
-    private float snapToNotchs(float degrees) {
-        // Calc the delta angle and the middle stroke
-        float deltaAngle = this.mAngleSweep / this.mNotchsCount;
-        // Round at notchs value
-        return Math.round(degrees / deltaAngle) * deltaAngle;
+    /**
+     * Round the value near the closed notch.
+     *
+     * @param percentage the start percentage value
+     * @return the percentage value close the notch
+     */
+    private float snapToNotchs(float percentage) {
+        // Check for empty value
+        if (this.mNotchsCount == 0.0f) return percentage;
+        if (this.mPathMeasure.getContoursLength() == 0.0f) return 0.0f;
+
+        // Calc the percentage step delta and return the closed value
+        float step = 100 / this.mNotchsCount;
+        return Math.round(percentage / step) * step;
     }
 
-    // Init the component.
-    // Retrieve all attributes with the default values if needed and create the internal using
-    // objects.
+    /**
+     * Init the component.
+     * Retrieve all attributes with the default values if needed.
+     * Check the values for internal use and create the painters.
+     *
+     * @param context  the owner context
+     * @param attrs    the attribute set
+     * @param defStyle the style
+     */
     private void init(Context context, AttributeSet attrs, int defStyle) {
         //--------------------------------------------------
         // ATTRIBUTES
 
         // Get the attributes list
-        final TypedArray attrArray = context.obtainStyledAttributes(attrs, R.styleable.ScComponents, defStyle, 0);
+        final TypedArray attrArray = context
+                .obtainStyledAttributes(attrs, R.styleable.ScComponents, defStyle, 0);
 
-        // Read all attributes from xml and assign the value to linked variables
-        this.mAngleStart = attrArray.getFloat(
-                R.styleable.ScComponents_scc_angle_start, ScGauge.DEFAULT_ANGLE_START);
-        this.mAngleSweep = attrArray.getFloat(
-                R.styleable.ScComponents_scc_angle_sweep, ScGauge.DEFAULT_ANGLE_SWEEP);
-
-        this.mStrokeSize = attrArray.getDimension(
-                R.styleable.ScComponents_scc_stroke_size, this.dipToPixel(ScGauge.DEFAULT_STROKE_SIZE));
-        this.mStrokeColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_stroke_color, ScGauge.DEFAULT_STROKE_COLOR);
-
+        // Progress
         this.mProgressSize = attrArray.getDimension(
                 R.styleable.ScComponents_scc_progress_size, this.dipToPixel(ScGauge.DEFAULT_PROGRESS_SIZE));
         this.mProgressColor = attrArray.getColor(
                 R.styleable.ScComponents_scc_progress_color, ScGauge.DEFAULT_PROGRESS_COLOR);
+        this.mHighValue = attrArray.getFloat(
+                R.styleable.ScComponents_scc_value, 0.0f);
 
+        // Notchs
         this.mNotchsSize = attrArray.getDimension(
                 R.styleable.ScComponents_scc_notchs_size, this.dipToPixel(ScGauge.DEFAULT_STROKE_SIZE));
         this.mNotchsColor = attrArray.getColor(
@@ -170,12 +234,59 @@ public class ScGauge
         this.mSnapToNotchs = attrArray.getBoolean(
                 R.styleable.ScComponents_scc_snap_to_notchs, false);
 
-        this.mAngleDraw = attrArray.getFloat(
-                R.styleable.ScComponents_scc_value, 0);
+        // Text
+        this.mTextSize = attrArray.getDimension(
+                R.styleable.ScComponents_scc_notchs_size, this.dipToPixel(ScGauge.DEFAULT_TEXT_SIZE));
+        this.mTextColor = attrArray.getColor(
+                R.styleable.ScComponents_scc_notchs_color, ScGauge.DEFAULT_STROKE_COLOR);
 
+        String stringTokens = attrArray.getString(R.styleable.ScComponents_scc_text_tokens);
+        this.mTextTokens = stringTokens != null ? stringTokens.split("\\|") : null;
+
+        // Pointer
+        this.mPointerRadius = attrArray.getDimension(
+                R.styleable.ScComponents_scc_pointer_radius, 0.0f);
+        this.mPointerColor = attrArray.getColor(
+                R.styleable.ScComponents_scc_pointer_color, ScGauge.DEFAULT_STROKE_COLOR);
+        this.mPointerHaloWidth = attrArray.getDimension(
+                R.styleable.ScComponents_scc_halo_size, ScGauge.DEFAULT_HALO_SIZE);
+
+        // Input
+        this.mInputEnabled = attrArray.getBoolean(
+                R.styleable.ScComponents_scc_input_enabled, false);
 
         // Recycle
         attrArray.recycle();
+
+        //--------------------------------------------------
+        // FEATURES
+
+        ScNotchs notchs = (ScNotchs) this.addFeature(ScNotchs.class);
+        notchs.setTag(ScGauge.NOTCHS_IDENTIFIER);
+        notchs.setOnDrawListener(this);
+        this.featureSetter(notchs);
+
+        ScWriter writer = (ScWriter) this.addFeature(ScWriter.class);
+        writer.setTag(ScGauge.WRITER_IDENTIFIER);
+        writer.setOnDrawListener(this);
+        this.featureSetter(writer);
+
+        ScCopier progress = (ScCopier) this.addFeature(ScCopier.class);
+        progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
+        progress.setOnDrawListener(this);
+        this.featureSetter(progress);
+
+        ScPointer highPointer = (ScPointer) this.addFeature(ScPointer.class);
+        highPointer.setTag(ScGauge.HIGH_POINTER_IDENTIFIER);
+        highPointer.setOnDrawListener(this);
+        this.featureSetter(highPointer);
+
+        ScPointer lowPointer = (ScPointer) this.addFeature(ScPointer.class);
+        lowPointer.setTag(ScGauge.LOW_POINTER_IDENTIFIER);
+        // TODO: invisible
+        //lowPointer.setVisible(false);
+        lowPointer.setOnDrawListener(this);
+        this.featureSetter(lowPointer);
 
         // INTERNAL
         //--------------------------------------------------
@@ -183,215 +294,158 @@ public class ScGauge
         // Check for snap to notchs the new degrees value
         if (this.mSnapToNotchs) {
             // Get the current value and round at the closed notchs value
-            this.mAngleDraw = this.snapToNotchs(this.mAngleDraw);
+            this.mHighValue = this.snapToNotchs(this.mHighValue);
+            this.mLowValue = this.snapToNotchs(this.mLowValue);
         }
-
-        //--------------------------------------------------
-        // ARCS
-
-        // Base arc
-        this.mArcBase = new ScArc(context);
-        this.arcObjectSetter(this.mArcBase, false);
-
-        // Notchs
-        this.mArcNotchs = new ScNotchs(context);
-        this.arcObjectSetter(this.mArcNotchs, false);
-
-        // Progress arc.
-        // The last one is ALWAYS the progress one.
-        this.mArcProgress = new ScArc(context);
-        this.arcObjectSetter(this.mArcProgress, true);
 
         //--------------------------------------------------
         // ANIMATOR
 
-        this.mAnimator = new ValueAnimator();
-        this.mAnimator.setDuration(0);
-        this.mAnimator.setInterpolator(new DecelerateInterpolator());
-        this.mAnimator.addUpdateListener(this);
+        this.mHighValueAnimator = new ValueAnimator();
+        this.mHighValueAnimator.setDuration(0);
+        this.mHighValueAnimator.setInterpolator(new DecelerateInterpolator());
+        this.mHighValueAnimator.addUpdateListener(this);
+
+        this.mLowValueAnimator = new ValueAnimator();
+        this.mLowValueAnimator.setDuration(0);
+        this.mLowValueAnimator.setInterpolator(new DecelerateInterpolator());
+        this.mLowValueAnimator.addUpdateListener(this);
     }
 
-    // Get the size in relation at the type
-    private float getStrokeSize(ScArc object) {
-        return object instanceof ScNotchs ?
-                ((ScNotchs) object).getNotchsLength() : object.getStrokeSize();
-    }
-
-    // Find the maximum stroke size.
-    // This method is protected because will be used in the inherited class for reposition
-    // the arcs in the space seen this methods is used inside the method to find the components
-    // padding.
-    protected float findMaxStrokeSize() {
-        // Consider all the arcs
-        return ScGauge.findMaxValue(
-                this.getStrokeSize(this.mArcBase),
-                this.getStrokeSize(this.mArcNotchs),
-                this.getStrokeSize(this.mArcProgress)
-        );
-    }
-
-    // Fix the arcs padding.
-    // This method setting padding automatically of all component inside the gauge centering the
-    // the stroke one above the other.
-    // Note that if have a custom padding listener linked the procedure will be bypassed and
-    // the user should setting.
-    private void fixArcsPadding() {
-        // Define the padding holder
-        Rect baseArc = new Rect(
-                this.getPaddingLeft(), this.getPaddingTop(),
-                this.getPaddingRight(), this.getPaddingBottom()
-        );
-        Rect notchsArc = new Rect(baseArc);
-        Rect progressArc = new Rect(baseArc);
-
-        // If have instantiate the customer padding listener the padding will be decided by
-        // the final user inside the calling function
-        if (this.mOnCustomPaddingListener != null) {
-            // Call the method
-            this.mOnCustomPaddingListener.onCustomPadding(baseArc, notchsArc, progressArc);
+    /**
+     * Find the value percentage respect range of values.
+     *
+     * @param value      the value
+     * @param startRange the start range value
+     * @param endRange   the end range value
+     * @return the percentage
+     */
+    private float findPercentage(float value, float startRange, float endRange) {
+        // Limit the value within the range
+        value = ScGauge.valueRangeLimit(value, startRange, endRange);
+        // Check the domain
+        if (endRange - startRange == 0.0f) {
+            // Return zero
+            return 0.0f;
 
         } else {
-            // Find the middle of max stroke sizes
-            float maxSize = this.findMaxStrokeSize();
-
-            // Calc the padding by the case for both arcs
-            int basePadding = Math.round((maxSize - this.getStrokeSize(this.mArcBase)) / 2);
-            int notchsPadding = Math.round((maxSize - this.getStrokeSize(this.mArcNotchs)) / 2);
-            int progressPadding = Math.round((maxSize - this.getStrokeSize(this.mArcProgress)) / 2);
-
-            // Increase all points of the relating calculated padding
-            baseArc.offset(basePadding, basePadding);
-            notchsArc.offset(notchsPadding, notchsPadding);
-            progressArc.offset(progressPadding, progressPadding);
+            // return the calculated percentage
+            return ((value - startRange) / (endRange - startRange)) * 100.0f;
         }
-
-        // Apply the padding to the related arc
-        this.mArcBase.setPadding(
-                baseArc.left, baseArc.top, baseArc.right, baseArc.bottom
-        );
-        this.mArcNotchs.setPadding(
-                notchsArc.left, notchsArc.top, notchsArc.right, notchsArc.bottom
-        );
-        this.mArcProgress.setPadding(
-                progressArc.left, progressArc.top, progressArc.right, progressArc.bottom
-        );
     }
-
-    // Get the arcs that compose this component.
-    private ScArc[] getArcs() {
-        return new ScArc[]{this.mArcBase, this.mArcNotchs, this.mArcProgress};
-    }
-
 
     /**
-     * Overrides
+     * Set the current progress value in percentage from the path start.
+     *
+     * @param value         the new value
+     * @param treatLowValue consider the low or the high value
      */
+    private void setGenericValue(float value, boolean treatLowValue) {
+        // Check the limits
+        value = ScGauge.valueRangeLimit(value, 0, 100);
 
-    // On measure
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // Fix arcs the padding
-        this.fixArcsPadding();
-
-        // Cycle all arcs and do the common operations like apply the parent layout and measure
-        // the arc.
-        // It is important to call measure for all arcs before draw in the onDraw method.
-        for (ScArc arc : this.getArcs()) {
-            // Apply the parent layout and measure the arc
-            arc.setLayoutParams(this.getLayoutParams());
-            arc.measure(widthMeasureSpec, heightMeasureSpec);
+        // Check for snap to notchs the new degrees value.
+        if (this.mSnapToNotchs) {
+            // Round at the closed notchs value
+            value = this.snapToNotchs(value);
         }
 
-        // Layout wrapping
-        boolean hWrap = this.getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT;
-        boolean vWrap = this.getLayoutParams().height == ViewGroup.LayoutParams.WRAP_CONTENT;
+        // Choice the value and the animation
+        float currValue = treatLowValue ? this.mLowValue : this.mHighValue;
+        ValueAnimator animator = treatLowValue ? this.mLowValueAnimator : this.mHighValueAnimator;
 
-        // If no have wrapping just call the super class method and finish the procedure
-        if (!hWrap && !vWrap) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        }
-        // Else determine the max dimensions of the gauge component measuring all arcs
-        else {
-            // Create the max dimensions holder
-            int maxWidth =
-                    hWrap ? 0 : View.getDefaultSize(this.getSuggestedMinimumWidth(), widthMeasureSpec);
-            int maxHeight =
-                    vWrap ? 0 : View.getDefaultSize(this.getSuggestedMinimumHeight(), heightMeasureSpec);
+        // Limits
+        // TODO: not work for inverted values (example negative sweep angle)
+        if (treatLowValue && value > this.mHighValue) value = this.mHighValue;
+        if (!treatLowValue && value < this.mLowValue) value = this.mLowValue;
 
-            // Cycle all arcs and check for update the component dimensions
-            for (ScArc arc : this.getArcs()) {
-                // Horizontal wrap
-                if (hWrap && maxWidth < arc.getMeasuredWidth())
-                    maxWidth = arc.getMeasuredWidth();
-                // Vertical wrap
-                if (vWrap && maxHeight < arc.getMeasuredHeight())
-                    maxHeight = arc.getMeasuredHeight();
-            }
-
-            // Set the dimension
-            this.setMeasuredDimension(maxWidth, maxHeight);
+        // Check if value is changed
+        if (currValue != value) {
+            // Set and start animation
+            animator.setFloatValues(currValue, value);
+            animator.start();
         }
     }
-
-    // On draw
-    @Override
-    protected void onDraw(Canvas canvas) {
-        // Check the listener
-        if (this.mOnDrawListener != null) {
-            // Call the method
-            this.mOnDrawListener.onBeforeDraw(
-                    this.mArcBase.getPainter(),
-                    this.mArcNotchs.getPainter(),
-                    this.mArcProgress.getPainter()
-            );
-        }
-
-        // Create a copy of the arcs array
-        ScArc[] copy = this.getArcs().clone();
-        // If need to draw the notchs for last invert its position
-        if (this.mDrawNotchsForLast) ScGauge.swapArrayPosition(copy, 1, 2);
-
-        // Cycle all arcs for draw it
-        for (ScArc arc : copy) {
-            // Only if visible
-            if (arc.getVisibility() == View.VISIBLE) {
-                // Draw
-                arc.draw(canvas);
-            }
-        }
-    }
-
-    // On animation update
-    @Override
-    public void onAnimationUpdate(ValueAnimator animation) {
-        // Get the current angle value
-        float degrees = (float) animation.getAnimatedValue();
-        // Set and refresh
-        this.mArcProgress.setAngleDraw(degrees);
-        this.invalidate();
-
-        // Manage the listener
-        if (this.mOnEventListener != null) {
-            this.mOnEventListener.onValueChange(degrees);
-        }
-    }
-
-    // On before to draw the single notch for each notchs
-    @Override
-    public void onDrawNotch(ScNotchs.NotchInfo info) {
-        // If have a listener linked
-        if (this.mOnDrawListener != null) {
-            // Forward the event
-            this.mOnDrawListener.onDrawNotch(info);
-        }
-    }
-
 
     /**
+     * Get the nearest pointer considering the passed distance from the path start.
+     *
+     * @param distance from the path start
+     * @return the nearest pointer
+     */
+    private ScPointer findNearestPointer(float distance) {
+        // Get all pointers
+        List<ScFeature> pointers = this.findFeatures(ScPointer.class, null);
+        ScPointer nearest = null;
+
+        // Cycle all pointers found
+        for (ScFeature pointer : pointers) {
+            // Cast to current pointer
+            ScPointer current = (ScPointer) pointer;
+            // Check if the pointer is visible
+            if (!current.getVisible() || current.getRadius() == 0.0f) continue;
+            // If the nearest is null assign the first pointer to it
+            if (nearest == null ||
+                    Math.abs(distance - nearest.getPosition()) > Math.abs(distance - current.getPosition())) {
+                nearest = current;
+            }
+        }
+        // Return the nearest pointer if found
+        return nearest;
+    }
+
+    /**
+     * Set the value (high or low) considering the near pointer.
+     *
+     * @param value   the new value
+     * @param pointer the pointer near
+     */
+    private void setValueByPointer(float value, ScPointer pointer) {
+        // Check for the low value
+        if (pointer != null &&
+                pointer.getTag().equalsIgnoreCase(ScGauge.LOW_POINTER_IDENTIFIER)) {
+            // Set and exit
+            this.setGenericValue(value, true);
+            return;
+        }
+
+        // Check for the high value
+        if (pointer == null ||
+                pointer.getTag().equalsIgnoreCase(ScGauge.HIGH_POINTER_IDENTIFIER)) {
+            // Set and exit
+            this.setGenericValue(value, false);
+            return;
+        }
+
+        // If here mean that the pointer is untagged.
+        // I will move the pointer to the new position but I will not change no values.
+        pointer.setPosition(value);
+    }
+
+    /**
+     * Return the threshold used to find the point on path.
+     * If the path is touched must find the point nearest without take care of the threshold so
+     * will returned infinite.
+     *
+     * @return the proper threshold
+     */
+    private float getPointResearchThreshold() {
+        // Fix the pointer halo width
+        float pointerHaloWidth = this.mPointerHaloWidth < 0.0f ? 0.0f : this.mPointerHaloWidth / 2;
+        // Return the threshold by the touch status
+        return this.mPathTouched ? Float.POSITIVE_INFINITY : this.mPointerRadius +pointerHaloWidth;
+    }
+
+
+    /****************************************************************************************
      * Instance state
      */
 
-    // Save
+    /**
+     * Save the current instance state
+     *
+     * @return the state
+     */
     @Override
     protected Parcelable onSaveInstanceState() {
         // Call the super and get the parent state
@@ -401,22 +455,31 @@ public class ScGauge
         Bundle state = new Bundle();
         // Save all starting from the parent state
         state.putParcelable("PARENT", superState);
-        state.putFloat("mAngleStart", this.mAngleStart);
-        state.putFloat("mAngleSweep", this.mAngleSweep);
-        state.putFloat("mAngleDraw", this.mAngleDraw);
-        state.putFloat("mStrokeSize", this.mStrokeSize);
-        state.putInt("mStrokeColor", this.mStrokeColor);
+        state.putFloat("mHighValue", this.mHighValue);
+        state.putFloat("mLowValue", this.mLowValue);
         state.putFloat("mProgressSize", this.mProgressSize);
         state.putInt("mProgressColor", this.mProgressColor);
+        state.putFloat("mNotchsSize", this.mNotchsSize);
+        state.putInt("mNotchsColor", this.mNotchsColor);
         state.putInt("mNotchsCount", this.mNotchsCount);
         state.putFloat("mNotchsLength", this.mNotchsLength);
         state.putBoolean("mSnapToNotchs", this.mSnapToNotchs);
+        state.putStringArray("mTextTokens", this.mTextTokens);
+        state.putFloat("mTextSize", this.mTextSize);
+        state.putInt("mTextColor", this.mTextColor);
+        state.putFloat("mPointerRadius", this.mPointerRadius);
+        state.putInt("mPointerColor", this.mPointerColor);
+        state.putFloat("mPointerHaloWidth", this.mPointerHaloWidth);
 
         // Return the new state
         return state;
     }
 
-    // Restore
+    /**
+     * Restore the current instance state
+     *
+     * @param state the state
+     */
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
         // Implicit conversion in a bundle
@@ -427,460 +490,851 @@ public class ScGauge
         super.onRestoreInstanceState(superState);
 
         // Now can restore all the saved variables values
-        this.mAngleStart = savedState.getFloat("mAngleStart");
-        this.mAngleSweep = savedState.getFloat("mAngleSweep");
-        this.mAngleDraw = savedState.getFloat("mAngleDraw");
-        this.mStrokeSize = savedState.getFloat("mStrokeSize");
-        this.mStrokeColor = savedState.getInt("mStrokeColor");
+        this.mHighValue = savedState.getFloat("mHighValue");
+        this.mLowValue = savedState.getFloat("mLowValue");
         this.mProgressSize = savedState.getFloat("mProgressSize");
         this.mProgressColor = savedState.getInt("mProgressColor");
+        this.mNotchsSize = savedState.getFloat("mNotchsSize");
+        this.mNotchsColor = savedState.getInt("mNotchsColor");
         this.mNotchsCount = savedState.getInt("mNotchsCount");
         this.mNotchsLength = savedState.getFloat("mNotchsLength");
         this.mSnapToNotchs = savedState.getBoolean("mSnapToNotchs");
+        this.mTextTokens = savedState.getStringArray("mTextTokens");
+        this.mTextSize = savedState.getFloat("mTextSize");
+        this.mTextColor = savedState.getInt("mTextColor");
+        this.mPointerRadius = savedState.getFloat("mPointerRadius");
+        this.mPointerColor = savedState.getInt("mPointerColor");
+        this.mPointerHaloWidth = savedState.getFloat("mPointerHaloWidth");
     }
 
 
+    /****************************************************************************************
+     * Overrides
+     */
+
     /**
+     * Setting the features and call the ScDrawer base draw method.
+     *
+     * @param canvas the view canvas
+     */
+    @Override
+    protected void onDraw(Canvas canvas) {
+        // Cycle all features
+        for (ScFeature feature : this.findFeatures(null, null)) {
+            // Apply the setting
+            this.featureSetter(feature);
+
+            // Check if have a selected pointer
+            if (this.mSelectedPointer != null) {
+                // Set the current status
+                this.mSelectedPointer.setStatus(
+                        this.mPathTouched ? ScPointer.PointerStatus.PRESSED : ScPointer.PointerStatus.RELEASED);
+            }
+        }
+
+        // Call the base drawing method
+        super.onDraw(canvas);
+    }
+
+    /**
+     * Override the on animation update method
+     *
+     * @param animation the animator
+     */
+    @Override
+    @SuppressWarnings("unused")
+    public void onAnimationUpdate(ValueAnimator animation) {
+        // Get the current value
+        if (animation.equals(this.mHighValueAnimator))
+            this.mHighValue = (float) animation.getAnimatedValue();
+        if (animation.equals(this.mLowValueAnimator))
+            this.mLowValue = (float) animation.getAnimatedValue();
+
+        // Refresh
+        this.invalidate();
+
+        // Manage the listener
+        if (this.mOnEventListener != null) {
+            this.mOnEventListener.onValueChange(this.mLowValue, this.mHighValue);
+        }
+    }
+
+    /**
+     * Add one feature to this drawer.
+     * This particular overload instantiate a new object from the class reference passed.
+     * <p>
+     * The passed class reference must implement the ScFeature interface and will be filled
+     * with the setting default params of this object by the type.
+     * For example if instance a ScNotchs the notchs count will be auto settle to the defined
+     * getNotchsCount method.
+     * <p>
+     * The new feature instantiate will linked to the gauge on draw listener.
+     * If you will create the feature with another method you must manage the on draw listener by
+     * yourself or attach it to the gauge at a later time using the proper method.
+     *
+     * @param classRef the class reference to instantiate
+     * @return the new feature object
+     */
+    @Override
+    @SuppressWarnings("unused")
+    public ScFeature addFeature(Class<?> classRef) {
+        // Instance calling the base method
+        ScFeature feature = super.addFeature(classRef);
+
+        // Call the feature setter here is useless but we want to have the right setting from
+        // the first creation in case the user looking inside this object.
+        this.featureSetter(feature);
+
+        // Attach the listener by the class type
+        if (feature instanceof ScCopier) ((ScCopier) feature).setOnDrawListener(this);
+        if (feature instanceof ScPointer) ((ScPointer) feature).setOnDrawListener(this);
+        if (feature instanceof ScNotchs) ((ScNotchs) feature).setOnDrawListener(this);
+        if (feature instanceof ScWriter) ((ScWriter) feature).setOnDrawListener(this);
+
+        // Return the new feature
+        return feature;
+    }
+
+    /**
+     * On touch management
+     *
+     * @param event the touch event
+     * @return Event propagation
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        // Check if the input is enabled
+        if (!this.mInputEnabled) {
+            // Return false mean that on touch event will not capture all the event propagation
+            // after the touch event.
+            return false;
+        }
+
+        // Adjust the point
+        // TODO: on stretch wrong the point
+        float x = (event.getX() - this.getPaddingLeft() - this.mVirtualArea.left) / this.mAreaScale.x;
+        float y = (event.getY() - this.getPaddingTop() - this.mVirtualArea.top) / this.mAreaScale.y;
+
+        // Get the nearest point on the touch of the user if have and calculate the distance from
+        // the path start. Note that the touch precision level is defined by the size of the
+        // pointer draw on the the component. After find the percentage representation of the
+        // distance.
+        float distance = this.mPathMeasure.getDistance(x, y, this.getPointResearchThreshold());
+        float percentage = this.findPercentage(distance, 0, this.mPathMeasure.getContoursLength());
+
+        // Select case by action type
+        switch (event.getAction()) {
+            // Press
+            case MotionEvent.ACTION_DOWN:
+                // If the point belong to the arc set the current value and the pressed trigger.
+                // The redraw will called inside the setValue method.
+                if (distance != -1.0f) {
+                    // Find the nearest pointer
+                    this.mSelectedPointer = this.findNearestPointer(percentage);
+                    this.mPathTouched = true;
+                    this.setValueByPointer(percentage, this.mSelectedPointer);
+                }
+                break;
+
+            // Release
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                // Trigger is released and refresh the component.
+                this.mPathTouched = false;
+                this.invalidate();
+                break;
+
+            // Move
+            case MotionEvent.ACTION_MOVE:
+                // If the point belong to the arc and the trigger is pressed set the current value.
+                // The component redraw will called inside the setValue method.
+                if (distance != -1.0f && this.mPathTouched) {
+                    this.setValueByPointer(percentage, this.mSelectedPointer);
+                }
+                break;
+        }
+
+        // Event propagation.
+        // Return true so this method will capture events after the pressure.
+        return true;
+    }
+
+    /**
+     * Called before draw the path copy.
+     *
+     * @param info the copier info
+     */
+    @Override
+    public void onBeforeDrawCopy(ScCopier.CopyInfo info) {
+        // Forward the calling on local listener
+        if (this.mOnDrawListener != null) {
+            this.mOnDrawListener.onBeforeDrawCopy(info);
+        }
+    }
+
+    /**
+     * Called before draw the pointer.
+     * If the method set the bitmap inside the info object the default drawing will be bypassed
+     * and the new bitmap will be draw on the canvas following the other setting.
+     *
+     * @param info the pointer info
+     */
+    @Override
+    public void onBeforeDrawPointer(ScPointer.PointerInfo info) {
+        // Forward the calling on local listener
+        if (this.mOnDrawListener != null) {
+            this.mOnDrawListener.onBeforeDrawPointer(info);
+        }
+    }
+
+    /**
+     * Called before draw the single notch.
+     *
+     * @param info the notch info
+     */
+    @Override
+    public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+        // Forward the calling on local listener
+        if (this.mOnDrawListener != null) {
+            this.mOnDrawListener.onBeforeDrawNotch(info);
+        }
+    }
+
+    /**
+     * Called before draw the single token
+     *
+     * @param info the token info
+     */
+    @Override
+    public void onBeforeDrawToken(ScWriter.TokenInfo info) {
+        // Forward the calling on local listener
+        if (this.mOnDrawListener != null) {
+            this.mOnDrawListener.onBeforeDrawToken(info);
+        }
+    }
+
+
+    /****************************************************************************************
      * Public methods
      */
 
-    // Get the base arc.
+    /**
+     * Get the high value animator.
+     * Note that the initial value duration of the animation is zero equal to "no animation".
+     *
+     * @return the animator
+     */
     @SuppressWarnings("unused")
-    public ScArc getBaseArc() {
-        return this.mArcBase;
+    public Animator getHighValueAnimator() {
+        return this.mHighValueAnimator;
     }
-
-    // Get the notchs arc.
-    // Note that the notchs will be returned ad a ScArc because in the advanced use of the gauge
-    // it could be an ScArc, so you need to cast it for use as ScNotchs.
-    @SuppressWarnings("unused")
-    public ScArc getNotchsArc() {
-        return this.mArcNotchs;
-    }
-
-    // Get the progress arc.
-    @SuppressWarnings("unused")
-    public ScArc getProgressArc() {
-        return this.mArcProgress;
-    }
-
-    // Set stroke cap of painter for all components inside the gauge.
-    // Default value is BUTT from the ScArc settings.
-    @SuppressWarnings("unused")
-    public void setStrokesCap(Paint.Cap cap) {
-        // Cycle all arcs and set the stroke definition by painter
-        for (ScArc arc : this.getArcs()) {
-            arc.getPainter().setStrokeCap(cap);
-        }
-        // Refresh
-        this.invalidate();
-    }
-
-    // The canvas filling setting for all components inside the gauge.
-    @SuppressWarnings("unused")
-    public void setCanvasFilling(ScArc.FillingArea area, ScArc.FillingMode mode) {
-        // Cycle all arcs and set the filling
-        for (ScArc arc : this.getArcs()) {
-            arc.setFillingArea(area);
-            arc.setFillingMode(mode);
-        }
-        // Refresh
-        this.requestLayout();
-    }
-
-    // Set the components visibility.
-    // For a correct measure of the component it is better not use GONE.
-    @SuppressWarnings("unused")
-    public void show(boolean baseArc, boolean notchsArc, boolean progressArc) {
-        // Apply the visibility status
-        this.mArcBase.setVisibility(baseArc ? View.VISIBLE : View.INVISIBLE);
-        this.mArcNotchs.setVisibility(notchsArc ? View.VISIBLE : View.INVISIBLE);
-        this.mArcProgress.setVisibility(progressArc ? View.VISIBLE : View.INVISIBLE);
-
-        // Refresh
-        this.requestLayout();
-    }
-
-    // Translate the angle in a value within the passed range of values.
-    @SuppressWarnings("unused")
-    public float translateAngleToValue(float angle, float startRange, float endRange) {
-        // Limit the value within the range
-        angle = ScGauge.valueRangeLimit(angle, 0.0f, this.mArcProgress.getAngleSweep());
-        // Check for the division domain
-        if (this.mArcProgress.getAngleSweep() != 0.0f) {
-            return (angle / this.mArcProgress.getAngleSweep()) * (endRange - startRange);
-        } else {
-            return 0.0f;
-        }
-    }
-
-    // Get the value animator.
-    // Note that the initial value duration of the animation is zero equal to "no animation".
-    @SuppressWarnings("unused")
-    public Animator getValueAnimator() {
-        return this.mAnimator;
-    }
-
-    // Change the components configuration.
-    // This method is only for advanced use of ScGauge and use it improperly can be cause of
-    // component malfunction. Note that ALWAYS the last component is the progress one.
-    // Changing the component type mean create a new one and lost old information like visibility
-    // and cap stroke style.
-    // So, if you did some change about inner properties before call this
-    // method, you must remember to apply again these settings.
-    @SuppressWarnings("unused")
-    public void changeComponentsConfiguration(
-            boolean baseArcToNotchs, boolean notchsArcToArc, boolean progressArcToNotchs) {
-        // Transform the base arc to a notchs object
-        if (baseArcToNotchs) {
-            // Create a new instance of the ScNotchs
-            this.mArcBase = new ScNotchs(this.getContext());
-            this.arcObjectSetter(this.mArcBase, false);
-        }
-
-        // Transform the notchs to an arc object
-        if (notchsArcToArc) {
-            // Create a new instance of the ScArc
-            this.mArcNotchs = new ScArc(this.getContext());
-            this.arcObjectSetter(this.mArcNotchs, false);
-        }
-
-        // Transform the progress arc to a notchs object
-        if (progressArcToNotchs) {
-            // Create a new instance of the ScNotchs
-            this.mArcProgress = new ScNotchs(this.getContext());
-            this.arcObjectSetter(this.mArcProgress, true);
-        }
-    }
-
-    // Draw the notchs for the last in the drawing method.
-    // The default sequence of drawing is base arc, notchs arc and progress arc for last.
-    @SuppressWarnings("unused")
-    public void setDrawNotchsForLast(boolean value) {
-        // Check for changed value
-        if (this.mDrawNotchsForLast != value) {
-            // Fix the new value and refresh the component
-            this.mDrawNotchsForLast = value;
-            this.invalidate();
-        }
-    }
-
 
     /**
-     * Public properties
+     * Get the low value animator.
+     * Note that the initial value duration of the animation is zero equal to "no animation".
+     *
+     * @return the animator
+     */
+    @SuppressWarnings("unused")
+    public Animator getLowValueAnimator() {
+        return this.mLowValueAnimator;
+    }
+
+    /**
+     * Find the feature searching by tag.
+     * If found something return the first element found.
+     * If the tag param is null return the first feature found avoid the comparison check.
+     *
+     * @param tag      the tag reference
+     * @return the found feature
+     */
+    @SuppressWarnings("unused")
+    public ScFeature findFeature(String tag) {
+        // Get all the features of this class
+        List<ScFeature> features = this.findFeatures(null, tag);
+        // If here mean not find correspondence with tag
+        return features.size() > 0 ? features.get(0) : null;
+    }
+
+    /**
+     * Find the feature searching by the class.
+     * If found something return the first element found.
+     * If the class param is null return the first feature found avoid the comparison check.
+     *
+     * @param classRef the class reference
+     * @return the found feature
+     */
+    @SuppressWarnings("unused")
+    public ScFeature findFeature(Class<?> classRef) {
+        // Get all the features of this class
+        List<ScFeature> features = this.findFeatures(classRef, null);
+        // If here mean not find correspondence with tag
+        return features.size() > 0 ? features.get(0) : null;
+    }
+
+
+    /****************************************************************************************
+     * Progress
      */
 
-    // Start angle.
-    // Use this method change the start angle of all component inside this gauge.
-    @SuppressWarnings("unused")
-    public float getAngleStart() {
-        return this.mAngleStart;
-    }
-
-    @SuppressWarnings("unused")
-    public void setAngleStart(int value) {
-        // Check for changed value
-        if (this.mAngleStart != value) {
-            // Save the new value
-            this.mAngleStart = value;
-            // Cycle all arcs and set the start angle
-            for (ScArc arc : this.getArcs()) {
-                arc.setAngleStart(value);
-            }
-            // Refresh
-            this.requestLayout();
-        }
-    }
-
-    // Sweep angle.
-    // Use this method change the start angle of all component inside this gauge.
-    @SuppressWarnings("unused")
-    public float getAngleSweep() {
-        return this.mAngleSweep;
-    }
-
-    @SuppressWarnings("unused")
-    public void setAngleSweep(int value) {
-        // Check for changed value
-        if (this.mAngleSweep != value) {
-            // Save the new value
-            this.mAngleSweep = value;
-            // Cycle all arcs and set the start angle
-            for (ScArc arc : this.getArcs()) {
-                arc.setAngleSweep(value);
-            }
-            // Refresh
-            this.requestLayout();
-        }
-    }
-
-    // Stroke size
-    @SuppressWarnings("unused")
-    public float getStrokeSize() {
-        return this.mStrokeSize;
-    }
-
-    @SuppressWarnings("unused")
-    public void setStrokeSize(float value) {
-        // Check if value is changed
-        if (this.mStrokeSize != value) {
-            // Store the new value
-            this.mStrokeSize = value;
-            this.mArcBase.setStrokeSize(value);
-            // Refresh the component
-            this.requestLayout();
-        }
-    }
-
-    // Stroke color
-    @SuppressWarnings("unused")
-    public int getStrokeColor() {
-        return this.mStrokeColor;
-    }
-
-    @SuppressWarnings("unused")
-    public void setStrokeColor(int value) {
-        // Check if value is changed
-        if (this.mStrokeColor != value) {
-            // Store the new value
-            this.mStrokeColor = value;
-            this.mArcBase.setStrokeColor(value);
-            // Refresh the component
-            this.invalidate();
-        }
-    }
-
-    // Progress size
+    /**
+     * Return the progress stroke size
+     *
+     * @return the size in pixel
+     */
     @SuppressWarnings("unused")
     public float getProgressSize() {
         return this.mProgressSize;
     }
 
+    /**
+     * Set the progress stroke size
+     *
+     * @param value the value in pixel
+     */
     @SuppressWarnings("unused")
     public void setProgressSize(float value) {
         // Check if value is changed
         if (this.mProgressSize != value) {
-            // Store the new value and refresh the component
+            // Store the new value
             this.mProgressSize = value;
-            this.mArcProgress.setStrokeSize(value);
-            this.requestLayout();
+            this.invalidate();
         }
     }
 
-    // Progress color
+    /**
+     * Return the progress stroke color
+     *
+     * @return the color
+     */
     @SuppressWarnings("unused")
     public int getProgressColor() {
         return this.mProgressColor;
     }
 
+    /**
+     * Set the progress color
+     *
+     * @param value the new color
+     */
     @SuppressWarnings("unused")
     public void setProgressColor(int value) {
         // Check if value is changed
         if (this.mProgressColor != value) {
             // Store the new value and refresh the component
             this.mProgressColor = value;
-            this.mArcProgress.setStrokeColor(value);
             this.invalidate();
         }
     }
 
-    // Notchs size
+    /**
+     * Return the high current progress value in percentage
+     *
+     * @return the current value in percentage
+     */
+    @SuppressWarnings("unused")
+    public float getHighValue() {
+        return this.mHighValue;
+    }
+
+    /**
+     * Set the current progress high value in percentage from the path start
+     *
+     * @param percentage the new value in percentage
+     */
+    @SuppressWarnings("unused")
+    public void setHighValue(float percentage) {
+        this.setGenericValue(percentage, false);
+    }
+
+    /**
+     * Return the high progress value but based on a values range.
+     *
+     * @param startRange the start value
+     * @param endRange   the end value
+     * @return the translated value
+     */
+    @SuppressWarnings("unused")
+    public float getHighValue(float startRange, float endRange) {
+        // Check the domain
+        if (this.mHighValue == 0) {
+            return 0.0f;
+
+        } else {
+            // Calculate the value relative
+            return ((endRange - startRange) * this.mHighValue) / 100.0f;
+        }
+    }
+
+    /**
+     * Set the progress high value but based on a values range.
+     *
+     * @param value      the value to convert
+     * @param startRange the start value
+     * @param endRange   the end value
+     */
+    @SuppressWarnings("unused")
+    public void setHighValue(float value, float startRange, float endRange) {
+        // Find the relative percentage
+        float percentage = this.findPercentage(value, startRange, endRange);
+        // Call the base method
+        this.setGenericValue(value, false);
+    }
+
+    /**
+     * Return the low current progress value in percentage
+     *
+     * @return the current value in percentage
+     */
+    @SuppressWarnings("unused")
+    public float getLowValue() {
+        return this.mLowValue;
+    }
+
+    /**
+     * Set the current progress low value in percentage from the path start
+     *
+     * @param percentage the new value in percentage
+     */
+    @SuppressWarnings("unused")
+    public void setLowValue(float percentage) {
+        this.setGenericValue(percentage, true);
+    }
+
+    /**
+     * Return the low progress value but based on a values range.
+     *
+     * @param startRange the start value
+     * @param endRange   the end value
+     * @return the translated value
+     */
+    @SuppressWarnings("unused")
+    public float getLowValue(float startRange, float endRange) {
+        // Check the domain
+        if (this.mHighValue == 0) {
+            return 0.0f;
+
+        } else {
+            // Calculate the value relative
+            return ((endRange - startRange) * this.mLowValue) / 100.0f;
+        }
+    }
+
+    /**
+     * Set the progress low value but based on a values range.
+     *
+     * @param value      the value to convert
+     * @param startRange the start value
+     * @param endRange   the end value
+     */
+    @SuppressWarnings("unused")
+    public void setLowValue(float value, float startRange, float endRange) {
+        // Find the relative percentage
+        float percentage = this.findPercentage(value, startRange, endRange);
+        // Call the base method
+        this.setGenericValue(value, true);
+    }
+
+
+    /****************************************************************************************
+     * Notchs
+     */
+
+    /**
+     * Return the progress notch size
+     *
+     * @return the size in pixel
+     */
     @SuppressWarnings("unused")
     public float getNotchsSize() {
         return this.mNotchsSize;
     }
 
+    /**
+     * Set the progress notch size
+     *
+     * @param value the new size in pixel
+     */
     @SuppressWarnings("unused")
     public void setNotchsSize(float value) {
         // Check if value is changed
         if (this.mNotchsSize != value) {
             // Store the new value and refresh the component
             this.mNotchsSize = value;
-            this.mArcNotchs.setStrokeSize(value);
-            this.requestLayout();
+            this.invalidate();
         }
     }
 
-    // Progress color
+    /**
+     * Return the notchs color
+     *
+     * @return the color
+     */
     @SuppressWarnings("unused")
     public int getNotchsColor() {
         return this.mNotchsColor;
     }
 
+    /**
+     * Set the notchs color
+     *
+     * @param value the new color
+     */
     @SuppressWarnings("unused")
     public void setNotchsColor(int value) {
         // Check if value is changed
         if (this.mNotchsColor != value) {
             // Store the new value and refresh the component
             this.mNotchsColor = value;
-            this.mArcNotchs.setStrokeColor(value);
             this.invalidate();
         }
     }
 
-    // Notchs count
+    /**
+     * Return the notchs count
+     *
+     * @return the count
+     */
     @SuppressWarnings("unused")
     public int getNotchs() {
         return this.mNotchsCount;
     }
 
+    /**
+     * Set the notchs count
+     *
+     * @param value the new value
+     */
     @SuppressWarnings("unused")
     public void setNotchs(int value) {
         // Check if value is changed
         if (this.mNotchsCount != value) {
             // Fix the new value
             this.mNotchsCount = value;
-            // Apply to all notchs object
-            for (ScArc arc : this.getArcs()) {
-                // Check for ScNotchs class
-                if (arc instanceof ScNotchs) {
-                    // Cast and setting
-                    ((ScNotchs) arc).setNotchs(value);
-                }
-            }
-            // Refresh the component
-            this.requestLayout();
+            this.invalidate();
         }
     }
 
-    // Progress size
+    /**
+     * Return the notchs length
+     *
+     * @return the length
+     */
     @SuppressWarnings("unused")
     public float getNotchsLength() {
         return this.mNotchsLength;
     }
 
+    /**
+     * Set the notchs length
+     *
+     * @param value the new value in pixel
+     */
     @SuppressWarnings("unused")
     public void setNotchsLength(float value) {
         // Check if value is changed
         if (this.mNotchsLength != value) {
             // Fix the new value
             this.mNotchsLength = value;
-            // Apply to all notchs object
-            for (ScArc arc : this.getArcs()) {
-                // Check for ScNotchs class
-                if (arc instanceof ScNotchs) {
-                    // Cast and setting
-                    ((ScNotchs) arc).setNotchsLength(value);
-                }
-            }
-            // Refresh the component
-            this.requestLayout();
+            this.invalidate();
         }
     }
 
-    // Round the progress value to the near notch degrees
+    /**
+     * Return if the progress value is rounded to the closed notch.
+     *
+     * @return the status
+     */
     @SuppressWarnings("unused")
     public boolean getSnapToNotchs() {
         return this.mSnapToNotchs;
     }
 
+    /**
+     * Set if the progress value must rounded to the closed notch.
+     *
+     * @param value the status
+     */
     @SuppressWarnings("unused")
     public void setSnapToNotchs(boolean value) {
         // Fix the trigger
         this.mSnapToNotchs = value;
+
         // Recall the set value method for apply the new setting
-        this.setValue(this.getValue());
+        this.setHighValue(this.getHighValue());
+        this.setLowValue(this.getLowValue());
     }
 
-    // Progress value in degrees
-    @SuppressWarnings("unused")
-    public float getValue() {
-        return this.mAngleDraw;
-    }
 
-    @SuppressWarnings("unused")
-    public void setValue(float degrees) {
-        // Check for snap to notchs the new degrees value
-        if (this.mSnapToNotchs) {
-            // Round at the closed notchs value
-            degrees = this.snapToNotchs(degrees);
-        }
-
-        // Check if value is changed
-        if (this.mAngleDraw != degrees) {
-            // Save the new value
-            this.mAngleDraw = degrees;
-            // Set and start animation
-            this.mAnimator.setFloatValues(
-                    this.mAngleDraw,
-                    ScGauge.valueRangeLimit(degrees, 0, this.mAngleSweep)
-            );
-            this.mAnimator.start();
-        }
-    }
-
-    // Progress value but based on a values range.
-    // Translate the reference value to the angle in degrees and call the base methods.
-    @SuppressWarnings("unused")
-    public float getValue(float startRange, float endRange) {
-        // Return the translated value
-        return this.translateAngleToValue(
-                this.mAngleDraw,
-                startRange,
-                endRange
-        );
-    }
-
-    @SuppressWarnings("unused")
-    public void setValue(float value, float startRange, float endRange) {
-        // Limit the value within the range
-        value = ScGauge.valueRangeLimit(value, startRange, endRange);
-        // Check for the division domain
-        if (endRange == startRange) {
-            value = 0;
-
-        } else {
-            // Convert the value in the relative angle respect the arc length
-            value = ((value - startRange) / (endRange - startRange)) * this.mAngleSweep;
-        }
-        // Call the base method
-        this.setValue(value);
-    }
-
+    /****************************************************************************************
+     * Texts
+     */
 
     /**
+     * Return the text tokens to write on the path
+     *
+     * @return the tokens
+     */
+    @SuppressWarnings("unused")
+    public String[] getTextTokens() {
+        return this.mTextTokens;
+    }
+
+    /**
+     * Set the text token to write on the path
+     *
+     * @param value the status
+     */
+    @SuppressWarnings("unused")
+    public void setTextTokens(String[] value) {
+        // Fix the trigger
+        this.mTextTokens = value;
+        this.invalidate();
+    }
+
+    /**
+     * Return the text size in pixel
+     *
+     * @return the size in pixel
+     */
+    @SuppressWarnings("unused")
+    public float getTextSize() {
+        return this.mTextSize;
+    }
+
+    /**
+     * Set the text size in pixel
+     *
+     * @param value the status
+     */
+    @SuppressWarnings("unused")
+    public void setTextSize(float value) {
+        // Check if value is changed
+        if (this.mTextSize != value) {
+        // Fix the trigger
+        this.mTextSize = value;
+        this.invalidate();
+        }
+    }
+
+    /**
+     * Return the text color
+     *
+     * @return the color
+     */
+    @SuppressWarnings("unused")
+    public int getTextColor() {
+        return this.mTextColor;
+    }
+
+    /**
+     * Set the text color
+     *
+     * @param value the color
+     */
+    @SuppressWarnings("unused")
+    public void setTextColor(int value) {
+        // Check if value is changed
+        if (this.mTextColor != value) {
+            // Fix the trigger
+            this.mTextColor = value;
+            this.invalidate();
+        }
+    }
+
+
+    /****************************************************************************************
+     * Pointers
+     */
+
+    /**
+     * Return the pointers radius in pixel.
+     * Note that in the standard configuration the pointers are two: high and low.
+     *
+     * @return the radius in pixel
+     */
+    @SuppressWarnings("unused")
+    public float getPointerRadius() {
+        return this.mPointerRadius;
+    }
+
+    /**
+     * Set all pointers radius in pixel.
+     * Note that in the standard configuration the pointers are two: high and low.
+     *
+     * @param value the new radius
+     */
+    @SuppressWarnings("unused")
+    public void setPointerRadius(float value) {
+        // Check if value is changed
+        if (this.mPointerRadius != value) {
+            // Fix the trigger
+            this.mPointerRadius = value;
+            this.invalidate();
+        }
+    }
+
+    /**
+     * Return the pointers color.
+     * Note that in the standard configuration the pointers are two: high and low.
+     *
+     * @return the color
+     */
+    @SuppressWarnings("unused")
+    public int getPointersColor() {
+        return this.mPointerColor;
+    }
+
+    /**
+     * Set all pointers color.
+     * Note that in the standard configuration the pointers are two: high and low.
+     *
+     * @param value the color
+     */
+    @SuppressWarnings("unused")
+    public void setPointersColor(int value) {
+        // Check if value is changed
+        if (this.mPointerColor != value) {
+            // Fix the trigger
+            this.mPointerColor = value;
+            this.invalidate();
+        }
+    }
+
+    /**
+     * Return the pointers halo width in pixel.
+     * Note that in the standard configuration the pointers are two: high and low.
+     *
+     * @return the halo size
+     */
+    @SuppressWarnings("unused")
+    public float getPointerHaloWidth() {
+        return this.mPointerHaloWidth;
+    }
+
+    /**
+     * Set all pointers halo width in pixel.
+     * Note that in the standard configuration the pointers are two: high and low.
+     *
+     * @param value the new halo size
+     */
+    @SuppressWarnings("unused")
+    public void setPointerHaloWidth(float value) {
+        // Check if value is changed
+        if (this.mPointerHaloWidth != value) {
+            // Fix the trigger
+            this.mPointerHaloWidth = value;
+            this.invalidate();
+        }
+    }
+
+
+    /****************************************************************************************
+     * Input
+     */
+
+    /**
+     * Return if the input is enabled.
+     *
+     * @return the current input status
+     */
+    @SuppressWarnings("unused")
+    public boolean getInputEnabled() {
+        return this.mInputEnabled;
+    }
+
+    /**
+     * Set the input status
+     *
+     * @param value the new input status
+     */
+    @SuppressWarnings("unused")
+    public void setInputEnabled(boolean value) {
+        // Check if value is changed
+        if (this.mInputEnabled != value) {
+            this.mInputEnabled = value;
+            this.invalidate();
+        }
+    }
+
+
+    /********************************************************************************************
      * Public listener and interface
      */
 
-    // Draw
-    @SuppressWarnings("unused")
-    public interface OnDrawListener {
-
-        void onBeforeDraw(Paint baseArc, Paint notchsArc, Paint progressArc);
-
-        void onDrawNotch(ScNotchs.NotchInfo info);
-
-    }
-
-    @SuppressWarnings("unused")
-    public void setOnDrawListener(OnDrawListener listener) {
-        this.mOnDrawListener = listener;
-    }
-
-    // Generic gauge event
+    /**
+     * Generic event listener
+     */
     @SuppressWarnings("unused")
     public interface OnEventListener {
 
-        void onValueChange(float degrees);
+        /**
+         * Called when the high or the low value changed.
+         *
+         * @param lowValue  the current low value
+         * @param highValue the current high value
+         */
+        void onValueChange(float lowValue, float highValue);
 
     }
 
+    /**
+     * Set the generic event listener
+     *
+     * @param listener the listener
+     */
     @SuppressWarnings("unused")
     public void setOnEventListener(OnEventListener listener) {
         this.mOnEventListener = listener;
     }
 
-    // Custom padding
+    /**
+     * Define the draw listener interface
+     */
     @SuppressWarnings("unused")
-    public interface OnCustomPaddingListener {
+    public interface OnDrawListener {
 
-        void onCustomPadding(Rect baseArc, Rect notchsArc, Rect progressArc);
+        /**
+         * Called before draw the path copy.
+         *
+         * @param info the copier info
+         */
+        void onBeforeDrawCopy(ScCopier.CopyInfo info);
+
+
+        /**
+         * Called before draw the single notch.
+         *
+         * @param info the notch info
+         */
+        void onBeforeDrawNotch(ScNotchs.NotchInfo info);
+
+        /**
+         * Called before draw the pointer.
+         * If the method set the bitmap inside the info object the default drawing will be bypassed
+         * and the new bitmap will be draw on the canvas following the other setting.
+         *
+         * @param info the pointer info
+         */
+        void onBeforeDrawPointer(ScPointer.PointerInfo info);
+
+        /**
+         * Called before draw the single token
+         *
+         * @param info the token info
+         */
+        void onBeforeDrawToken(ScWriter.TokenInfo info);
 
     }
 
+    /**
+     * Set the draw listener to call.
+     *
+     * @param listener the linked method to call
+     */
     @SuppressWarnings("unused")
-    public void setOnCustomPaddingListener(OnCustomPaddingListener listener) {
-        this.mOnCustomPaddingListener = listener;
+    public void setOnDrawListener(OnDrawListener listener) {
+        this.mOnDrawListener = listener;
     }
 
 }

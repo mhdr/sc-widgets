@@ -1,7 +1,7 @@
 # ScSlidingPanel
 A useful sliding panel for android
 
-![ScreenShot](https://github.com/Paroca72/sc-widgets/blob/master/raw/scslidingpanel/1.jpg)
+![ScreenShot](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-slidingpanel/1.jpg)
 
 #Documentation
 This is a very simple sliding panel manager.<br />

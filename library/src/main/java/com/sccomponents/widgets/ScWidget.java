@@ -1,28 +1,24 @@
 package com.sccomponents.widgets;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.WindowManager;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * The base widget class.
- * <p/>
- * This class contain only some utility methods useful for next components implementation.
- * v1.0.1
+ * This is class no have a direct utility. This made only for define some common function used
+ * in the inherited classes.
+ *
+ * @author Samuele Carassai
+ * @version 1.1.0
+ * @since 2016-05-26
  */
 public abstract class ScWidget extends View {
 
-    /**
+    /****************************************************************************************
      * Constructors
      */
 
@@ -39,12 +35,17 @@ public abstract class ScWidget extends View {
     }
 
 
-    /**
+    /****************************************************************************************
      * Privates methods
      */
 
-    // Get the display metric.
-    // This method is used for screen measure conversion.
+    /**
+     * Get the display metric.
+     * This method is used for screen measure conversion.
+     *
+     * @param context the current context
+     * @return the display metrics
+     */
     private DisplayMetrics getDisplayMetrics(Context context) {
         // Get the window manager from the window service
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -56,11 +57,17 @@ public abstract class ScWidget extends View {
     }
 
 
-    /**
+    /****************************************************************************************
      * Public methods
      */
 
-    // Convert Dip to Pixel
+    /**
+     * Convert Dip to Pixel using the current display metrics.
+     *
+     * @param dip the start value in Dip
+     * @return the correspondent value in Pixels
+     */
+    //
     @SuppressWarnings("unused")
     public float dipToPixel(float dip) {
         // Get the display metrics
@@ -70,12 +77,19 @@ public abstract class ScWidget extends View {
     }
 
 
-    /**
+    /****************************************************************************************
      * Static methods
      */
 
-    // Limit number within a values range.
-    // This method not consider the sign and the upper and lower values limit order.
+    /**
+     * Limit number within a values range.
+     * This method not consider the sign and the upper and lower values limit order.
+     *
+     * @param value      the value to limit
+     * @param startValue the start limit
+     * @param endValue   the end value
+     * @return the normalized value
+     */
     @SuppressWarnings("unused")
     public static float valueRangeLimit(float value, float startValue, float endValue) {
         // If is over the limit return the normalized value
@@ -85,19 +99,40 @@ public abstract class ScWidget extends View {
         return value;
     }
 
+    /**
+     * Limit number within a values range.
+     * This method not consider the sign and the upper and lower values limit order.
+     *
+     * @param value      the value to limit
+     * @param startValue the start limit
+     * @param endValue   the end value
+     * @return the normalized value
+     */
     @SuppressWarnings("unused")
     public static int valueRangeLimit(int value, int startValue, int endValue) {
         return (int) ScWidget.valueRangeLimit((float) value, (float) startValue, (float) endValue);
     }
 
-    // Check if number is within a values range.
-    // This method not consider the sign and the upper and lower values limit order.
+    /**
+     * Check if number is within a values range.
+     * This method not consider the sign and the upper and lower values limit order.
+     *
+     * @param value      the value to check
+     * @param startValue the start value
+     * @param endValue   the end value
+     * @return true if within
+     */
     @SuppressWarnings("unused")
     public static boolean withinRange(float value, float startValue, float endValue) {
         return value == ScWidget.valueRangeLimit(value, startValue, endValue);
     }
 
-    // Find the max given a series of values
+    /**
+     * Find the max given a series of values.
+     *
+     * @param values values to compare
+     * @return the maximum
+     */
     @SuppressWarnings("unused")
     public static float findMaxValue(float... values) {
         // Check for null values
@@ -113,8 +148,15 @@ public abstract class ScWidget extends View {
         return max;
     }
 
-    // Inflate a rectangle by the passed value.
-    // The method return a new inflated rectangle and can alter the origin too.
+    /**
+     * Inflate a rectangle by the passed value.
+     * The method return a new inflated rectangle and can alter the origin too.
+     *
+     * @param source     the source rectangle
+     * @param value      the inflate value
+     * @param holdOrigin if false reset the rectangle on its origin
+     * @return the new inflated rectangle
+     */
     @SuppressWarnings("unused")
     public static RectF inflateRect(RectF source, float value, boolean holdOrigin) {
         // Create a copy of the rect
@@ -130,12 +172,25 @@ public abstract class ScWidget extends View {
         return dest;
     }
 
+    /**
+     * Inflate a rectangle by the passed value.
+     * The method return a new inflated rectangle and can alter the origin too.
+     *
+     * @param source the source rectangle
+     * @param value  the inflate value
+     * @return the new inflated rectangle
+     */
     @SuppressWarnings("unused")
     public static RectF inflateRect(RectF source, float value) {
         return ScWidget.inflateRect(source, value, false);
     }
 
-    // Reset the rectangle to its origin
+    /**
+     * Reset the rectangle to its origin
+     *
+     * @param rect the original rectangle
+     * @return a new resettled rectangle
+     */
     @SuppressWarnings("unused")
     public static RectF resetRectToOrigin(RectF rect) {
         // Create a new rect
@@ -145,7 +200,13 @@ public abstract class ScWidget extends View {
         return newRect;
     }
 
-    // Swap two array elements position
+    /**
+     * Swap two array elements position.
+     *
+     * @param source a generic array source
+     * @param first  the first position item
+     * @param second the second position item
+     */
     @SuppressWarnings("unused")
     public static <T> void swapArrayPosition(T[] source, int first, int second) {
         T temp = source[first];
@@ -153,6 +214,13 @@ public abstract class ScWidget extends View {
         source[second] = temp;
     }
 
+    /**
+     * Swap two array elements position.
+     *
+     * @param source the array source
+     * @param first  the first position item
+     * @param second the second position item
+     */
     @SuppressWarnings("unused")
     public static void swapArrayPosition(int[] source, int first, int second) {
         int temp = source[first];

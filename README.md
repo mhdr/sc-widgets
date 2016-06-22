@@ -12,10 +12,14 @@ This way to think leaves a lot of freedom to the users to create particular comp
 The base class for all (or almost) widget components of this series.<br />
 Contains just utility methods for facilitate the building of a component.
 
-- **[ScSlidingPanel](ScSlidingPanel.md)**<br />
+- **[ScSlidingPanel](sc-slidingpanel\ScSlidingPanel.md)**<br />
 This is a very simple sliding panel manager.<br />
 Respect to others components same this it follow the parent alignment.
 Put the component inside a RelativeLayout, give an alignment and the panel slide from.
+
+- **[ScFeature](sc-feature\ScFeature.md)**<br />
+Create a feature to draw on a given path.
+The feature is independent and can be used with any path.
 
 
 # Usage
