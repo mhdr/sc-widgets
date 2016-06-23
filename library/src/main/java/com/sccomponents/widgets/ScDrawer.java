@@ -2,17 +2,11 @@ package com.sccomponents.widgets;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.BitmapShader;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.LinearGradient;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.RectF;
-import android.graphics.Shader;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -23,21 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Draw a path on a canvas of View
+ * Define the way to draw a path on a View's canvas
  *
  * @author Samuele Carassai
  * @version 1.0.0
  * @since 2016-05-26
  */
 public abstract class ScDrawer extends ScWidget {
-
-    /****************************************************************************************
-     * Constants
-     */
-
-    public static final float DEFAULT_STROKE_SIZE = 3.0f;
-    public static final int DEFAULT_STROKE_COLOR = Color.BLACK;
-
 
     /****************************************************************************************
      * Enumerators
@@ -68,9 +54,6 @@ public abstract class ScDrawer extends ScWidget {
      * Private and protected attributes
      */
 
-    protected float mStrokeSize;
-    protected int mStrokeColor;
-
     protected FillingArea mFillingArea;
     protected FillingMode mFillingMode;
 
@@ -91,8 +74,6 @@ public abstract class ScDrawer extends ScWidget {
 
     private List<ScFeature> mFeatures;
     private Path mCopyPath;
-    private Paint mStrokePaint;
-    private Paint mSectorPaint;
 
 
     /****************************************************************************************
@@ -144,9 +125,6 @@ public abstract class ScDrawer extends ScWidget {
      * Check all input values if over the limits
      */
     private void checkValues() {
-        // Size
-        if (this.mStrokeSize < 0.0f) this.mStrokeSize = 0.0f;
-
         // Dimensions
         if (this.mMaximumWidth < 0) this.mMaximumWidth = 0;
         if (this.mMaximumHeight < 0) this.mMaximumHeight = 0;
@@ -169,11 +147,6 @@ public abstract class ScDrawer extends ScWidget {
         final TypedArray attrArray = context.obtainStyledAttributes(attrs, R.styleable.ScComponents, defStyle, 0);
 
         // Read all attributes from xml and assign the value to linked variables
-        this.mStrokeSize = attrArray.getDimension(
-                R.styleable.ScComponents_scc_stroke_size, this.dipToPixel(ScDrawer.DEFAULT_STROKE_SIZE));
-        this.mStrokeColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_stroke_color, ScDrawer.DEFAULT_STROKE_COLOR);
-
         this.mMaximumWidth = attrArray.getDimensionPixelSize(
                 R.styleable.ScComponents_scc_max_width, Integer.MAX_VALUE);
         this.mMaximumHeight = attrArray.getDimensionPixelSize(
@@ -196,23 +169,6 @@ public abstract class ScDrawer extends ScWidget {
         this.checkValues();
         this.mPathMeasure = new ScPathMeasure();
         this.mCopyPath = new Path();
-
-        //--------------------------------------------------
-        // PAINTS
-
-        // Stroke
-        this.mStrokePaint = new Paint();
-        this.mStrokePaint.setColor(this.mStrokeColor);
-        this.mStrokePaint.setAntiAlias(true);
-        this.mStrokePaint.setDither(true);
-        this.mStrokePaint.setStrokeWidth(this.mStrokeSize);
-        this.mStrokePaint.setStyle(Paint.Style.STROKE);
-        this.mStrokePaint.setStrokeCap(Paint.Cap.BUTT);
-
-        this.mSectorPaint = new Paint();
-        this.mSectorPaint.setAntiAlias(true);
-        this.mSectorPaint.setDither(true);
-        this.mSectorPaint.setStyle(Paint.Style.FILL);
     }
 
     /**
@@ -332,13 +288,13 @@ public abstract class ScDrawer extends ScWidget {
     }
 
     /**
-     * Scale and transpose the path and after draw it on canvas
+     * Scale and transpose the path and after draw the features on the canvas
      *
      * @param canvas  the canvas where draw
      * @param xOffset the horizontal offset
      * @param yOffset the vertical offset
      */
-    private void draw(Canvas canvas, float xOffset, float yOffset) {
+    private void setForDraw(Canvas canvas, float xOffset, float yOffset) {
         // Scale and move the path
         this.scalePath(this.mCopyPath, this.mAreaScale.x, this.mAreaScale.y);
         this.mCopyPath.offset(
@@ -346,17 +302,16 @@ public abstract class ScDrawer extends ScWidget {
                 yOffset + this.getPaddingTop()
         );
 
-        // Draw the path and the features
-        canvas.drawPath(this.mCopyPath, this.mStrokePaint);
+        // Draw the features
         this.drawFeatures(canvas);
     }
 
     /**
-     * Scale and transpose the canvas and after draw the path on it
+     * Scale and transpose the canvas and after draw the features on the canvas
      *
      * @param canvas the canvas where draw
      */
-    private void stretch(Canvas canvas) {
+    private void setForStretch(Canvas canvas) {
         // Save the current canvas status
         canvas.save();
 
@@ -369,11 +324,6 @@ public abstract class ScDrawer extends ScWidget {
                 -this.mPathMeasure.getBounds().left,
                 -this.mPathMeasure.getBounds().top
         );
-
-        // Draw the path if needed
-        if (this.mStrokeSize > 0.0f || this.mStrokePaint.getStyle() != Paint.Style.STROKE) {
-            canvas.drawPath(this.mCopyPath, this.mStrokePaint);
-        }
 
         // Draw all features
         this.drawFeatures(canvas);
@@ -401,10 +351,6 @@ public abstract class ScDrawer extends ScWidget {
         if (this.mPath == null ||
                 (this.mDrawArea == null || this.mDrawArea.isEmpty())) return;
 
-        // Set the painter properties
-        this.mStrokePaint.setStrokeWidth(this.mStrokeSize);
-        this.mStrokePaint.setColor(this.mStrokeColor);
-
         // Create a copy of the original path.
         // I need to move the offset or scale the path and not want lost the original one values.
         this.mCopyPath.set(this.mPath);
@@ -413,12 +359,12 @@ public abstract class ScDrawer extends ScWidget {
         switch (this.mFillingMode) {
             // Draw
             case DRAW:
-                this.draw(canvas, this.mVirtualArea.left, this.mVirtualArea.top);
+                this.setForDraw(canvas, this.mVirtualArea.left, this.mVirtualArea.top);
                 break;
 
             // Stretch
             case STRETCH:
-                this.stretch(canvas);
+                this.setForStretch(canvas);
                 break;
         }
     }
@@ -484,8 +430,6 @@ public abstract class ScDrawer extends ScWidget {
         Bundle state = new Bundle();
         // Save all starting from the parent state
         state.putParcelable("PARENT", superState);
-        state.putFloat("mStrokeSize", this.mStrokeSize);
-        state.putInt("mStrokeColor", this.mStrokeColor);
         state.putInt("mMaximumWidth", this.mMaximumWidth);
         state.putInt("mMaximumHeight", this.mMaximumHeight);
         state.putInt("mFillingArea", this.mFillingArea.ordinal());
@@ -510,8 +454,6 @@ public abstract class ScDrawer extends ScWidget {
         super.onRestoreInstanceState(superState);
 
         // Now can restore all the saved variables values
-        this.mStrokeSize = savedState.getFloat("mStrokeSize");
-        this.mStrokeColor = savedState.getInt("mStrokeColor");
         this.mMaximumWidth = savedState.getInt("mMaximumWidth");
         this.mMaximumHeight = savedState.getInt("mMaximumHeight");
         this.mFillingArea = FillingArea.values()[savedState.getInt("mFillingArea")];
@@ -640,71 +582,8 @@ public abstract class ScDrawer extends ScWidget {
 
 
     /****************************************************************************************
-     * Public methods
-     */
-
-    /**
-     * Return the painter
-     *
-     * @return the painter
-     */
-    @SuppressWarnings("unused")
-    public Paint getPainter() {
-        return this.mStrokePaint;
-    }
-
-
-    /****************************************************************************************
      * Public properties
      */
-
-    /**
-     * Return the stroke size
-     *
-     * @return the current stroke size in pixel
-     */
-    @SuppressWarnings("unused")
-    public float getStrokeSize() {
-        return this.mStrokeSize;
-    }
-
-    /**
-     * Set the stroke size
-     *
-     * @param value the new stroke size in pixel
-     */
-    @SuppressWarnings("unused")
-    public void setStrokeSize(float value) {
-        // Check if value is changed
-        if (this.mStrokeSize != value) {
-            // Store the new value, check it and refresh the component
-            this.mStrokeSize = value;
-            this.checkValues();
-            this.requestLayout();
-        }
-    }
-
-    /**
-     * Return the current stroke color
-     *
-     * @return the current stroke color
-     */
-    @SuppressWarnings("unused")
-    public int getStrokesColors() {
-        return this.mStrokeColor;
-    }
-
-    /**
-     * Set the current stroke colors
-     *
-     * @param value the new stroke colors
-     */
-    @SuppressWarnings("unused")
-    public void setStrokeColors(int value) {
-        // Save the new value and refresh
-        this.mStrokeColor = value;
-        this.requestLayout();
-    }
 
     /**
      * Return the current area filling type.

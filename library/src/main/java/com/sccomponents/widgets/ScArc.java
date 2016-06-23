@@ -293,9 +293,11 @@ public class ScArc extends ScGauge {
     @Override
     protected void onDraw(Canvas canvas) {
         // Define the painter style by the current stroke type
+        /*
         this.getPainter().setStyle(
                 this.mArcType == ArcTypes.FILLED ? Paint.Style.FILL_AND_STROKE : Paint.Style.STROKE
         );
+        */
 
         // Call the super
         super.onDraw(canvas);

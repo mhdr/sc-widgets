@@ -1,232 +1,132 @@
-# ScNotchs
-This components create a notchs arc inscribed inside a rectangle area.<br />
-Considering that this component inherit from the [ScArc](ScArc.md) component please take a look to the related documentation before use it.
+# ScCopier
+
+Create a feature that draw a series of notchs following the base path.
+You can define the line characteristic by setting the inner painter.
+Many other characteristics can be change before drawing the single notch linking the dedicated listener.
+
+This class inherit all its properties from the [ScFeature](..\sc-feature\ScFeature.md) so please take a look to the related documentation.
 
 
-## ScNotchs class details
-This class extend the [ScArc](ScArc.md) class.
+#### Public Methods
 
-> **KNOWED ISSUES**<br />
-> When the arc is stretched have some visual issues about the notchs direction.<br />
-> This problem will be fixed in the new version is possible.<br />
-> About this and other any help will be **appreciated**.<br />
+- **float snapToNotchs(float value)**<br />
+Round the value near the closed notch.
 
-#### Public methods
-
-- **setOnDrawListener(OnDrawListener listener)**<br />
-Link to the draw listener.
+- **void setOnDrawListener(OnDrawListener listener)**<br />
+Link the listener.
 
 
 #### Getter and Setter
 
-- **get/setNotchs**  -> float value, default <code>0</code><br />
-The number of sector where the arc will be divided.
-Note that if the arc is NOT closed you will see one more notch that will represent the starting one.
+- **get/setCount**  -> `int` value, default `0`<br />
+Set or get the notchs count.
 
-- **get/setNotchsLength**  -> float value, default is double of stroke size<br />
-The notchs line length.
+- **get/setLength**  -> `float` value, default `0`<br />
+Set or get the notchs length.
+The value must be passed in pixel.
 
-- **get/setNotchsType**  -> NotchsTypes value, default <code>NotchsTypes.LINE</code><br />
-> **DEPRECATED**<br />
-> Use get/setStrokeType property
-Define the notchs type.
+- **get/setType**  -> `NotchTypes` value, default `NotchTypes.LINE`<br />
+Possibly values by enum: `LINE`, `CIRCLE`, `CIRCLE_FILLED`<br />
+Set or get the notchs type
+
+- **get/setPosition**  -> `NotchPositions` value, default `NotchPositions.MIDDLE`<br />
+Possibly values by enum: `INSIDE`, `MIDDLE`, `OUTSIDE`<br />
+Set or get the notchs alignment respect the path.
 
 
 #### Interfaces
 
-Changing the info values will be effect on to drive the draw on canvas.
+- **OnDrawListener**<br />
+**void onBeforeDrawNotch(NotchInfo info)**<br />
+Called before draw the single notch.
+Note that changing the `info` properties you will change the current notch drawing.
+NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distanceFromStart`, `visible`, `type`, `align`.
 
-```java
-    public interface OnDrawListener {
-       void onDrawNotch(NotchInfo info);
-    }
-```
 
 ---
-####### XML using
+####### Let's play
 
-Draw a circle as the right images
-
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/1.jpg"> 
+Common examples xml
 ```xml
-    <com.sccomponents.widgets.ScNotchs
-        xmlns:sc="http://schemas.android.com/apk/res-auto"
-        android:layout_width="200dp"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:sc="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical|center_horizontal"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="10dp"
-        sc:scc_notchs="10"
-    />
+        android:id="@+id/image" />
+
+</LinearLayout>
 ```
 
-
-####### XML Properties
-
-Take a look to the [ScArc](ScArc.md) class documentation
-```xml
-    <declare-styleable name="ScComponents">
-        ...
-        ...
-        <attr name="scc_notchs" format="integer" />
-        <attr name="scc_notchs_length" format="dimension" />
-        <attr name="scc_notch_type" format="enum" />
-    </declare-styleable>
-```
-
-## Let's play
-
-### Custom coloring and notchs emphasis
-
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/2.jpg"> 
-```xml
-    <com.sccomponents.widgets.ScNotchs
-        xmlns:sc="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/notchs"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:background="#cccccc"
-        android:padding="10dp"
-        sc:scc_angle_start="-90"
-        sc:scc_notchs="16" />
-```
-
-<br />
-<br />
-<br />
-
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/1.jpg" align="right" />
+Create a bezier line path and the notchs on it.
 ```java
-        final ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
-        assert notchs != null;
-        notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
-            @Override
-            public void onDrawNotch(ScNotchs.NotchInfo info) {
-                // ATTENTION!
-                // In this exercise I self calculated the color by code but you can do 
-                // this automatically using the setColors method.
-                // This is only a demastration how can change the notch parameters 
-                // via the info class.
+    // Dimensions
+    int padding = 24;
+    Rect drawArea = new Rect(padding, padding, 500 - padding, 300 - padding);
 
-                // Emphasis every 4 notchs
-                if (info.index % 4 == 0) {
-                    // Change the stroke size and the length
-                    info.size *= 3;
-                    info.length *= 3;
-                }
-                // Emphasis every 2 notchs
-                else if (info.index % 2 == 0) {
-                    // Change the stroke size and the length
-                    info.size *= 2;
-                    info.length *= 2;
-                }
+    // Get the main layout
+    ImageView imageContainer = (ImageView) this.findViewById(R.id.image);
+    assert imageContainer != null;
 
-                // Change the color
-                float fraction = (float) info.index / (float) notchs.getNotchs();
-                info.color = (Integer) new ArgbEvaluator().evaluate(fraction, 0xffff0000, 0xff0000ff);
-            }
-        });
+    // Create a bitmap and link a canvas
+    Bitmap bitmap = Bitmap.createBitmap(
+        drawArea.width() + padding * 2, drawArea.height() + padding * 2,
+        Bitmap.Config.ARGB_8888
+    );
+    Canvas canvas = new Canvas(bitmap);
+    canvas.drawColor(Color.parseColor("#f5f5f5"));
+
+    // Create the path building a bezier curve from the left-top to the right-bottom angles of
+    // the drawing area.
+    Path path = new Path();
+    path.moveTo(drawArea.left, drawArea.top);
+    path.quadTo(drawArea.centerX(), drawArea.top, drawArea.centerX(), drawArea.centerY());
+    path.quadTo(drawArea.centerX(), drawArea.bottom, drawArea.right, drawArea.bottom);
+
+    // Feature
+    ScNotchs notchs = new ScNotchs(path);
+    notchs.getPainter().setStrokeWidth(4);
+    notchs.setCount(20);
+    notchs.setLength(14);
+    notchs.draw(canvas);
+
+    // Add the bitmap to the container
+    imageContainer.setImageBitmap(bitmap);
 ```
 
-### Points and distance from border
-
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/3.jpg"> 
-```xml
-    <com.sccomponents.widgets.ScNotchs
-        xmlns:sc="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/notchs"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:background="#cccccc"
-        sc:scc_stroke_type="filled_arc"
-        sc:scc_notchs="20"
-        sc:scc_notchs_length="2dp"
-        sc:scc_stroke_size="1dp" />
-```
-
-<br />
-<br />
-
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
+Circle type
 ```java
-        final ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
-        assert notchs != null;
-        notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
-            @Override
-            public void onDrawNotch(ScNotchs.NotchInfo info) {
-                // Adjust the distance from border
-                float multiplier = (notchs.getWidth() / 2) / notchs.getNotchs();
-                info.distanceFromBorder = (notchs.getNotchs() - info.index) * multiplier;
-
-                // Adjust the dimension
-                info.length = 1 + info.index / 5;
-            }
-        });
+    ...
+    // Feature
+    ScNotchs notchs = new ScNotchs(path);
+    notchs.getPainter().setStrokeWidth(2);
+    notchs.setCount(20);
+    notchs.setLength(14);
+    notchs.setType(ScNotchs.NotchTypes.CIRCLE);
+    notchs.draw(canvas);
+    ...
 ```
 
-### Notchs position and rounded stroke
-
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/4.jpg"> 
-```xml
-    <com.sccomponents.widgets.ScNotchs
-            xmlns:sc="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/notchs"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:background="#cccccc"
-            android:padding="35dp"
-            sc:scc_notchs="32" />
-```
-
-<br />
-<br />
-<br />
-<br />
-
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/3.jpg" align="right" />
+Circle type
 ```java
-        final ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
-        assert notchs != null;
-        notchs.getPainter().setStrokeCap(Paint.Cap.ROUND);
-        notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
-            @Override
-            public void onDrawNotch(ScNotchs.NotchInfo info) {
-                // Adjust the length and the position
-                info.length += info.index;
-                info.distanceFromBorder = -info.length / 2;
-            }
-        });
-```
-
-
-### Spiral increasing angles
-
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/scnotchs/5.jpg"> 
-```xml
-    <com.sccomponents.widgets.ScNotchs
-        xmlns:sc="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/notchs"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:background="#cccccc"
-        android:padding="10dp"
-        sc:scc_angle_sweep="270"
-        sc:scc_notchs="32" />
-```
-
-<br />
-<br />
-<br />
-<br />
-
-```java
-        final ScNotchs notchs = (ScNotchs) this.findViewById(R.id.notchs);
-        assert notchs != null;
-        notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
-            @Override
-            public void onDrawNotch(ScNotchs.NotchInfo info) {
-                // All customizations are arbitrary
-                info.angle = info.angle * 2 - 180;
-                info.distanceFromBorder = info.index * 4;
-                info.length = notchs.getNotchs() - info.index;
-                info.size *= info.length / 10;
-            }
-        });
+    ...
+    // Feature
+    ScNotchs notchs = new ScNotchs(path);
+    notchs.setCount(20);
+    notchs.setLength(14);
+    notchs.setType(ScNotchs.NotchTypes.CIRCLE_FILLED);
+    notchs.draw(canvas);
+    ...
 ```
 
 

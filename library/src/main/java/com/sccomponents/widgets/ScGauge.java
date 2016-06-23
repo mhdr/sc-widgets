@@ -43,11 +43,16 @@ public abstract class ScGauge extends ScDrawer implements
      * Constants
      */
 
+    public static final float DEFAULT_STROKE_SIZE = 3.0f;
+    public static final int DEFAULT_STROKE_COLOR = Color.BLACK;
+
     public static final float DEFAULT_PROGRESS_SIZE = 1.0f;
     public static final int DEFAULT_PROGRESS_COLOR = Color.GRAY;
+
     public static final float DEFAULT_TEXT_SIZE = 16.0f;
     public static final float DEFAULT_HALO_SIZE = 10.0f;
 
+    public static final String BASE_IDENTIFIER = "base";
     public static final String NOTCHS_IDENTIFIER = "notchs";
     public static final String WRITER_IDENTIFIER = "writer";
     public static final String PROGRESS_IDENTIFIER = "progress";
@@ -58,6 +63,9 @@ public abstract class ScGauge extends ScDrawer implements
     /****************************************************************************************
      * Privates attribute
      */
+
+    protected float mStrokeSize;
+    protected int mStrokeColor;
 
     protected float mProgressSize;
     protected int mProgressColor;
@@ -132,12 +140,19 @@ public abstract class ScGauge extends ScDrawer implements
         // Hold the tag
         String tag = feature.getTag();
 
+        // Base
+        if (tag.equalsIgnoreCase(ScGauge.BASE_IDENTIFIER)) {
+            // fill
+            feature.getPainter().setColor(this.mStrokeColor);
+            feature.getPainter().setStrokeWidth(this.mStrokeSize);
+        }
+
         // Progress
         if (tag.equalsIgnoreCase(ScGauge.PROGRESS_IDENTIFIER)) {
             // fill
             feature.setLimits(this.mLowValue, this.mHighValue);
-            feature.getPainter().setColor(this.getProgressColor());
-            feature.getPainter().setStrokeWidth(this.getProgressSize());
+            feature.getPainter().setColor(this.mProgressColor);
+            feature.getPainter().setStrokeWidth(this.mProgressSize);
         }
 
         // Notchs
@@ -214,6 +229,12 @@ public abstract class ScGauge extends ScDrawer implements
         final TypedArray attrArray = context
                 .obtainStyledAttributes(attrs, R.styleable.ScComponents, defStyle, 0);
 
+        // Base
+        this.mStrokeSize = attrArray.getDimension(
+                R.styleable.ScComponents_scc_stroke_size, this.dipToPixel(ScGauge.DEFAULT_STROKE_SIZE));
+        this.mStrokeColor = attrArray.getColor(
+                R.styleable.ScComponents_scc_stroke_color, ScGauge.DEFAULT_STROKE_COLOR);
+
         // Progress
         this.mProgressSize = attrArray.getDimension(
                 R.styleable.ScComponents_scc_progress_size, this.dipToPixel(ScGauge.DEFAULT_PROGRESS_SIZE));
@@ -236,9 +257,9 @@ public abstract class ScGauge extends ScDrawer implements
 
         // Text
         this.mTextSize = attrArray.getDimension(
-                R.styleable.ScComponents_scc_notchs_size, this.dipToPixel(ScGauge.DEFAULT_TEXT_SIZE));
+                R.styleable.ScComponents_scc_text_size, this.dipToPixel(ScGauge.DEFAULT_TEXT_SIZE));
         this.mTextColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_notchs_color, ScGauge.DEFAULT_STROKE_COLOR);
+                R.styleable.ScComponents_scc_text_color, ScGauge.DEFAULT_STROKE_COLOR);
 
         String stringTokens = attrArray.getString(R.styleable.ScComponents_scc_text_tokens);
         this.mTextTokens = stringTokens != null ? stringTokens.split("\\|") : null;
@@ -260,6 +281,11 @@ public abstract class ScGauge extends ScDrawer implements
 
         //--------------------------------------------------
         // FEATURES
+
+        ScCopier base = (ScCopier) this.addFeature(ScCopier.class);
+        base.setTag(ScGauge.BASE_IDENTIFIER);
+        base.setOnDrawListener(this);
+        this.featureSetter(base);
 
         ScNotchs notchs = (ScNotchs) this.addFeature(ScNotchs.class);
         notchs.setTag(ScGauge.NOTCHS_IDENTIFIER);
@@ -455,6 +481,8 @@ public abstract class ScGauge extends ScDrawer implements
         Bundle state = new Bundle();
         // Save all starting from the parent state
         state.putParcelable("PARENT", superState);
+        state.putFloat("mStrokeSize", this.mStrokeSize);
+        state.putInt("mStrokeColor", this.mStrokeColor);
         state.putFloat("mHighValue", this.mHighValue);
         state.putFloat("mLowValue", this.mLowValue);
         state.putFloat("mProgressSize", this.mProgressSize);
@@ -490,6 +518,8 @@ public abstract class ScGauge extends ScDrawer implements
         super.onRestoreInstanceState(superState);
 
         // Now can restore all the saved variables values
+        this.mStrokeSize = savedState.getFloat("mStrokeSize");
+        this.mStrokeColor = savedState.getInt("mStrokeColor");
         this.mHighValue = savedState.getFloat("mHighValue");
         this.mLowValue = savedState.getFloat("mLowValue");
         this.mProgressSize = savedState.getFloat("mProgressSize");
@@ -770,6 +800,58 @@ public abstract class ScGauge extends ScDrawer implements
         List<ScFeature> features = this.findFeatures(classRef, null);
         // If here mean not find correspondence with tag
         return features.size() > 0 ? features.get(0) : null;
+    }
+
+
+    /****************************************************************************************
+     * Base
+     */
+
+    /**
+     * Return the stroke size
+     *
+     * @return the current stroke size in pixel
+     */
+    @SuppressWarnings("unused")
+    public float getStrokeSize() {
+        return this.mStrokeSize;
+    }
+
+    /**
+     * Set the stroke size
+     *
+     * @param value the new stroke size in pixel
+     */
+    @SuppressWarnings("unused")
+    public void setStrokeSize(float value) {
+        // Check if value is changed
+        if (this.mStrokeSize != value) {
+            // Store the new value, check it and refresh the component
+            this.mStrokeSize = value;
+            this.requestLayout();
+        }
+    }
+
+    /**
+     * Return the current stroke color
+     *
+     * @return the current stroke color
+     */
+    @SuppressWarnings("unused")
+    public int getStrokesColors() {
+        return this.mStrokeColor;
+    }
+
+    /**
+     * Set the current stroke colors
+     *
+     * @param value the new stroke colors
+     */
+    @SuppressWarnings("unused")
+    public void setStrokeColors(int value) {
+        // Save the new value and refresh
+        this.mStrokeColor = value;
+        this.requestLayout();
     }
 
 

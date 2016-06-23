@@ -353,7 +353,7 @@ public class ScNotchs extends ScFeature {
     }
 
     /**
-     * Set the notchs count.
+     * Set the notchs length.
      *
      * @param value the notchs count
      */

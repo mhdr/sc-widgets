@@ -1,22 +1,19 @@
 # ScDrawer
 
-This is a small and fundamental class to design the future components using the "path following" method.
-The duty of this class is divided in two main: draw on view the path and provide to add some "features" to the drawing system.
-Whereas the "features" are independent from this class and will be only added the draw system following some user defined setting important to understand.
+This is a small class to design the future components using the "path following" way.
+The duty of this class is divided in two main: define settings where draw the path and provide the possibility to add some "features" for drawing it.
+Whereas the "[features](..\sc-feature\ScFeature.md)" are independent from this class but are necessary to draw the path on the canvas.
 
-There are two ways to draw an arc on this component.
-- **DRAW**: will simply draw the arc on the component canvas using the proper methods.
-- **STRETCH**: before draw in the basic mode (as above) and after stretch the canvas.
-<br />
-This methods of draw will stretch also the stroke to creating a good effect.
-<br />
+There are two ways to settle the drawing area:
+- **DRAW**: will simply draw the path on the component canvas using the proper methods.
+- **STRETCH**: before to draw the path stretch the canvas.
 
-Also you can decide witch dimension want to fill: none, both dimensions, vertical or horizontal.
-This for give to the user many combinations to render the arc on the drawing area.
-<br />
+Note that the stretch methods will stretch also the stroke creating a singular effect.
+Always you can decide witch dimensions to fill: none, both dimensions, vertical or horizontal.
+This for give to the user many possibilities to render the path on the drawing area.
 
-For better understand the mode to use this options will propose you **some examples** at the end of this guide.
-<br />
+For better understand this important mode to use the settings will propose **some examples** at the end of this document.
+
 
 ## ScDrawer class details
 This class extend the [ScWidget](..\sc-widget\ScWidget.md) class.
@@ -55,12 +52,6 @@ Get the arc painter.
 
 #### Getter and Setter
 
-- **get/setStrokeSize**  -> `float` value, default `3dp`<br />
-The value must be passed in pixel.
-
-- **get/setStrokeColor**  -> `int` value, default `Color.BLACK`<br />
-The stroke color of painter.
-
 - **get/setMaxWidth**  -> `int` value, default `Int.MAX_VALUE`<br />
 The value must be passed in pixel.
 
@@ -80,13 +71,10 @@ Please look above for a short explain of this feature.
 ####### XML Properties
 ```xml
     <declare-styleable name="ScComponents">
-        <attr name="scc_stroke_size" format="dimension" />
-        <attr name="scc_stroke_color" format="color" />
-        <attr name="scc_fill_area" format="enum" />
-        <attr name="scc_fill_mode" format="enum" />
-        <attr name="scc_fill_colors" format="enum" />
         <attr name="scc_max_width" format="dimension" />
         <attr name="scc_max_height" format="dimension" />
+        <attr name="scc_fill_area" format="enum" />
+        <attr name="scc_fill_mode" format="enum" />
     </declare-styleable>
 ```
 

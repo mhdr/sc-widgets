@@ -1,15 +1,22 @@
 package com.sccomponents.widgets.demo;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Path;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.sccomponents.widgets.ScCopier;
 import com.sccomponents.widgets.ScDrawer;
+import com.sccomponents.widgets.ScFeature;
+import com.sccomponents.widgets.ScNotchs;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -20,55 +27,54 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_main);
 
-        // Get the main layout
-        LinearLayout main = (LinearLayout) this.findViewById(R.id.main);
-        assert main != null;
+        // Dimensions
+        int padding = 24;
+        Rect drawArea = new Rect(padding, padding, 500 - padding, 300 - padding);
 
-        // Create the custom class
-        Line line = new Line(this);
-        line.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300));
-        line.setBackgroundColor(Color.LTGRAY);
-        line.setPadding(20, 20, 20, 20);
-        line.setStrokeSize(0);
+        // Get the main layout
+        ImageView imageContainer = (ImageView) this.findViewById(R.id.image);
+        assert imageContainer != null;
+
+        // Create a bitmap and link a canvas
+        Bitmap bitmap = Bitmap.createBitmap(
+                drawArea.width() + padding * 2, drawArea.height() + padding * 2,
+                Bitmap.Config.ARGB_8888
+        );
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawColor(Color.parseColor("#f5f5f5"));
+
+        // Create the path building a bezier curve from the left-top to the right-bottom angles of
+        // the drawing area.
+        Path path = new Path();
+        path.moveTo(drawArea.left, drawArea.centerY());
+        path.lineTo(drawArea.right, drawArea.centerY());
 
         // Feature
-        ScCopier copier = (ScCopier) line.addFeature(ScCopier.class);
-        copier.setColors(Color.RED, Color.GREEN, Color.BLUE);
-        copier.getPainter().setStrokeWidth(14);
-        //copier.setFillingColors(ScFeature.ShaderMode.SOLID);
+        ScNotchs notchs = new ScNotchs(path);
+        notchs.getPainter().setStrokeWidth(4);
+        notchs.setCount(24);
+        notchs.setLength(30);
+        notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
+            @Override
+            public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+                // Check th module
+                if (info.index % 2 == 0)
+                    info.align = ScNotchs.NotchPositions.INSIDE;
+                else
+                    info.align = ScNotchs.NotchPositions.OUTSIDE;
 
-        // Add to view
-        main.addView(line);
-    }
+                // Calc the percentage
+                float ratio = info.index / info.source.getCount();
 
-    public class Line extends ScDrawer {
+                // Set the length by the position
+                info.length = info.source.getLength() * ratio + 10;
+                info.offset = - (info.length / 2) * (1 - ratio);
+            }
+        });
+        notchs.draw(canvas);
 
-        // Constructor
-        public Line(Context context) {
-            super(context);
-        }
-
-        /**
-         * Create the path to draw.
-         * This method need to draw something on the canvas. Note that the ScDrawer class not expose
-         * other methods or public properties to manage the path.
-         * To work on path you can use the protected properties: mPath and mPathMeasurer.
-         *
-         * @param maxWidth  the horizontal boundaries
-         * @param maxHeight the vertical boundaries
-         * @return return the new path
-         */
-        @Override
-        protected Path createPath(int maxWidth, int maxHeight) {
-            // Will be build a bezier curve from the left-top to the right-bottom angles of the
-            // drawing area.
-            Path path = new Path();
-            path.quadTo(maxWidth / 2, 0.0f, maxWidth / 2, maxHeight / 2);
-            path.quadTo(maxWidth / 2, maxHeight, maxWidth, maxHeight);
-
-            // Return the new path
-            return path;
-        }
+        // Add the bitmap to the container
+        imageContainer.setImageBitmap(bitmap);
     }
 
 }

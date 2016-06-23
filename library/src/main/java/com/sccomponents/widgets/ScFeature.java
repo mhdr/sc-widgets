@@ -258,7 +258,7 @@ public class ScFeature {
         }
 
         // If the have only one color inside the colors array set it directly on the painter
-        if (this.mColors.length == 1) {
+        if (this.mColors != null && this.mColors.length == 1) {
             this.mPaint.setColor(this.mColors[0]);
         }
 

@@ -8,9 +8,13 @@
     android:gravity="center_vertical|center_horizontal"
     android:orientation="vertical"
     android:padding="10dp"
-    tools:context="com.sccomponents.widgets.demo.MainActivity"
-    android:weightSum="1"
-    android:id="@+id/main">
+    android:weightSum="1">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/image"
+        />
 
 </LinearLayout>
 
