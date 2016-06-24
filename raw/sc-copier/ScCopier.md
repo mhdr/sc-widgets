@@ -6,6 +6,12 @@ You can define the line characteristic by setting the inner painter
 This class inherit all its properties from the [ScFeature](..\sc-feature\ScFeature.md) so please take a look to the related documentation.
 The class is a basic class and not expose only one proprietary method and all the methods inherited from [ScFeature](..\sc-feature\ScFeature.md).
 
+> **KNOWN ISSUES**
+> When you using the more than one color the class produce a **bitmap shader** and apply it on the painter.
+> If you will use to scale the path before draw (`onBeforeDrawCopy`), being the shader a `Bitmap`, the stroke width will scaled too.
+> This issue can be solved drawing the colors gradient directly on the canvas but in this case will lost the possibility to override the shader in the future.
+
+
 #### Public Methods
 
 - **void setOnDrawListener(OnDrawListener listener)**<br />
@@ -24,41 +30,7 @@ Properties list: `scale`, `offset`.
 ---
 ####### Let's play
 
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/1.jpg" align="right" />
-Create a bezier line and colorize it.
-```java
-    // Dimensions
-    int width = 300;
-    int height = 200;
-    int middleStroke = 6;
-
-    // Get the main layout
-    ImageView imageContainer = (ImageView) this.findViewById(R.id.image);
-    assert imageContainer != null;
-
-    // Create the path building a bezier curve from the left-top to the right-bottom angles of
-    // the drawing area.
-    Path path = new Path();
-    path.moveTo(0, middleStroke);
-    path.quadTo(width / 2, middleStroke, width / 2, height / 2);
-    path.quadTo(width / 2, height - middleStroke, width, height - middleStroke);
-
-    // Create a bitmap and link a canvas
-    Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-    Canvas canvas = new Canvas(bitmap);
-    canvas.drawColor(Color.parseColor("#f5f5f5"));
-
-    // Feature
-    ScCopier copier = new ScCopier(path);
-    copier.getPainter().setStrokeWidth(middleStroke * 2);
-    copier.setColors(Color.RED, Color.GREEN, Color.BLUE);
-    copier.setFillingColors(ScFeature.ShaderMode.SOLID);
-    copier.draw(canvas);
-
-    // Add the bitmap to the container
-    imageContainer.setImageBitmap(bitmap);
-```
-
+Common xml configuration
 ```xml
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -77,6 +49,63 @@ Create a bezier line and colorize it.
 </LinearLayout>
 ```
 
+
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/1.jpg" align="right" />
+Create a bezier line and colorize it.
+```java
+    // Dimensions
+    int padding = 24;
+    Rect drawArea = new Rect(padding, padding, 500 - padding, 300 - padding);
+
+    // Get the main layout
+    ImageView imageContainer = (ImageView) this.findViewById(R.id.image);
+    assert imageContainer != null;
+
+    // Create a bitmap and link a canvas
+    Bitmap bitmap = Bitmap.createBitmap(
+            drawArea.width() + padding * 2, drawArea.height() + padding * 2,
+            Bitmap.Config.ARGB_8888
+    );
+    Canvas canvas = new Canvas(bitmap);
+    canvas.drawColor(Color.parseColor("#f5f5f5"));
+
+    // Create the path building a bezier curve from the left-top to the right-bottom angles of
+    // the drawing area.
+    Path path = new Path();
+    path.moveTo(drawArea.left, drawArea.top);
+    path.quadTo(drawArea.centerX(), drawArea.top, drawArea.centerX(), drawArea.centerY());
+    path.quadTo(drawArea.centerX(), drawArea.bottom, drawArea.right, drawArea.bottom);
+
+    // Feature
+    ScCopier copier = new ScCopier(path);
+    copier.getPainter().setStrokeWidth(8);
+    copier.setColors(Color.RED, Color.GREEN, Color.BLUE);
+    copier.setFillingColors(ScCopier.ColorsMode.SOLID);
+    copier.draw(canvas);
+
+    // Add the bitmap to the container
+    imageContainer.setImageBitmap(bitmap);
+```
+
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
+Using `onBeforeDrawCopy` listener method.<br />
+_Refer to known issue listed above._
+```java
+    ...
+    // Feature
+    ScCopier copier = new ScCopier(path);
+    copier.getPainter().setStrokeWidth(8);
+    copier.setOnDrawListener(new ScCopier.OnDrawListener() {
+        @Override
+        public void onBeforeDrawCopy(ScCopier.CopyInfo info) {
+            info.scale = new PointF(0.5f, 1.0f);
+            info.offset = new PointF(125.0f, 0.0f);
+            info.rotate = -45;
+        }
+    });
+    copier.draw(canvas);
+    ...
+```
 
 # License
 <pre>

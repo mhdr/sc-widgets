@@ -63,11 +63,11 @@ public class ScCopier extends ScFeature {
      * Create the paint shader.
      * This methods need to define what kind of shader filling to coloring the draw path.
      * Essentially there are two different mode of filling: GRADIENT or SOLID.
-     * <p>
+     * <p/>
      * Note that this method was created to be a generic method for work proper on all path but
      * could be slow given the big amount of calculations. So in any case may be better to create
      * a custom shader to attach directly to the painter.
-     * <p>
+     * <p/>
      * In all cases this method will create a series of color that following the path and in some
      * case this could be not the right choice.
      * For example if you build a filled circle might be better to create a radial gradient.
@@ -148,11 +148,15 @@ public class ScCopier extends ScFeature {
             // Define the matrix to transform the path and the shader
             this.mMatrix.postScale(info.scale.x, info.scale.y);
             this.mMatrix.postTranslate(info.offset.x, info.offset.y);
-            this.mMatrix.postRotate(info.rotate);
+            this.mMatrix.postRotate(
+                    info.rotate,
+                    this.mPathMeasure.getBounds().centerX(),
+                    this.mPathMeasure.getBounds().centerY()
+            );
 
             // Apply
-            this.mShader.setLocalMatrix(this.mMatrix);
-            this.mSegment.transform(this.mMatrix);
+            if (this.mShader != null) this.mShader.setLocalMatrix(this.mMatrix);
+            if (this.mSegment != null) this.mSegment.transform(this.mMatrix);
         }
 
         // Draw only a path segment if the canvas is not null
@@ -168,6 +172,7 @@ public class ScCopier extends ScFeature {
 
     /**
      * Draw method
+     *
      * @param canvas where draw
      */
     @Override

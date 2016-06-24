@@ -4,11 +4,13 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Path;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 
+import com.sccomponents.widgets.ScCopier;
 import com.sccomponents.widgets.ScNotchs;
 
 
@@ -22,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Dimensions
         int padding = 24;
-        Rect drawArea = new Rect(padding, padding, 500 - padding, 500 - padding);
+        final Rect drawArea = new Rect(padding, padding, 500 - padding, 300 - padding);
 
         // Get the main layout
         ImageView imageContainer = (ImageView) this.findViewById(R.id.image);
@@ -36,30 +38,25 @@ public class MainActivity extends AppCompatActivity {
         Canvas canvas = new Canvas(bitmap);
         canvas.drawColor(Color.parseColor("#f5f5f5"));
 
-        // Create path with two contours
+        // Create the path building a bezier curve from the left-top to the right-bottom angles of
+        // the drawing area.
         Path path = new Path();
-        path.moveTo(drawArea.left, drawArea.bottom);
-        path.quadTo(drawArea.left, drawArea.top, drawArea.centerX(), drawArea.top);
-
-        path.moveTo(drawArea.right, drawArea.top);
-        path.quadTo(drawArea.right, drawArea.bottom, drawArea.centerX(), drawArea.bottom);
+        path.moveTo(drawArea.left, drawArea.top);
+        path.quadTo(drawArea.centerX(), drawArea.top, drawArea.centerX(), drawArea.centerY());
+        path.quadTo(drawArea.centerX(), drawArea.bottom, drawArea.right, drawArea.bottom);
 
         // Feature
-        ScNotchs notchs = new ScNotchs(path);
-        notchs.setColors(Color.LTGRAY, Color.BLACK);
-        notchs.getPainter().setStrokeWidth(4);
-        notchs.setCount(10);
-        notchs.setLength(20);
-        notchs.setPosition(ScNotchs.NotchPositions.INSIDE);
-        notchs.setDividePathInContours(false);
-        notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
+        ScCopier copier = new ScCopier(path);
+        copier.getPainter().setStrokeWidth(8);
+        copier.setOnDrawListener(new ScCopier.OnDrawListener() {
             @Override
-            public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
-                info.length = 10 + info.index * 5;
-                info.size = 3 + info.index;
+            public void onBeforeDrawCopy(ScCopier.CopyInfo info) {
+                info.scale = new PointF(0.5f, 1.0f);
+                info.offset = new PointF(125.0f, 0.0f);
+                info.rotate = -45;
             }
         });
-        notchs.draw(canvas);
+        copier.draw(canvas);
 
         // Add the bitmap to the container
         imageContainer.setImageBitmap(bitmap);
