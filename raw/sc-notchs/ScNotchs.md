@@ -15,6 +15,10 @@ Round the value near the closed notch.
 - **void setOnDrawListener(OnDrawListener listener)**<br />
 Link the listener.
 
+- **void setDividePathInContours(boolean value)**<br />
+By default the class will draw the n notchs on each contours that compose the current path. 
+If settle on false the class will consider the path as a unique path.
+
 
 #### Getter and Setter
 
@@ -65,6 +69,7 @@ Common examples xml
 </LinearLayout>
 ```
 
+
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/1.jpg" align="right" />
 Create a bezier line path and the notchs on it.
 ```java
@@ -102,8 +107,9 @@ Create a bezier line path and the notchs on it.
     imageContainer.setImageBitmap(bitmap);
 ```
 
+
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
-Circle type
+Circle contour type
 ```java
     ...
     // Feature
@@ -116,8 +122,9 @@ Circle type
     ...
 ```
 
+
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/3.jpg" align="right" />
-Circle type
+Circle filled type
 ```java
     ...
     // Feature
@@ -125,6 +132,121 @@ Circle type
     notchs.setCount(20);
     notchs.setLength(14);
     notchs.setType(ScNotchs.NotchTypes.CIRCLE_FILLED);
+    notchs.draw(canvas);
+    ...
+```
+
+
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/4.jpg" align="right" />
+Play with colors and notchs info structure
+```java
+    ...
+    // Create a line path
+    Path path = new Path();
+    path.moveTo(drawArea.left, drawArea.centerY());
+    path.lineTo(drawArea.right, drawArea.centerY());
+
+    // Feature
+    ScNotchs notchs = new ScNotchs(path);
+    notchs.getPainter().setStrokeWidth(4);
+    notchs.setColors(Color.GREEN, Color.YELLOW, Color.RED);
+    notchs.setCount(24);
+    notchs.setLength(30);
+    notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
+        @Override
+        public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+            // Set the length and the position
+            float ratio = info.index / info.source.getCount();
+            info.length = info.source.getLength() * ratio + 10;
+            info.offset = - (info.length / 2) * (1 - ratio);
+            info.align = info.index % 2 == 0 ?
+                ScNotchs.NotchPositions.INSIDE: ScNotchs.NotchPositions.OUTSIDE;
+        }
+    });
+    notchs.draw(canvas);
+    ...
+```
+
+
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/5.jpg" align="right" />
+Complex path and play with the points distance from path start
+```java
+    // Dimensions
+    int padding = 24;
+    Rect drawArea = new Rect(padding, padding, 500 - padding, 500 - padding);
+
+    // Get the main layout
+    ImageView imageContainer = (ImageView) this.findViewById(R.id.image);
+    assert imageContainer != null;
+
+    // Create a bitmap and link a canvas
+    Bitmap bitmap = Bitmap.createBitmap(
+            drawArea.width() + padding * 2, drawArea.height() + padding * 2,
+            Bitmap.Config.ARGB_8888
+    );
+    Canvas canvas = new Canvas(bitmap);
+    canvas.drawColor(Color.parseColor("#f5f5f5"));
+
+    // Create a whirlpool
+    Path path = new Path();
+    path.moveTo(drawArea.centerX(), drawArea.centerY());
+
+    for (int degrees = 0; degrees < 360 * 2; degrees ++) {
+        float radiant = (float) Math.toRadians(degrees);
+        float multiplier = degrees / 4;
+        path.lineTo(
+                drawArea.centerX() + (float) Math.cos(radiant) * multiplier,
+                drawArea.centerY() + (float) Math.sin(radiant) * multiplier
+        );
+    }
+
+    // Feature
+    ScNotchs notchs = new ScNotchs(path);
+    notchs.setCount(30);
+    notchs.setType(ScNotchs.NotchTypes.CIRCLE_FILLED);
+    notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
+        @Override
+        public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+            // Set the length
+            info.length = info.index;
+            // Calculate a new distance and the relative point on the path
+            float distance = info.distance * (info.index / info.source.getCount());
+            info.point = info.source.getPoint(distance);
+        }
+    });
+    notchs.draw(canvas);
+
+    // Add the bitmap to the container
+    imageContainer.setImageBitmap(bitmap);
+```
+
+
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/6.jpg" align="right" />
+Multiple contours path managing
+```java
+    ...
+    // Create path with two contours
+    Path path = new Path();
+    path.moveTo(drawArea.left, drawArea.bottom);
+    path.quadTo(drawArea.left, drawArea.top, drawArea.centerX(), drawArea.top);
+
+    path.moveTo(drawArea.right, drawArea.top);
+    path.quadTo(drawArea.right, drawArea.bottom, drawArea.centerX(), drawArea.bottom);
+
+    // Feature
+    ScNotchs notchs = new ScNotchs(path);
+    notchs.setColors(Color.LTGRAY, Color.BLACK);
+    notchs.getPainter().setStrokeWidth(4);
+    notchs.setCount(10);
+    notchs.setPosition(ScNotchs.NotchPositions.INSIDE);
+    notchs.setDividePathInContours(false);
+    notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
+        @Override
+        public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+            info.length = 10 + info.index * 5;
+            info.size = 3 + info.index;
+        }
+    });
     notchs.draw(canvas);
     ...
 ```

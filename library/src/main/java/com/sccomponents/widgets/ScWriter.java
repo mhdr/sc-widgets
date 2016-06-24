@@ -78,20 +78,12 @@ public class ScWriter extends ScFeature {
      * @param info the token info
      */
     private void resetTokenInfo(TokenInfo info) {
+        info.point = null;
         info.offset = new PointF(this.mTokenOffset.x, this.mTokenOffset.y);
         info.position = TokenPositions.OUTSIDE;
         info.unbend = this.mUnbend;
         info.color = this.mPaint.getColor();
         info.visible = true;
-    }
-
-    /**
-     * Apply the current setting to the painter.
-     *
-     * @param info the token info
-     */
-    private void applyPainterSettings(TokenInfo info) {
-        this.mPaint.setColor(info.color);
     }
 
     /**
@@ -157,48 +149,48 @@ public class ScWriter extends ScFeature {
      * @param canvas  the canvas where draw
      * @param info    the token info
      * @param segment the path segment to follow
-     * @param point   the reference point
      */
-    private void drawToken(Canvas canvas, TokenInfo info, Path segment, PointF point) {
-        // Check if visible
-        if (info.visible) {
-            // Apply the current settings to the painter
-            this.applyPainterSettings(info);
+    private void drawToken(Canvas canvas, TokenInfo info, Path segment) {
+        // Check for empty values
+        if (info.point == null || info.offset == null || info.text == null)
+            return ;
 
-            // Fix the vertical offset considering the position of the text on the path and the
-            // font metrics offset.
-            info.offset.y += this.getVerticalOffsetByPosition(info) -
-                    this.getVerticalOffsetByFontMetrics(info);
+        // Apply the current settings to the painter
+        this.mPaint.setColor(info.color);
 
-            // Check for null value
-            if (canvas == null) return;
+        // Fix the vertical offset considering the position of the text on the path and the
+        // font metrics offset.
+        info.offset.y += this.getVerticalOffsetByPosition(info) -
+                this.getVerticalOffsetByFontMetrics(info);
 
-            // Save the canvas status and rotate by the calculated tangent angle
-            canvas.save();
-            canvas.rotate(info.angle, point.x, point.y);
+        // Check for null value
+        if (canvas == null) return;
 
-            // Draw by the case
-            if (this.mUnbend) {
-                // Draw the straight text
-                canvas.drawText(
-                        info.text,
-                        point.x + info.offset.x, point.y + info.offset.y,
-                        this.mPaint
-                );
+        // Save the canvas status and rotate by the calculated tangent angle
+        canvas.save();
+        canvas.rotate(info.angle, info.point.x, info.point.y);
 
-            } else {
-                // Draw the text on the path
-                canvas.drawTextOnPath(
-                        info.text,
-                        segment,
-                        info.offset.x, info.offset.y,
-                        this.mPaint
-                );
-            }
+        // Draw by the case
+        if (this.mUnbend) {
+            // Draw the straight text
+            canvas.drawText(
+                    info.text,
+                    info.point.x + info.offset.x, info.point.y + info.offset.y,
+                    this.mPaint
+            );
 
-            // Restore the canvas status
-            canvas.restore();
+        } else {
+            // Draw the text on the path
+            canvas.drawTextOnPath(
+                    info.text,
+                    segment,
+                    info.offset.x, info.offset.y,
+                    this.mPaint
+            );
         }
+
+        // Restore the canvas status
+        canvas.restore();
     }
 
     /**
@@ -211,9 +203,9 @@ public class ScWriter extends ScFeature {
     private void prepareTokenInfo(Canvas canvas, TokenInfo info, float step) {
         // Get the arc of path
         Path segment = new Path();
-        this.mPathMeasure.getContoursSegment(
-                info.distanceFromStart,
-                info.distanceFromStart + step,
+        this.mPathMeasure.getSegment(
+                info.distance,
+                info.distance + step,
                 segment,
                 true
         );
@@ -221,21 +213,23 @@ public class ScWriter extends ScFeature {
         // Calculate the distance from start starting consider the text align in the painter.
         // Take as RIGHT the initial value.
         this.mSegmentMeasure.setPath(segment, false);
-        float distance = this.mSegmentMeasure.getContoursLength();
+        float distance = this.mSegmentMeasure.getLength();
 
         // If must write the last token on the end of path and this is the last token avoid to
         // consider the text align and hold the right position as true.
-        boolean isLast = info.index == this.mTokens.length - 1;
-        if (!this.mLastTokenOnEnd || !isLast) {
+        if (!this.mLastTokenOnEnd || info.index != this.mTokens.length - 1) {
             // Choose by case
             if (this.getPainter().getTextAlign() == Paint.Align.LEFT) distance = 0.0f;
             if (this.getPainter().getTextAlign() == Paint.Align.LEFT) distance /= 2.0f;
         }
 
-        // Find the point on path segment respect to the alignment type
-        float[] point = this.mSegmentMeasure.getContoursPosTan(distance);
-        // Find the point tangent angle in degrees
-        info.angle = (float) Math.toDegrees(this.mUnbend ? point[3] : 0.0f);
+        // Find the point on path segment respect to the alignment type find the tangent angle
+        // in degrees.
+        float[] point = this.mSegmentMeasure.getPosTan(distance);
+        if (point != null) {
+            info.angle = (float) Math.toDegrees(this.mUnbend ? point[3] : 0.0f);
+            info.point = ScWriter.toPoint(point);
+        }
 
         // Check if have a liked listener
         if (this.mOnDrawListener != null) {
@@ -243,7 +237,9 @@ public class ScWriter extends ScFeature {
         }
 
         // Draw the token on the canvas
-        this.drawToken(canvas, info, segment, ScWriter.toPoint(point));
+        if (info.visible) {
+            this.drawToken(canvas, info, segment);
+        }
     }
 
     /**
@@ -278,9 +274,9 @@ public class ScWriter extends ScFeature {
             this.resetTokenInfo(info);
             info.text = this.mTokens[index];
             info.index = index;
-            info.distanceFromStart = (index + (this.mLastTokenOnEnd && isLast ? -1 : 0)) * step;
-            info.visible =
-                    info.distanceFromStart >= startLimit && info.distanceFromStart <= endLimit;
+            info.distance = (index + (this.mLastTokenOnEnd && isLast ? -1 : 0)) * step;
+            info.visible = info.distance >= startLimit && info.distance <= endLimit;
+            info.color = this.getGradientColor(info.distance);
 
             // Draw the single token
             this.prepareTokenInfo(canvas, info, step);
@@ -308,15 +304,21 @@ public class ScWriter extends ScFeature {
      * Public classes and methods
      */
 
+    // TODO: revise the note
+
     /**
      * This is a structure to hold the token information before draw it
+     * Note that the "point" represent the point from will start to draw.
+     * Note that the "distance" is the distance from the oath starting.
+     * Note that the "angle" is in degrees.
      */
     public class TokenInfo {
 
         public ScWriter source;
+        public PointF point;
         public int index;
         public String text;
-        public float distanceFromStart;
+        public float distance;
         public float angle;
         public boolean unbend;
         public int color;

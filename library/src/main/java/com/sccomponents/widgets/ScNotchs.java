@@ -43,11 +43,13 @@ public class ScNotchs extends ScFeature {
      * Private and protected variables
      */
 
-    protected int mNotchsCount;
-    protected float mNotchsLen;
-    protected NotchTypes mNotchType;
-    protected NotchPositions mNotchPosition;
+    private int mNotchsCount;
+    private float mNotchsLen;
 
+    private NotchTypes mNotchType;
+    private NotchPositions mNotchPosition;
+
+    private boolean mDividePathInContours;
     private OnDrawListener mOnDrawListener;
 
 
@@ -65,27 +67,8 @@ public class ScNotchs extends ScFeature {
         this.mNotchsLen = 0.0f;
         this.mNotchType = NotchTypes.LINE;
         this.mNotchPosition = NotchPositions.MIDDLE;
+        this.mDividePathInContours = true;
     }
-
-    /****************************************************************************************
-     * Private methods
-     */
-
-    /**
-     * Reset the notch info.
-     *
-     * @param info the notch info
-     */
-    private void resetNotchInfo(NotchInfo info) {
-        info.size = this.mPaint.getStrokeWidth();
-        info.color = this.mPaint.getColor();
-        info.length = this.mNotchsLen;
-        info.offset = 0.0f;
-        info.type = this.mNotchType;
-        info.align = this.mNotchPosition;
-        info.visible = true;
-    }
-
 
     /****************************************************************************************
      * Draw methods
@@ -103,22 +86,20 @@ public class ScNotchs extends ScFeature {
      * inside the draw method for a speed improvement.
      *
      * @param canvas the canvas to draw
-     * @param center the notch center
-     * @param angle  the angle of tangent
      * @param info   the notch info
      */
-    private void drawLine(Canvas canvas, PointF center, float angle, NotchInfo info) {
+    private void drawLine(Canvas canvas, NotchInfo info) {
         // Global offset
         float globalOffset = info.offset;
         if (info.align == NotchPositions.MIDDLE) globalOffset -= info.length / 2;
-        if (info.align == NotchPositions.OUTSIDE) angle += Math.PI;
+        if (info.align == NotchPositions.OUTSIDE) info.angle += 180;
 
         // Find the start and end point to draw the line
-        PointF first = new PointF(center.x, center.y);
-        ScNotchs.translatePoint(first, globalOffset, angle);
+        PointF first = new PointF(info.point.x, info.point.y);
+        ScNotchs.translatePoint(first, globalOffset, info.angle);
 
         PointF second = new PointF(first.x, first.y);
-        ScNotchs.translatePoint(second, info.length, angle);
+        ScNotchs.translatePoint(second, info.length, info.angle);
 
         // Draw the line if the canvas is not null
         if (canvas != null) {
@@ -132,11 +113,9 @@ public class ScNotchs extends ScFeature {
      * inside the draw method for a speed improvement.
      *
      * @param canvas the canvas to draw
-     * @param center the notch center
-     * @param angle  the angle of tangent
      * @param info   the notch info
      */
-    private void drawCircle(Canvas canvas, PointF center, float angle, NotchInfo info) {
+    private void drawCircle(Canvas canvas, NotchInfo info) {
         // Global offset
         float radius = info.length / 2;
         float globalOffset = info.offset;
@@ -145,11 +124,11 @@ public class ScNotchs extends ScFeature {
         if (info.align == NotchPositions.OUTSIDE) globalOffset -= radius;
 
         // Apply the point offset
-        ScNotchs.translatePoint(center, globalOffset, angle);
+        ScNotchs.translatePoint(info.point, globalOffset, info.angle);
 
         // Draw the circle if the canvas is not null
         if (canvas != null) {
-            canvas.drawCircle(center.x, center.y, radius, this.mPaint);
+            canvas.drawCircle(info.point.x, info.point.y, radius, this.mPaint);
         }
     }
 
@@ -160,13 +139,6 @@ public class ScNotchs extends ScFeature {
      * @param info   the notch info
      */
     private void drawNotch(Canvas canvas, NotchInfo info) {
-        // Find the points info on the path
-        float[] point = this.mPathMeasure.getContoursPosTan(info.distanceFromStart);
-        if (point == null) return;
-
-        // Find the perpendicular tangent angle in radiant
-        float angle = point[3] + (float) Math.PI / 2;
-
         // Apply the current info settings to the painter
         this.mPaint.setStrokeWidth(info.size);
         this.mPaint.setColor(info.color);
@@ -177,13 +149,13 @@ public class ScNotchs extends ScFeature {
         switch (info.type) {
             // Draw a line
             case LINE:
-                this.drawLine(canvas, ScNotchs.toPoint(point), angle, info);
+                this.drawLine(canvas, info);
                 break;
 
             // Draw a circle
             case CIRCLE:
             case CIRCLE_FILLED:
-                this.drawCircle(canvas, ScNotchs.toPoint(point), angle, info);
+                this.drawCircle(canvas, info);
                 break;
         }
     }
@@ -191,11 +163,14 @@ public class ScNotchs extends ScFeature {
     /**
      * Draw all notchs on the path.
      *
-     * @param canvas where to draw
+     * @param canvas  where to draw
+     * @param path    the current contour path
+     * @param contour the contour index
      */
-    private void drawNotchs(Canvas canvas) {
-        // Refresh the measurer and get the path len and the step
-        float step = this.mPathLength / this.mNotchsCount;
+    private void drawNotchs(Canvas canvas, Path path, int contour) {
+        // Create the path measure and calculate the step
+        ScPathMeasure measure = new ScPathMeasure(path, false);
+        float step = measure.getLength() / this.mNotchsCount;
 
         // Define the notch info.
         // I use to create the object here for avoid to create they n times after.
@@ -204,21 +179,37 @@ public class ScNotchs extends ScFeature {
         info.source = this;
 
         // Convert the limits from percentages in distances
-        float startLimit = (this.mPathLength * this.mStartPercentage) / 100.0f;
-        float endLimit = (this.mPathLength * this.mEndPercentage) / 100.0f;
+        float startLimit = (measure.getLength() * this.mStartPercentage) / 100.0f;
+        float endLimit = (measure.getLength() * this.mEndPercentage) / 100.0f;
 
         // If the path is not closed add one notch to the beginning of path.
-        int count = this.mNotchsCount +
-                (this.mPathMeasure.getContoursCount() == 0 && this.mPathMeasure.isClosed() ? 0 : 1);
+        int count = this.mNotchsCount + (measure.isClosed() ? 0 : 1);
 
         // Cycle all notchs.
         for (int index = 0; index < count; index++) {
+            // Get the point on the path
+            float distance = index * step;
+            float[] point = measure.getPosTan(distance);
+
             // Define the notch info structure and fill with the local settings
-            this.resetNotchInfo(info);
-            info.index = index + 1;
-            info.distanceFromStart = index * step;
-            info.visible =
-                    info.distanceFromStart >= startLimit && info.distanceFromStart <= endLimit;
+            info.point = null;
+            info.size = this.mPaint.getStrokeWidth();
+            info.length = this.mNotchsLen;
+            info.offset = 0.0f;
+            info.angle = 0.0f;
+            info.type = this.mNotchType;
+            info.align = this.mNotchPosition;
+            info.contour = contour;
+            info.index = index;
+            info.distance = distance;
+            info.visible = info.distance >= startLimit && info.distance <= endLimit;
+            info.color = this.getGradientColor(distance, measure.getLength());
+
+            // Check if the point exists
+            if (point != null) {
+                info.point = ScNotchs.toPoint(point);
+                info.angle = (float) Math.toDegrees(point[3]) + 90.0f;
+            }
 
             // Check if have a liked listener
             if (this.mOnDrawListener != null) {
@@ -229,6 +220,23 @@ public class ScNotchs extends ScFeature {
             if (info.visible) {
                 this.drawNotch(canvas, info);
             }
+        }
+    }
+
+    /**
+     * Draw all contours
+     *
+     * @param canvas where to draw
+     */
+    private void drawContours(Canvas canvas) {
+        // Holder
+        Path[] contours =
+                this.mDividePathInContours ? this.mPathMeasure.getPaths() : new Path[]{this.mPath};
+
+        // Cycle all contours
+        for (int index = 0; index < contours.length; index++) {
+            // Draw the notchs on the path
+            this.drawNotchs(canvas, contours[index], index);
         }
     }
 
@@ -249,7 +257,7 @@ public class ScNotchs extends ScFeature {
             return;
 
         // Draw all notchs
-        this.drawNotchs(canvas);
+        this.drawContours(canvas);
     }
 
 
@@ -272,7 +280,7 @@ public class ScNotchs extends ScFeature {
         float step = this.mPathLength / this.mNotchsCount;
 
         // Find the points of path
-        float[] point = this.mPathMeasure.getContoursPosTan(step * index);
+        float[] point = this.mPathMeasure.getPosTan(step * index);
         return point == null ? new PointF() : new PointF(point[0], point[1]);
     }
 
@@ -282,18 +290,24 @@ public class ScNotchs extends ScFeature {
      */
 
     /**
-     * This is a structure to hold the notch information before draw it
+     * This is a structure to hold the notch information before draw it.
+     * Note that the "point" represent the point from will start to draw.
+     * Note that the "distance" is the distance from the oath starting.
+     * Note that the "angle" is in degrees.
      */
     @SuppressWarnings("unused")
     public class NotchInfo {
 
         public ScNotchs source;
+        public PointF point;
         public float size;
         public float length;
         public int color;
+        public int contour;
         public int index;
+        public float angle;
         public float offset;
-        public float distanceFromStart;
+        public float distance;
         public boolean visible;
         public NotchTypes type;
         public NotchPositions align;
@@ -314,6 +328,17 @@ public class ScNotchs extends ScFeature {
         // Calc the delta angle and round at notchs value
         float deltaAngle = this.mPathLength / this.mNotchsCount;
         return Math.round(value / deltaAngle) * deltaAngle;
+    }
+
+    /**
+     * By default the class will draw the n notchs on each contours that compose the current
+     * path. If settle on false the class will consider the path as a unique path.
+     *
+     * @param value default true
+     */
+    @SuppressWarnings("unused")
+    public void setDividePathInContours(boolean value) {
+        this.mDividePathInContours = value;
     }
 
 

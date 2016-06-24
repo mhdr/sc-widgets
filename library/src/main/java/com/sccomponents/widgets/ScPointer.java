@@ -43,9 +43,11 @@ public class ScPointer extends ScFeature {
 
     private float mPointerRadius;
     private float mPointerPosition;
+    private PointerStatus mPointerStatus;
+
     private float mHaloWidth;
     private int mHaloAlpha;
-    private PointerStatus mPointerStatus;
+    private Paint mHaloPaint;
 
     private OnDrawListener mOnDrawListener;
 
@@ -65,9 +67,11 @@ public class ScPointer extends ScFeature {
         this.mHaloAlpha = ScPointer.DEFAULT_HALO_ALPHA;
         this.mPointerStatus = PointerStatus.RELEASED;
 
-        // Paint
+        // Painters
         this.mPaint.setStrokeWidth(1.0f);
         this.mPaint.setStyle(Paint.Style.FILL);
+
+        this.mHaloPaint = new Paint();
     }
 
 
@@ -90,13 +94,19 @@ public class ScPointer extends ScFeature {
      * @param info   the pointer info
      */
     private void drawCircles(Canvas canvas, PointF point, PointerInfo info) {
+        // Set the halo painter
+        this.mHaloPaint.set(this.mPaint);
+        this.mHaloPaint.setAlpha(info.pressed ? 255 : this.mHaloAlpha);
+        this.mHaloPaint.setStyle(Paint.Style.STROKE);
+        this.mHaloPaint.setStrokeWidth(this.mHaloWidth);
+
         // Adjust the pointer offset
         ScPointer.translatePoint(point, info.offset, info.angle);
 
         // Check for null values and for the pointer radius
         if (canvas != null && this.mPointerRadius > 0.0f) {
             // Draw the halo and the pointer
-            canvas.drawCircle(point.x, point.y, this.mPointerRadius, info.haloPainter);
+            canvas.drawCircle(point.x, point.y, this.mPointerRadius, this.mHaloPaint);
             canvas.drawCircle(point.x, point.y, this.mPointerRadius, this.mPaint);
         }
     }
@@ -131,34 +141,29 @@ public class ScPointer extends ScFeature {
      * @param canvas where draw
      */
     private void drawPointer(Canvas canvas) {
-        // Set the pointer painter
-        boolean isPressed = this.mPointerStatus == PointerStatus.PRESSED;
-        this.mPaint.setAlpha(isPressed ? this.mHaloAlpha : 255);
-
-        // Set the halo painter
-        Paint haloPaint = new Paint(this.mPaint);
-        haloPaint.setAlpha(isPressed ? 255 : this.mHaloAlpha);
-        haloPaint.setStyle(Paint.Style.STROKE);
-        haloPaint.setStrokeWidth(this.mHaloWidth);
-
         // Refresh the measurer and convert the position in a distance
         float distance = (this.mPathLength * this.mPointerPosition) / 100;
 
         // Find the point on the path and check the result
-        float[] point = this.mPathMeasure.getContoursPosTan(distance);
+        float[] point = this.mPathMeasure.getPosTan(distance);
         if (point == null) return;
 
         // Create the pointer info holder
         PointerInfo info = new PointerInfo();
         info.source = this;
         info.offset = new PointF();
-        info.haloPainter = haloPaint;
         info.angle = (float) Math.toDegrees(point[3]);
+        info.color = this.getGradientColor(distance);
+        info.pressed = this.mPointerStatus == PointerStatus.PRESSED;
 
         // Check the listener
         if (this.mOnDrawListener != null) {
             this.mOnDrawListener.onBeforeDrawPointer(info);
         }
+
+        // Set the pointer painter
+        this.mPaint.setAlpha(info.pressed ? this.mHaloAlpha : 255);
+        this.mPaint.setColor(info.color);
 
         // Check if the bitmap is not null
         if (info.bitmap != null) {
@@ -204,9 +209,10 @@ public class ScPointer extends ScFeature {
 
         public ScPointer source;
         public Bitmap bitmap;
-        public Paint haloPainter;
         public PointF offset;
         public float angle;
+        public int color;
+        public boolean pressed;
 
     }
 

@@ -205,7 +205,7 @@ public abstract class ScGauge extends ScDrawer implements
     private float snapToNotchs(float percentage) {
         // Check for empty value
         if (this.mNotchsCount == 0.0f) return percentage;
-        if (this.mPathMeasure.getContoursLength() == 0.0f) return 0.0f;
+        if (this.mPathMeasure.getLength() == 0.0f) return 0.0f;
 
         // Calc the percentage step delta and return the closed value
         float step = 100 / this.mNotchsCount;
@@ -650,7 +650,7 @@ public abstract class ScGauge extends ScDrawer implements
         // pointer draw on the the component. After find the percentage representation of the
         // distance.
         float distance = this.mPathMeasure.getDistance(x, y, this.getPointResearchThreshold());
-        float percentage = this.findPercentage(distance, 0, this.mPathMeasure.getContoursLength());
+        float percentage = this.findPercentage(distance, 0, this.mPathMeasure.getLength());
 
         // Select case by action type
         switch (event.getAction()) {

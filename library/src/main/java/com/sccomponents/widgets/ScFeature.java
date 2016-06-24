@@ -1,26 +1,20 @@
 package com.sccomponents.widgets;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
-import android.graphics.RectF;
-import android.graphics.Shader;
-
-import com.sccomponents.utils.ScObserver;
 
 /**
  * Create a feature to draw on a given path.
- * <p>
+ * <p/>
  * The feature is independent and can be used with any path.
  * Is enough to instantiate it passing the path object and call the draw function passing the
  * canvas where draw.
  * The original design of this class was for link it with the ScDrawer to have a base drawer (the
  * ScDrawer linked) and many features applicable to it.
- * <p>
+ * <p/>
  * The "feature" base class essentially do nothing.
  * For draw something, hence for specialize the feature, you need to override the onDraw method.
  * The base class provides only a common set of methods to display something on the path as the
@@ -41,7 +35,7 @@ public class ScFeature {
      * The mode to building the painter shader.
      */
     @SuppressWarnings("unuse")
-    public enum ShaderMode {
+    public enum ColorsMode {
         SOLID,
         GRADIENT
     }
@@ -57,18 +51,13 @@ public class ScFeature {
 
     protected Paint mPaint;
     protected int[] mColors;
-
-    protected ShaderMode mShaderMode;
-    protected Shader mShader;
+    protected ColorsMode mColorsMode;
 
     protected String mTag;
     protected boolean mVisible;
 
     protected float mStartPercentage;
     protected float mEndPercentage;
-
-    private ScObserver mPaintObserver;
-    private ScObserver mPathObserver;
 
 
     /****************************************************************************************
@@ -78,7 +67,7 @@ public class ScFeature {
     @SuppressWarnings("unused")
     public ScFeature(Path path) {
         // Init
-        this.mShaderMode = ShaderMode.GRADIENT;
+        this.mColorsMode = ColorsMode.GRADIENT;
         this.mVisible = true;
         this.mStartPercentage = 0.0f;
         this.mEndPercentage = 100.0f;
@@ -86,7 +75,7 @@ public class ScFeature {
         // Path
         this.mPath = path;
         this.mPathMeasure = new ScPathMeasure(this.mPath, false);
-        this.mPathLength = this.mPathMeasure.getContoursLength();
+        this.mPathLength = this.mPathMeasure.getLength();
 
         // Create the painter
         this.mPaint = new Paint();
@@ -96,119 +85,6 @@ public class ScFeature {
         this.mPaint.setColor(Color.BLACK);
         this.mPaint.setAntiAlias(true);
         this.mPaint.setDither(true);
-
-        // Shader
-        this.mShader = this.createShader();
-
-        // Observers
-        this.mPathObserver = new ScObserver(this.mPath);
-        this.mPaintObserver = new ScObserver(this.mPaint);
-    }
-
-
-    /****************************************************************************************
-     * Shader
-     */
-
-    /**
-     * Get the current gradient color by a ratio dependently about the distance from the
-     * starting of path and the colors array.
-     *
-     * @param distance from the starting path
-     * @return the color
-     */
-    private int getColor(int distance) {
-        // Check the case
-        switch (this.mShaderMode) {
-            case SOLID:
-                return this.mColors[(int) (distance / (this.mPathLength / this.mColors.length))];
-
-            case GRADIENT:
-                // Calculation
-                float sectorLen = this.mPathLength / (this.mColors.length - 1);
-                int sector = (int) (distance / sectorLen);
-                int normalized = distance - (int) (sectorLen * sector);
-                float ratio = normalized / sectorLen;
-
-                // Get the color to mix
-                int startColor = this.mColors[sector];
-                int endColor = this.mColors[sector + 1];
-
-                // Calculate the result color
-                int red = (int) (Color.red(endColor) * ratio + Color.red(startColor) * (1 - ratio));
-                int green = (int) (Color.green(endColor) * ratio + Color.green(startColor) * (1 - ratio));
-                int blue = (int) (Color.blue(endColor) * ratio + Color.blue(startColor) * (1 - ratio));
-
-                // Get the color
-                return Color.rgb(red, green, blue);
-
-            default:
-                return Color.BLACK;
-        }
-    }
-
-    /**
-     * Create the paint shader.
-     * This methods need to define what kind of shader filling to coloring the draw path.
-     * Essentially there are two different mode of filling: GRADIENT or SOLID.
-     * <p>
-     * Note that this method was created to be a generic method for work proper on all path but
-     * could be slow given the big amount of calculations. So in any case may be better to create
-     * a custom shader to attach directly to the painter.
-     * <p>
-     * In all cases this method will create a series of color that following the path and in some
-     * case this could be not the right choice.
-     * For example if you build a filled circle might be better to create a radial gradient.
-     *
-     * @return return the shader
-     */
-    protected Shader createShader() {
-        // Check no values inside the array
-        if (this.mColors == null || this.mColors.length < 2)
-            return null;
-
-        // Create the bitmap using the path boundaries
-        RectF pathBounds = this.mPathMeasure.getBounds();
-        Bitmap bitmap = Bitmap.createBitmap(
-                (int) pathBounds.right, (int) pathBounds.bottom, Bitmap.Config.ARGB_8888);
-
-        // Retrieve the canvas where draw and create the painter to use
-        Canvas canvas = new Canvas(bitmap);
-        Paint clonePaint = new Paint(this.mPaint);
-
-        // Hold if a rounded stroke and the point holder
-        boolean isRoundedStroke = this.mPaint.getStrokeCap() == Paint.Cap.ROUND;
-        float[] point;
-
-        // Cycle all points of the path
-        for (int distance = 0; distance < this.mPathLength; distance++) {
-            // Get the point and check for null value
-            point = this.mPathMeasure.getContoursPosTan(distance);
-
-            // Trigger for index position and get the color
-            boolean isFirstOrLast = distance == 0 || distance == this.mPathLength - 1;
-            int color = this.getColor(distance);
-
-            // Set the current painter color and stroke
-            clonePaint.setColor(color);
-            clonePaint.setStrokeCap(
-                    isRoundedStroke && isFirstOrLast ? Paint.Cap.ROUND : Paint.Cap.BUTT);
-
-            // Calculate the current angle of tangent in degrees
-            float angle = (float) Math.toDegrees(point[3]);
-
-            // If the round stroke is not settled the point have a square shape.
-            // This can create a visual issue when the path follow a curve.
-            // To avoid this issue the point (square) will be rotate of the tangent angle
-            // before to write it on the canvas.
-            canvas.save();
-            canvas.rotate(angle, point[0], point[1]);
-            canvas.drawPoint(point[0], point[1], clonePaint);
-            canvas.restore();
-        }
-
-        // Return the shader
-        return new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
     }
 
 
@@ -239,23 +115,11 @@ public class ScFeature {
     @SuppressWarnings("unused")
     public void draw(Canvas canvas) {
         // Check for the visibility
-        if (!this.mVisible) return;
-
-        // Changes holder
-        boolean pathIsChanged = this.mPathObserver.isChanged();
-        boolean paintIsChanged = this.mPaintObserver.isChanged();
+        if (!this.mVisible || this.mPath == null) return;
 
         // Refresh the path if needed
-        if (pathIsChanged) {
-            this.mPathMeasure.setPath(this.mPath, false);
-            this.mPathLength = this.mPathMeasure.getContoursLength();
-        }
-
-        // Refresh the shader if needed
-        if (pathIsChanged || paintIsChanged) {
-            this.mShader = this.createShader();
-            this.mPaint.setShader(this.mShader);
-        }
+        this.mPathMeasure.setPath(this.mPath, false);
+        this.mPathLength = this.mPathMeasure.getLength();
 
         // If the have only one color inside the colors array set it directly on the painter
         if (this.mColors != null && this.mColors.length == 1) {
@@ -290,12 +154,15 @@ public class ScFeature {
      *
      * @param point  the point to translate
      * @param offset the point offset
-     * @param angle  the angle reference in radiant
+     * @param angle  the angle reference in degrees
      */
     @SuppressWarnings("unused")
     public static void translatePoint(PointF point, float offset, float angle) {
-        point.x += (float) (Math.cos(angle) * offset);
-        point.y += (float) (Math.sin(angle) * offset);
+        // Convert to radiant
+        float radiant = (float) Math.toRadians(angle);
+        // Transpose
+        point.x += (float) (Math.cos(radiant) * offset);
+        point.y += (float) (Math.sin(radiant) * offset);
     }
 
     /**
@@ -303,16 +170,45 @@ public class ScFeature {
      * Move the pointer on the tangent defined by the angle by the x value and move the pointer
      * on the perpendicular defined by the angle by the y value.
      *
-     * @param point the point to translate
+     * @param point  the point to translate
      * @param offset the point offset
-     * @param angle the angle reference
+     * @param angle  the angle reference in degrees
      */
     @SuppressWarnings("unused")
     public static void translatePoint(PointF point, PointF offset, float angle) {
         // Translate on the x
         ScFeature.translatePoint(point, offset.x, angle);
         // Translate on the y
-        ScFeature.translatePoint(point, offset.y, angle + (float) Math.PI / 2);
+        ScFeature.translatePoint(point, offset.y, angle + 90.0f);
+    }
+
+    /**
+     * Return a point on path given the distance from the path start.
+     *
+     * @param distance the distance
+     * @return the point on path
+     */
+    @SuppressWarnings("unused")
+    public PointF getPoint(float distance) {
+        // Get the point
+        float[] point = this.mPathMeasure.getPosTan(distance);
+        // Check and return
+        return point == null ? null : ScFeature.toPoint(point);
+    }
+
+    /**
+     * Get the angle in degrees of the tangent to a point on the path given the distance from
+     * the start of path.
+     *
+     * @param distance the distance
+     * @return the angle in degrees
+     */
+    @SuppressWarnings("unused")
+    public float getTangentAngle(float distance) {
+        // Get the point
+        float[] point = this.mPathMeasure.getPosTan(distance);
+        // Check and return
+        return point == null ? null : (float) Math.toDegrees(point[3]);
     }
 
     /**
@@ -327,6 +223,75 @@ public class ScFeature {
         // Store the new values
         if (!Float.isInfinite(start)) this.mStartPercentage = start;
         if (!Float.isInfinite(end)) this.mEndPercentage = end;
+    }
+
+    /**
+     * Get the current gradient color by a ratio dependently about the distance from the
+     * starting of path, the colors array and the mode to draw.
+     * If the colors are not defined will be returned the current color of painter.
+     *
+     * @param distance from the starting path
+     * @param length   force the length of the path
+     * @return the color
+     */
+    @SuppressWarnings("unused")
+    public int getGradientColor(float distance, float length) {
+        // Check color constraints
+        if (this.mColors == null || this.mColors.length == 0 || length <= 0)
+            return this.mPaint.getColor();
+
+        if (this.mColors.length == 1 || distance <= 0)
+            return this.mColors[0];
+
+        if (distance >= length)
+            return this.mColors[this.mColors.length - 1];
+
+        // Holder
+        int sector = (int) (distance / (length / this.mColors.length));
+
+        // Check sector limits
+        if (sector < 0) sector = 0;
+        if (sector > this.mColors.length - 1) sector = this.mColors.length - 1;
+
+        // Check the case
+        switch (this.mColorsMode) {
+            case SOLID:
+                return this.mColors[sector];
+
+            case GRADIENT:
+                // Calculation of the right ratio by the current sector
+                float sectorLen = length / (this.mColors.length - 1);
+                sector = (int) (distance / sectorLen);
+                float normalized = distance - (sectorLen * sector);
+                float ratio = normalized / sectorLen;
+
+                // Get the color to mix
+                int startColor = this.mColors[sector];
+                int endColor = this.mColors[sector + 1];
+
+                // Calculate the result color
+                int red = (int) (Color.red(endColor) * ratio + Color.red(startColor) * (1 - ratio));
+                int green = (int) (Color.green(endColor) * ratio + Color.green(startColor) * (1 - ratio));
+                int blue = (int) (Color.blue(endColor) * ratio + Color.blue(startColor) * (1 - ratio));
+
+                // Get the color
+                return Color.rgb(red, green, blue);
+
+            default:
+                return Color.BLACK;
+        }
+    }
+
+    /**
+     * Get the current gradient color by a ratio dependently about the distance from the
+     * starting of path, the colors array and the mode to draw.
+     * If the colors are not defined will be returned the current color of painter.
+     *
+     * @param distance from the starting path
+     * @return the color
+     */
+    public int getGradientColor(float distance) {
+        return this.getGradientColor(distance, this.mPathLength);
     }
 
 
@@ -422,8 +387,8 @@ public class ScFeature {
      * @return the color filling mode
      */
     @SuppressWarnings("unused")
-    public ShaderMode getFillingColors() {
-        return this.mShaderMode;
+    public ColorsMode getFillingColors() {
+        return this.mColorsMode;
     }
 
     /**
@@ -433,11 +398,11 @@ public class ScFeature {
      * @param value the new color filling mode
      */
     @SuppressWarnings("unused")
-    public void setFillingColors(ShaderMode value) {
+    public void setFillingColors(ColorsMode value) {
         // Check if value is changed
-        if (this.mShaderMode != value) {
+        if (this.mColorsMode != value) {
             // Store the new value and refresh the component
-            this.mShaderMode = value;
+            this.mColorsMode = value;
         }
     }
 

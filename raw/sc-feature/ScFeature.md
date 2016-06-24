@@ -8,13 +8,11 @@ The "feature" base class essentially do nothing.
 For draw something, hence for specialize the feature, you need to override the onDraw method.
 The base class provides only a common set of methods to display something on the path as the color manager, visibility, limits, ecc. that is useful to inherit it and create a specialized class.
 
-One of most important characteristic of this class is the possibility to create a paint shader.
-You need to define what kind of shader using about coloring the draw path and we can choice between two different type of filling: GRADIENT or SOLID.
-Note that this method was created to be a generic method to work proper on every path but can be slow given the big amount of calculations.
-This will create a filling that follow the path so in some case may be better to create a custom shader to attach directly to the painter.
+One of most important characteristic of this class is the possibility to create a colors gradient and get the current color based on the distance from the path starting.
+Have available two ways to calculate the current color: GRADIENT or SOLID.
+The GRADIENT one is simple to understand while the SOLID choice will divide the path in sectors equal to the number of colors and return the sector referenced color.
+Note that this method was created to be a generic and it based on the distance from the starting of the path so in some cases may be better to create a custom shader to attach directly to the painter.
 For example if you build a filled circle might be better to create a radial gradient.
-
-For better understand the colors mode will propose **some examples** at the end of this guide.
 
 
 ## ScFeature class details
@@ -22,7 +20,7 @@ This class expose a `draw` method to call to draw something on the passed canvas
 When you use the colors properties to create a shader it will create as a BitmapShader and settle in the painter object.
 
 > **IMPORTANT**
-> The `draw` method of this class not do nothing. 
+> The `draw` method of this class do nothing. 
 > Is important to understand that you need to override the `void onDraw()` protected method for specialize this class.
 > So it is a not sense to use this class directly.
 
@@ -52,6 +50,17 @@ Move the pointer on the tangent defined by the angle by the x value and move the
 Set the drawing limits (in percentage).
 The assignment will do only if the values is different from infinity.
 
+- **int getGradientColor(float distance)**<br />
+Get the current gradient color by a ratio dependently about the distance from the starting of path, the colors array and the mode to draw.
+The algorithm to calculate the color will vary by the current `ColorsMode` setting.
+If the colors are not defined will be returned the current color of painter.
+
+- **PointF getPoint(float distance)**<br />
+Return a point on path given the distance from the path start.
+
+- **float getTangentAngle(float distance)**<br />
+Get the angle in degrees of the tangent to a point on the path given the distance from the start of path.
+
 
 #### Getter and Setter
 
@@ -69,15 +78,9 @@ Get or set the feature visibility.
 Get or set the filling colors.
 When this properties is settle a shader will be created and assigned to the painter.
 
-- **get/setFillingColors**  -> `ShaderMode` value, default `ShaderMode.GRADIENT`<br />
+- **get/setFillingColors**  -> `ColorsMode` value, default `ColorsMode.GRADIENT`<br />
 Define the way to fill the feature with the colors defined above.
 Possibly values by enum: `SOLID`, `GRADIENT`<br />
-
-
-####### Understanding the colors filling
-
-![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-feature/1.jpg)
-![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-feature/2.jpg)
 
 
 # License
