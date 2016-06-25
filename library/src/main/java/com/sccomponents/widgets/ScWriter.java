@@ -366,7 +366,7 @@ public class ScWriter extends ScFeature {
     }
 
     /**
-     * Return the notchs alignment respect the path.
+     * Return the string tokens alignment respect the path.
      *
      * @return the notchs alignment
      */
@@ -376,7 +376,7 @@ public class ScWriter extends ScFeature {
     }
 
     /**
-     * Set the notchs alignment respect the path.
+     * Set the string tokens alignment respect the path.
      *
      * @param value the notchs alignment
      */

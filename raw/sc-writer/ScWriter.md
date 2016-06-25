@@ -1,12 +1,9 @@
-# ScPointer
+# ScWriter
 
-Create a feature that draw a pointer on the given path.
-By default the pointer is building as a circle with halo around and you can modify the pointer settings directly using the class properties.
+Create a feature that draw a series of texts on the given path.
+By default each text token will follow the path and will be distributed with equity on all length of the path. 
 
-Also this feature allow to define a custom bitmap to stamp on the path.
-This custom bitmap will following the angle rotation by the tangent of the position on path.
-
-The position will defined by the distance of the point from the path starting.
+Also this feature allow to define the position and rotation of the text respect to the path.
 This class inherit all its properties from the [ScFeature](..\sc-feature\ScFeature.md) so please take a look to the related documentation.
 
 
@@ -18,30 +15,30 @@ Link the listener.
 
 #### Getter and Setter
 
-- **get/getPosition**  -> `float` value, default `0`<br />
-Return the position of pointer in percentage respect to the path length.
+- **get/setTokens**  -> `String...` value, default `null`<br />
+Set the string tokens to draw on path.
 
-- **get/setRadius**  -> `float` value, default `0`<br />
-Set the pointer radius in pixel.
+- **get/setPosition**  -> `TokenPositions` value, default `TokenPositions.OUTSIDE`<br />
+Set the string tokens alignment respect the path.
+Possibly values by enum: `INSIDE`, `MIDDLE`, `OUTSIDE`<br />
 
-- **get/setHaloWidth**  -> `float` value, default `DEFAULT_HALO_WIDTH`<br />
-Set the halo width in pixel.
+- **get/setUnbend**  -> `boolean` value, default `false`<br />
+When unbend the text not follow the curve of the path but will follow the tangent to the starting point related to the path.
 
-- **get/setHaloAlpha**  -> `int` value `(0..255)`, default `DEFAULT_HALO_ALPHA`<br />
-Set the halo alpha .
+- **get/setConsiderFontMetrics**  -> `boolean` value, default `true`<br />
+Set true if want that the offset calculation consider the font metrics too.
 
-- **get/setHaloAlpha**  -> `boolean` value, default `false`<br />
-Set the pointer status.
+- **get/setLastTokenOnEnd**  -> `boolean` value, default `false`<br />
+Set true if want that the last token is forced to draw to the end of the path.
 
 
 #### Interfaces
 
 - **OnDrawListener**<br />
-**void onBeforeDrawPointer(CopyInfo info)**<br />
-Called before draw pointer on the path.
-Note that changing the `info` properties you will change the pointer drawing.
-Properties list: `bitmap`, `point`, `offset`, `angle`, `color`, `pressed`.
-If assign a bitmap the default drawing will be bypassed and the new bitmap will be draw on the canvas following the **some** other setting.
+**void onBeforeDrawToken(TokenInfo info)**<br />
+Called before draw string token on the path.
+Note that changing the `info` properties you will change the drawing.
+Properties list: `point`, `index`, `text`, `distance`, `angle`, `unbend`, `color`, `visible`, `offset`, `position`.
 
 
 ---
@@ -71,7 +68,7 @@ Common xml configuration
 Normal and pressed
 ```java
     // Dimensions
-    int padding = 24;
+    int padding = 30;
     final Rect drawArea = new Rect(padding, padding, 500 - padding, 300 - padding);
 
     // Get the main layout
@@ -100,14 +97,9 @@ Normal and pressed
     canvas.drawPath(path, temp);
 
     // Feature
-    ScPointer pointer = new ScPointer(path);
-    pointer.setPosition(30);
-    pointer.setRadius(20);
-    pointer.draw(canvas);
-
-    pointer.setPosition(70);
-    pointer.setPressed(true);
-    pointer.draw(canvas);
+    ScWriter writer = new ScWriter (path);
+    writer.setTokens("FIRST", "SECOND", "THIRD");
+    writer.draw(canvas);
 
     // Add the bitmap to the container
     imageContainer.setImageBitmap(bitmap);
@@ -115,56 +107,33 @@ Normal and pressed
 
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
-Play with colors.
-If you define a colors sequence the pointer will assume the gradient color by its position respect the path.
+Before drawing the token
 ```java
     ...
-    // Feature
-    ScPointer pointer = new ScPointer(path);
-    pointer.setRadius(16);
-    pointer.setColors(Color.BLUE, Color.RED);
-
-    pointer.setPosition(0);
-    pointer.draw(canvas);
-
-    pointer.setPosition(30);
-    pointer.draw(canvas);
-
-    pointer.setPosition(70);
-    pointer.draw(canvas);
-
-    pointer.setPosition(100);
-    pointer.draw(canvas);
-    ...
-```
-
-
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/3.jpg" align="right" />
-Custom bitmap.
-```java
-    ...
-    // Preload the bitmap
-    final Bitmap custom = BitmapFactory.decodeResource(this.getResources(), R.drawable.arrow);
+    // Create the tokens
+    int count = 14;
+    String[] tokens = new String[count];
+    for (int index = 0; index < count; index ++) {
+        tokens[index] = (index < 9 ? "0" : "") + (index + 1);
+    }
 
     // Feature
-    ScPointer pointer = new ScPointer(path);
-    pointer.setOnDrawListener(new ScPointer.OnDrawListener() {
+    ScWriter writer = new ScWriter (path);
+    writer.setTokens(tokens);
+    writer.setUnbend(true);
+    writer.setLastTokenOnEnd(true);
+    writer.setColors(Color.RED, Color.BLUE, Color.GREEN, Color.CYAN);
+    writer.setOnDrawListener(new ScWriter.OnDrawListener() {
         @Override
-        public void onBeforeDrawPointer(ScPointer.PointerInfo info) {
-            info.bitmap = custom;
-            info.offset = new PointF(-16, -16);
-            // Uncomment the following line if you not want bitmap rotation
-            // info.angle = 0;
+        public void onBeforeDrawToken(ScWriter.TokenInfo info) {
+            info.angle -= 90;
+            info.offset = new PointF(5, 10);
         }
     });
-
-    // Draw 10 arrows
-    for (int position = 0; position <= 100; position = position + 10) {
-        pointer.setPosition(position);
-        pointer.draw(canvas);
-    }
+    writer.draw(canvas);
     ...
 ```
+
 
 # License
 <pre>
