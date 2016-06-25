@@ -1,9 +1,12 @@
 package com.sccomponents.widgets.demo;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathMeasure;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -12,6 +15,7 @@ import android.widget.ImageView;
 
 import com.sccomponents.widgets.ScCopier;
 import com.sccomponents.widgets.ScNotchs;
+import com.sccomponents.widgets.ScPointer;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -45,18 +49,31 @@ public class MainActivity extends AppCompatActivity {
         path.quadTo(drawArea.centerX(), drawArea.top, drawArea.centerX(), drawArea.centerY());
         path.quadTo(drawArea.centerX(), drawArea.bottom, drawArea.right, drawArea.bottom);
 
+        // Draw the path on for have a reference
+        Paint temp = new Paint();
+        temp.setStyle(Paint.Style.STROKE);
+        temp.setStrokeWidth(2);
+        canvas.drawPath(path, temp);
+
+        // Preload the bitmap
+        final Bitmap custom = BitmapFactory.decodeResource(this.getResources(), R.drawable.arrow);
+
         // Feature
-        ScCopier copier = new ScCopier(path);
-        copier.getPainter().setStrokeWidth(8);
-        copier.setOnDrawListener(new ScCopier.OnDrawListener() {
+        ScPointer pointer = new ScPointer(path);
+        pointer.setOnDrawListener(new ScPointer.OnDrawListener() {
             @Override
-            public void onBeforeDrawCopy(ScCopier.CopyInfo info) {
-                info.scale = new PointF(0.5f, 1.0f);
-                info.offset = new PointF(125.0f, 0.0f);
-                info.rotate = -45;
+            public void onBeforeDrawPointer(ScPointer.PointerInfo info) {
+                info.bitmap = custom;
+                info.offset = new PointF(-16, -16);
+                // Uncomment the following line if you not want bitmap rotation
+                // info.angle = 0;
             }
         });
-        copier.draw(canvas);
+
+        for (int position = 0; position <= 100; position = position + 10) {
+            pointer.setPosition(position);
+            pointer.draw(canvas);
+        }
 
         // Add the bitmap to the container
         imageContainer.setImageBitmap(bitmap);

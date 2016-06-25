@@ -2,12 +2,13 @@ package com.sccomponents.widgets;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 
 /**
- * Draw a pointer on the path at a certain distance from the path start.
+ * Draw a pointer on the path at certain distance from the path starting.
  *
  * @author Samuele Carassai
  * @version 1.0.0
@@ -24,26 +25,12 @@ public class ScPointer extends ScFeature {
 
 
     /****************************************************************************************
-     * Enumerators
-     */
-
-    /**
-     * Define the pointer status
-     */
-    @SuppressWarnings("unused")
-    public enum PointerStatus {
-        RELEASED,
-        PRESSED
-    }
-
-
-    /****************************************************************************************
      * Private variables
      */
 
     private float mPointerRadius;
     private float mPointerPosition;
-    private PointerStatus mPointerStatus;
+    private boolean mPressed;
 
     private float mHaloWidth;
     private int mHaloAlpha;
@@ -65,7 +52,6 @@ public class ScPointer extends ScFeature {
         this.mPointerRadius = 0.0f;
         this.mHaloWidth = ScPointer.DEFAULT_HALO_WIDTH;
         this.mHaloAlpha = ScPointer.DEFAULT_HALO_ALPHA;
-        this.mPointerStatus = PointerStatus.RELEASED;
 
         // Painters
         this.mPaint.setStrokeWidth(1.0f);
@@ -90,10 +76,9 @@ public class ScPointer extends ScFeature {
      * Note when draw a circle the angle not take effect on the final drawing.
      *
      * @param canvas where to draw
-     * @param point  the point on path
      * @param info   the pointer info
      */
-    private void drawCircles(Canvas canvas, PointF point, PointerInfo info) {
+    private void drawCircles(Canvas canvas, PointerInfo info) {
         // Set the halo painter
         this.mHaloPaint.set(this.mPaint);
         this.mHaloPaint.setAlpha(info.pressed ? 255 : this.mHaloAlpha);
@@ -101,13 +86,13 @@ public class ScPointer extends ScFeature {
         this.mHaloPaint.setStrokeWidth(this.mHaloWidth);
 
         // Adjust the pointer offset
-        ScPointer.translatePoint(point, info.offset, info.angle);
+        ScPointer.translatePoint(info.point, info.offset, info.angle);
 
         // Check for null values and for the pointer radius
         if (canvas != null && this.mPointerRadius > 0.0f) {
             // Draw the halo and the pointer
-            canvas.drawCircle(point.x, point.y, this.mPointerRadius, this.mHaloPaint);
-            canvas.drawCircle(point.x, point.y, this.mPointerRadius, this.mPaint);
+            canvas.drawCircle(info.point.x, info.point.y, this.mPointerRadius, this.mHaloPaint);
+            canvas.drawCircle(info.point.x, info.point.y, this.mPointerRadius, this.mPaint);
         }
     }
 
@@ -115,23 +100,18 @@ public class ScPointer extends ScFeature {
      * Draw on canvas a bitmap centered in the passed point.
      *
      * @param canvas where to draw
-     * @param point  the point on path
      * @param info   the pointer info
      */
-    private void drawBitmap(Canvas canvas, PointF point, PointerInfo info) {
-        // Calculate the bitmap center
-        int centerX = (int) ((info.bitmap.getWidth() + point.x) / 2);
-        int centerY = (int) ((info.bitmap.getHeight() + point.y) / 2);
-
+    private void drawBitmap(Canvas canvas, PointerInfo info) {
         // Save the current canvas state
         canvas.save();
 
         // Translate and rotate the canvas
-        canvas.rotate(info.angle, centerX, centerY);
+        canvas.rotate(info.angle, info.point.x, info.point.y);
         canvas.translate(info.offset.x, info.offset.y);
 
         // Draw the bitmap and restore the canvas state
-        canvas.drawBitmap(info.bitmap, centerX, centerY, this.mPaint);
+        canvas.drawBitmap(info.bitmap, info.point.x, info.point.y, null);
         canvas.restore();
     }
 
@@ -151,10 +131,11 @@ public class ScPointer extends ScFeature {
         // Create the pointer info holder
         PointerInfo info = new PointerInfo();
         info.source = this;
+        info.point = ScPointer.toPoint(point);
         info.offset = new PointF();
         info.angle = (float) Math.toDegrees(point[3]);
         info.color = this.getGradientColor(distance);
-        info.pressed = this.mPointerStatus == PointerStatus.PRESSED;
+        info.pressed = this.mPressed;
 
         // Check the listener
         if (this.mOnDrawListener != null) {
@@ -162,17 +143,17 @@ public class ScPointer extends ScFeature {
         }
 
         // Set the pointer painter
-        this.mPaint.setAlpha(info.pressed ? this.mHaloAlpha : 255);
         this.mPaint.setColor(info.color);
+        this.mPaint.setAlpha(info.pressed ? this.mHaloAlpha : 255);
 
         // Check if the bitmap is not null
         if (info.bitmap != null) {
             // Draw a bitmap
-            this.drawBitmap(canvas, ScPointer.toPoint(point), info);
+            this.drawBitmap(canvas, info);
 
         } else {
             // Draw the circles
-            this.drawCircles(canvas, ScPointer.toPoint(point), info);
+            this.drawCircles(canvas, info);
         }
     }
 
@@ -208,6 +189,7 @@ public class ScPointer extends ScFeature {
     public class PointerInfo {
 
         public ScPointer source;
+        public PointF point;
         public Bitmap bitmap;
         public PointF offset;
         public float angle;
@@ -317,18 +299,18 @@ public class ScPointer extends ScFeature {
      * @return the current status
      */
     @SuppressWarnings("unused")
-    public PointerStatus getStatus() {
-        return this.mPointerStatus;
+    public boolean getPressed() {
+        return this.mPressed;
     }
 
     /**
-     * Set the pointer status
+     * Set the pointer status.
      *
      * @param value the new status
      */
     @SuppressWarnings("unused")
-    public void setStatus(PointerStatus value) {
-        this.mPointerStatus = value;
+    public void setPressed(boolean value) {
+        this.mPressed = value;
     }
 
 

@@ -12,12 +12,12 @@ This class inherit all its properties from the [ScFeature](..\sc-feature\ScFeatu
 - **float snapToNotchs(float value)**<br />
 Round the value near the closed notch.
 
-- **void setOnDrawListener(OnDrawListener listener)**<br />
-Link the listener.
-
 - **void setDividePathInContours(boolean value)**<br />
 By default the class will draw the n notchs on each contours that compose the current path. 
 If settle on false the class will consider the path as a unique path.
+
+- **void setOnDrawListener(OnDrawListener listener)**<br />
+Link the listener.
 
 
 #### Getter and Setter

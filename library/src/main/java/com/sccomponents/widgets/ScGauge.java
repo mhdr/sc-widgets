@@ -557,8 +557,7 @@ public abstract class ScGauge extends ScDrawer implements
             // Check if have a selected pointer
             if (this.mSelectedPointer != null) {
                 // Set the current status
-                this.mSelectedPointer.setStatus(
-                        this.mPathTouched ? ScPointer.PointerStatus.PRESSED : ScPointer.PointerStatus.RELEASED);
+                this.mSelectedPointer.setPressed(this.mPathTouched);
             }
         }
 
