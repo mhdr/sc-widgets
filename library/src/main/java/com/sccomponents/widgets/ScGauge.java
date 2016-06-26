@@ -309,8 +309,7 @@ public abstract class ScGauge extends ScDrawer implements
 
         ScPointer lowPointer = (ScPointer) this.addFeature(ScPointer.class);
         lowPointer.setTag(ScGauge.LOW_POINTER_IDENTIFIER);
-        // TODO: invisible
-        //lowPointer.setVisible(false);
+        lowPointer.setVisible(false);
         lowPointer.setOnDrawListener(this);
         this.featureSetter(lowPointer);
 

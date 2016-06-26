@@ -106,15 +106,17 @@ public abstract class ScDrawer extends ScWidget {
     /**
      * Create the path to draw.
      * This method need to draw something on the canvas. Note that the ScDrawer class not expose
-     * other methods or public properties to manage the path.
-     * To work on path you can use the protected properties: mPath and mPathMeasurer.
+     * other methods or public properties to manage the path. To work on path you can use the
+     * protected properties: mPath and mPathMeasurer.
+     * When you create the path you should be not take care of the view padding because is already
+     * considered in the width and height params.
      *
-     * @param maxWidth  the horizontal boundaries
-     * @param maxHeight the vertical boundaries
+     * @param width  the drawing area width
+     * @param height the drawing area height
      * @return return the new path
      */
     @SuppressWarnings("unused")
-    protected abstract Path createPath(int maxWidth, int maxHeight);
+    protected abstract Path createPath(int width, int height);
 
 
     /****************************************************************************************

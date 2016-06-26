@@ -61,6 +61,11 @@ Return a point on path given the distance from the path start.
 - **float getTangentAngle(float distance)**<br />
 Get the angle in degrees of the tangent to a point on the path given the distance from the start of path.
 
+- **int getGradientColor(float distance, float length)**<br />
+**int getGradientColor(float distance)**<br />
+Get the current gradient color by a ratio dependently about the distance from the starting of path, the colors array and the mode to draw.
+If the colors are not defined will be returned the current color of painter.
+
 
 #### Getter and Setter
 
