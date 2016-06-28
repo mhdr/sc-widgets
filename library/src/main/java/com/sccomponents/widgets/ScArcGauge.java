@@ -2,6 +2,7 @@ package com.sccomponents.widgets;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.Bundle;
@@ -111,6 +112,15 @@ public class ScArcGauge extends ScGauge {
         // Draw the arc
         path.addArc(area, this.mAngleStart, this.mAngleSweep);
 
+        // If the sweep angle if 360° must resolve a issue with addArc than lost the starting
+        // angle.
+        if (this.mAngleSweep == 360.0f || this.mAngleSweep == -360.0f) {
+            // Create a transform and rotate the path on the starting angle
+            Matrix matrix = new Matrix();
+            matrix.postRotate(this.mAngleStart);
+            path.transform(matrix);
+        }
+
         // Return the path
         return path;
     }
@@ -162,6 +172,22 @@ public class ScArcGauge extends ScGauge {
 
 
     /****************************************************************************************
+     * Public methods
+     */
+
+    /**
+     * Convert a percentage value in a angle (in degrees) value respect the start and sweep angles.
+     *
+     * @param percentage the starting value
+     * @return the angle value
+     */
+    @SuppressWarnings("unused")
+    public float percentageToAngle(float percentage) {
+        return (this.mAngleSweep * (percentage / 100)) + this.mAngleStart;
+    }
+
+
+    /****************************************************************************************
      * Public properties
      */
 
@@ -207,6 +233,10 @@ public class ScArcGauge extends ScGauge {
      */
     @SuppressWarnings("unused")
     public void setAngleSweep(float value) {
+        // Normalize
+        if (value <= -360.0f) value = -360.0f;
+        if (value >= 360.0f) value = 360.0f;
+
         // Check if value is changed
         if (this.mAngleSweep != value) {
             // Store the new value

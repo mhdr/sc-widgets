@@ -48,12 +48,6 @@ Note that the initial value duration of the animation is zero equal to "no anima
 Get the low value animator.
 Note that the initial value duration of the animation is zero equal to "no animation".
 
-- **ScFeature findFeature(String tag)**<br />
-**ScFeature findFeature(Class<?> classRef)**<br />
-Find the feature searching by tag or the class reference.
-If found something return the first element found.
-If the param is null return the first feature found avoid the comparison check.
-
 - **void setOnEventListener(OnEventListener listener)**<br />
 Link the listener.
 
@@ -120,12 +114,8 @@ The pointers halo width.
 The value must be passed in pixel.
 Note that the halo will draw half out the pointer and half inside.
 
-- **get/setInputEnabled**  -> `boolean` value, default `false`<br />
-Define if the input is enabled.
-If the input is enabled the high value pointer will show.
 
-
-#### Interfaces
+#### OnPathTouchListener
 
 **OnEventListener**
 - **void onValueChange(float lowValue, float highValue)**<br />
@@ -168,7 +158,6 @@ Called before draw the single text token.
         <attr name="scc_pointer_radius" format="dimension" />
         <attr name="scc_pointer_color" format="color" />
         <attr name="scc_halo_size" format="dimension" />
-        <attr name="scc_input_enabled" format="boolean" />
     </declare-styleable>
 ```
 

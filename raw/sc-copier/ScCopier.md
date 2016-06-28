@@ -10,8 +10,11 @@ The class is a basic class and not expose only one proprietary method and all th
 > When you using the more than one color the class produce a **bitmap shader** and apply it on the painter.
 > If you will use to scale the path before draw (`onBeforeDrawCopy`), being the shader a `Bitmap`, the stroke width will scaled too.
 > This issue can be solved drawing the colors gradient directly on the canvas but in this case will lost the possibility to override the shader in the future.
+>
+> Generally the shader have problem to work proper with the hardware-accelerate enable.
+> So maybe better to disable it when you use more that one colors otherwise you could be have a unexpected visual result.
 
-
+ 
 #### Public Methods
 
 - **void setOnDrawListener(OnDrawListener listener)**<br />

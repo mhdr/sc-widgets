@@ -46,8 +46,24 @@ Find all features that corresponds to a class and tag reference.
 If the class reference is null the class will be not consider. 
 Same behavior for the tag param.
 
+- **ScFeature findFeature(String tag)**<br />
+**ScFeature findFeature(Class<?> classRef)**<br />
+Find the feature searching by tag or the class reference.
+If found something return the first element found.
+If the param is null return the first feature found avoid the comparison check.
+
+- **void bringOnTop(String tag)**<br />
+**void bringOnTop(Class<?> classRef)**<br />
+Find all feature that are tagged or inherit from class param and move they at the end of the list so will draw for least (on top).
+
 - **Paint getPainter()**<br />
 Get the arc painter.
+
+- **void setOnPathTouchListener(OnPathTouchListener listener)**<br />
+Link the listener.
+
+- **boolean isPressed()**<br />
+Return true is the path is pressed.
 
 
 #### Getter and Setter
@@ -66,6 +82,25 @@ This indicate what kind of dimension will filled.
 Possibly values by enum: `DRAW`, `STRETCH`<br />
 Please look above for a short explain of this feature.
 
+- **get/setRecognizePathTouch**  -> `boolean` value, default `false`<br />
+Define if the input is enabled.
+When enable and the user touch on the path will throw an event with the point details of pressure.
+
+- **get/setPathTouchThreshold** -> `float` value, default `0`<br />
+The recognize threshold for find the point on path.
+
+
+#### Interfaces
+
+**OnEventListener**
+- **void onTouch(float distance)**<br />
+Called when the path is touched.
+- **void onRelease()**<br />
+Called when the path is released.
+- **void onSlide(float distance)**<br />
+Called when the user move the pressure on the screen.
+This called only if before had a onTouch event.
+
 
 ---
 ####### XML Properties
@@ -75,6 +110,7 @@ Please look above for a short explain of this feature.
         <attr name="scc_max_height" format="dimension" />
         <attr name="scc_fill_area" format="enum" />
         <attr name="scc_fill_mode" format="enum" />
+        <attr name="scc_input_enabled" format="boolean" />
     </declare-styleable>
 ```
 

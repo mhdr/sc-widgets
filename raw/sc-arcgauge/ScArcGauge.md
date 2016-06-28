@@ -7,6 +7,12 @@ This class extend the [ScGauge](..\sc-gauge\ScGauge.md) class.
 This class inherit all its properties from the [ScGauge](..\sc-feature\ScGauge.md) so please take a look to the related documentation.
 
 
+#### Public methods
+
+- **float percentageToAngle(float percentage)**<br />
+Convert a percentage value in a angle (in degrees) value respect the start and sweep angles.
+
+
 #### Getter and Setter
 
 - **get/setAngleStart**  -> `float` value, default `0`<br />
@@ -14,6 +20,8 @@ The start angle in degrees.
 
 - **get/setAngleSweep**  -> `float` value, default `360`<br />
 The sweep angle (in degrees) is the delta value between the start angle and the end angle.
+This is limited angle: from -360° to 360°.
+Values over the limits will be normalized to the limit.
 
 
 ---
@@ -71,6 +79,15 @@ All feature in basic mode
         sc:scc_pointer_radius="10dp"
         />
 ```
+
+---
+####### Examples
+
+Press on the picture linked below to see the demonstration.
+
+[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-01.jpg)](flat.md)
+[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-02.jpg)](flat.md)
+[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/i-01.jpg)](indicator.md)
 
 
 # License

@@ -84,7 +84,6 @@ public class ScFeature {
         this.mPaint.setStyle(Paint.Style.STROKE);
         this.mPaint.setColor(Color.BLACK);
         this.mPaint.setAntiAlias(true);
-        this.mPaint.setDither(true);
     }
 
 

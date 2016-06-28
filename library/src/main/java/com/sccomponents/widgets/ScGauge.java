@@ -9,19 +9,19 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
+import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
 import java.util.List;
 
 /**
  * Manage a generic gauge.
- * <p>
+ * <p/>
  * This class is studied to be an "helper class" to facilitate the user to create a gauge.
  * The path is generic and the class start with a standard configuration of features.
  * One base (inherited from the ScDrawer), one notchs manager, one writer manager, one copier to
  * create the progress effect and two pointer for manage the user touch input.
- * <p>
+ * <p/>
  * Here are exposed many methods to drive the common feature from the code or directly by the XML.
  * The features are recognized from the class by its tag so changing, for example, the color of
  * notchs you will change the color of all notchs tagged.
@@ -46,7 +46,7 @@ public abstract class ScGauge extends ScDrawer implements
     public static final float DEFAULT_STROKE_SIZE = 3.0f;
     public static final int DEFAULT_STROKE_COLOR = Color.BLACK;
 
-    public static final float DEFAULT_PROGRESS_SIZE = 1.0f;
+    public static final float DEFAULT_PROGRESS_SIZE = 0.0f;
     public static final int DEFAULT_PROGRESS_COLOR = Color.GRAY;
 
     public static final float DEFAULT_TEXT_SIZE = 16.0f;
@@ -84,8 +84,6 @@ public abstract class ScGauge extends ScDrawer implements
     protected int mPointerColor;
     protected float mPointerHaloWidth;
 
-    protected boolean mInputEnabled;
-
 
     /****************************************************************************************
      * Privates variable
@@ -97,7 +95,6 @@ public abstract class ScGauge extends ScDrawer implements
     private ValueAnimator mHighValueAnimator;
     private ValueAnimator mLowValueAnimator;
 
-    private boolean mPathTouched;
     private ScPointer mSelectedPointer;
 
     private OnEventListener mOnEventListener;
@@ -213,6 +210,16 @@ public abstract class ScGauge extends ScDrawer implements
     }
 
     /**
+     * Define the threshold for the touch on path recognize.
+     */
+    private void fixTouchOnPathThreshold() {
+        // Define the touch threshold
+        if (this.mPointerRadius > 0) {
+            this.setPathTouchThreshold(mPointerRadius + this.mPointerHaloWidth);
+        }
+    }
+
+    /**
      * Init the component.
      * Retrieve all attributes with the default values if needed.
      * Check the values for internal use and create the painters.
@@ -272,49 +279,14 @@ public abstract class ScGauge extends ScDrawer implements
         this.mPointerHaloWidth = attrArray.getDimension(
                 R.styleable.ScComponents_scc_halo_size, ScGauge.DEFAULT_HALO_SIZE);
 
-        // Input
-        this.mInputEnabled = attrArray.getBoolean(
-                R.styleable.ScComponents_scc_input_enabled, false);
-
         // Recycle
         attrArray.recycle();
 
         //--------------------------------------------------
-        // FEATURES
-
-        ScCopier base = (ScCopier) this.addFeature(ScCopier.class);
-        base.setTag(ScGauge.BASE_IDENTIFIER);
-        base.setOnDrawListener(this);
-        this.featureSetter(base);
-
-        ScNotchs notchs = (ScNotchs) this.addFeature(ScNotchs.class);
-        notchs.setTag(ScGauge.NOTCHS_IDENTIFIER);
-        notchs.setOnDrawListener(this);
-        this.featureSetter(notchs);
-
-        ScWriter writer = (ScWriter) this.addFeature(ScWriter.class);
-        writer.setTag(ScGauge.WRITER_IDENTIFIER);
-        writer.setOnDrawListener(this);
-        this.featureSetter(writer);
-
-        ScCopier progress = (ScCopier) this.addFeature(ScCopier.class);
-        progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
-        progress.setOnDrawListener(this);
-        this.featureSetter(progress);
-
-        ScPointer highPointer = (ScPointer) this.addFeature(ScPointer.class);
-        highPointer.setTag(ScGauge.HIGH_POINTER_IDENTIFIER);
-        highPointer.setOnDrawListener(this);
-        this.featureSetter(highPointer);
-
-        ScPointer lowPointer = (ScPointer) this.addFeature(ScPointer.class);
-        lowPointer.setTag(ScGauge.LOW_POINTER_IDENTIFIER);
-        lowPointer.setVisible(false);
-        lowPointer.setOnDrawListener(this);
-        this.featureSetter(lowPointer);
-
         // INTERNAL
-        //--------------------------------------------------
+
+        // Disable the hardware acceleration as have problem with the shader
+        this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
         // Check for snap to notchs the new degrees value
         if (this.mSnapToNotchs) {
@@ -322,6 +294,37 @@ public abstract class ScGauge extends ScDrawer implements
             this.mHighValue = this.snapToNotchs(this.mHighValue);
             this.mLowValue = this.snapToNotchs(this.mLowValue);
         }
+
+        // Define the touch threshold
+        this.fixTouchOnPathThreshold();
+
+        //--------------------------------------------------
+        // FEATURES
+
+        ScCopier base = (ScCopier) this.addFeature(ScCopier.class);
+        base.setTag(ScGauge.BASE_IDENTIFIER);
+        this.featureSetter(base);
+
+        ScNotchs notchs = (ScNotchs) this.addFeature(ScNotchs.class);
+        notchs.setTag(ScGauge.NOTCHS_IDENTIFIER);
+        this.featureSetter(notchs);
+
+        ScCopier progress = (ScCopier) this.addFeature(ScCopier.class);
+        progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
+        this.featureSetter(progress);
+
+        ScWriter writer = (ScWriter) this.addFeature(ScWriter.class);
+        writer.setTag(ScGauge.WRITER_IDENTIFIER);
+        this.featureSetter(writer);
+
+        ScPointer highPointer = (ScPointer) this.addFeature(ScPointer.class);
+        highPointer.setTag(ScGauge.HIGH_POINTER_IDENTIFIER);
+        this.featureSetter(highPointer);
+
+        ScPointer lowPointer = (ScPointer) this.addFeature(ScPointer.class);
+        lowPointer.setTag(ScGauge.LOW_POINTER_IDENTIFIER);
+        lowPointer.setOnDrawListener(this);
+        this.featureSetter(lowPointer);
 
         //--------------------------------------------------
         // ANIMATOR
@@ -448,17 +451,18 @@ public abstract class ScGauge extends ScDrawer implements
     }
 
     /**
-     * Return the threshold used to find the point on path.
-     * If the path is touched must find the point nearest without take care of the threshold so
-     * will returned infinite.
+     * Attach the feature to the right listener only if the class listener is defined.
      *
-     * @return the proper threshold
+     * @param feature the source
      */
-    private float getPointResearchThreshold() {
-        // Fix the pointer halo width
-        float pointerHaloWidth = this.mPointerHaloWidth < 0.0f ? 0.0f : this.mPointerHaloWidth / 2;
-        // Return the threshold by the touch status
-        return this.mPathTouched ? Float.POSITIVE_INFINITY : this.mPointerRadius +pointerHaloWidth;
+    private void attachFeatureToListener(ScFeature feature) {
+        // Attach the listener by the class type
+        if (this.mOnDrawListener != null) {
+            if (feature instanceof ScCopier) ((ScCopier) feature).setOnDrawListener(this);
+            if (feature instanceof ScPointer) ((ScPointer) feature).setOnDrawListener(this);
+            if (feature instanceof ScNotchs) ((ScNotchs) feature).setOnDrawListener(this);
+            if (feature instanceof ScWriter) ((ScWriter) feature).setOnDrawListener(this);
+        }
     }
 
 
@@ -556,7 +560,7 @@ public abstract class ScGauge extends ScDrawer implements
             // Check if have a selected pointer
             if (this.mSelectedPointer != null) {
                 // Set the current status
-                this.mSelectedPointer.setPressed(this.mPathTouched);
+                this.mSelectedPointer.setPressed(this.isPressed());
             }
         }
 
@@ -590,12 +594,12 @@ public abstract class ScGauge extends ScDrawer implements
     /**
      * Add one feature to this drawer.
      * This particular overload instantiate a new object from the class reference passed.
-     * <p>
+     * <p/>
      * The passed class reference must implement the ScFeature interface and will be filled
      * with the setting default params of this object by the type.
      * For example if instance a ScNotchs the notchs count will be auto settle to the defined
      * getNotchsCount method.
-     * <p>
+     * <p/>
      * The new feature instantiate will linked to the gauge on draw listener.
      * If you will create the feature with another method you must manage the on draw listener by
      * yourself or attach it to the gauge at a later time using the proper method.
@@ -612,79 +616,52 @@ public abstract class ScGauge extends ScDrawer implements
         // Call the feature setter here is useless but we want to have the right setting from
         // the first creation in case the user looking inside this object.
         this.featureSetter(feature);
-
-        // Attach the listener by the class type
-        if (feature instanceof ScCopier) ((ScCopier) feature).setOnDrawListener(this);
-        if (feature instanceof ScPointer) ((ScPointer) feature).setOnDrawListener(this);
-        if (feature instanceof ScNotchs) ((ScNotchs) feature).setOnDrawListener(this);
-        if (feature instanceof ScWriter) ((ScWriter) feature).setOnDrawListener(this);
+        // Attach the feature the listener if needed.
+        this.attachFeatureToListener(feature);
 
         // Return the new feature
         return feature;
     }
 
     /**
-     * On touch management
+     * Called when the path is touched.
      *
-     * @param event the touch event
-     * @return Event propagation
+     * @param distance the distance from the path start
      */
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        // Check if the input is enabled
-        if (!this.mInputEnabled) {
-            // Return false mean that on touch event will not capture all the event propagation
-            // after the touch event.
-            return false;
-        }
-
-        // Adjust the point
-        // TODO: on stretch wrong the point
-        float x = (event.getX() - this.getPaddingLeft() - this.mVirtualArea.left) / this.mAreaScale.x;
-        float y = (event.getY() - this.getPaddingTop() - this.mVirtualArea.top) / this.mAreaScale.y;
-
-        // Get the nearest point on the touch of the user if have and calculate the distance from
-        // the path start. Note that the touch precision level is defined by the size of the
-        // pointer draw on the the component. After find the percentage representation of the
-        // distance.
-        float distance = this.mPathMeasure.getDistance(x, y, this.getPointResearchThreshold());
+    protected void onPathTouch(float distance) {
+        // Select the nearest pointer and set the value
         float percentage = this.findPercentage(distance, 0, this.mPathMeasure.getLength());
+        this.mSelectedPointer = this.findNearestPointer(percentage);
+        this.setValueByPointer(percentage, this.mSelectedPointer);
 
-        // Select case by action type
-        switch (event.getAction()) {
-            // Press
-            case MotionEvent.ACTION_DOWN:
-                // If the point belong to the arc set the current value and the pressed trigger.
-                // The redraw will called inside the setValue method.
-                if (distance != -1.0f) {
-                    // Find the nearest pointer
-                    this.mSelectedPointer = this.findNearestPointer(percentage);
-                    this.mPathTouched = true;
-                    this.setValueByPointer(percentage, this.mSelectedPointer);
-                }
-                break;
+        // Super
+        super.onPathTouch(distance);
+    }
 
-            // Release
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                // Trigger is released and refresh the component.
-                this.mPathTouched = false;
-                this.invalidate();
-                break;
+    /**
+     * Called when the user release the touch after than he touched the path.
+     */
+    @Override
+    protected void onPathRelease() {
+        // Super and refresh
+        super.onPathRelease();
+        this.invalidate();
+    }
 
-            // Move
-            case MotionEvent.ACTION_MOVE:
-                // If the point belong to the arc and the trigger is pressed set the current value.
-                // The component redraw will called inside the setValue method.
-                if (distance != -1.0f && this.mPathTouched) {
-                    this.setValueByPointer(percentage, this.mSelectedPointer);
-                }
-                break;
-        }
+    /**
+     * Called when, after a path touch, the user move the finger on the component.
+     *
+     * @param distance the distance from the path start
+     */
+    @Override
+    protected void onPathSlide(float distance) {
+        // Move the pointer and the value
+        float percentage = this.findPercentage(distance, 0, this.mPathMeasure.getLength());
+        this.setValueByPointer(percentage, this.mSelectedPointer);
 
-        // Event propagation.
-        // Return true so this method will capture events after the pressure.
-        return true;
+        // Super
+        super.onPathSlide(distance);
     }
 
     /**
@@ -769,35 +746,21 @@ public abstract class ScGauge extends ScDrawer implements
     }
 
     /**
-     * Find the feature searching by tag.
-     * If found something return the first element found.
-     * If the tag param is null return the first feature found avoid the comparison check.
+     * Convert a percentage in a value within the passed range of values.
      *
-     * @param tag      the tag reference
-     * @return the found feature
+     * @param percentage the percentage
+     * @param startValue the range starting value
+     * @param endValue   the range ending value
+     * @return the value
      */
     @SuppressWarnings("unused")
-    public ScFeature findFeature(String tag) {
-        // Get all the features of this class
-        List<ScFeature> features = this.findFeatures(null, tag);
-        // If here mean not find correspondence with tag
-        return features.size() > 0 ? features.get(0) : null;
-    }
-
-    /**
-     * Find the feature searching by the class.
-     * If found something return the first element found.
-     * If the class param is null return the first feature found avoid the comparison check.
-     *
-     * @param classRef the class reference
-     * @return the found feature
-     */
-    @SuppressWarnings("unused")
-    public ScFeature findFeature(Class<?> classRef) {
-        // Get all the features of this class
-        List<ScFeature> features = this.findFeatures(classRef, null);
-        // If here mean not find correspondence with tag
-        return features.size() > 0 ? features.get(0) : null;
+    public static float percentageToValue(float percentage, float startValue, float endValue) {
+        // Calculate the delta range
+        float min = Math.min(startValue, endValue);
+        float max = Math.max(startValue, endValue);
+        float delta = max - min;
+        // Return the value
+        return (delta * (percentage / 100)) + min;
     }
 
 
@@ -1191,9 +1154,9 @@ public abstract class ScGauge extends ScDrawer implements
     public void setTextSize(float value) {
         // Check if value is changed
         if (this.mTextSize != value) {
-        // Fix the trigger
-        this.mTextSize = value;
-        this.invalidate();
+            // Fix the trigger
+            this.mTextSize = value;
+            this.invalidate();
         }
     }
 
@@ -1250,6 +1213,7 @@ public abstract class ScGauge extends ScDrawer implements
         if (this.mPointerRadius != value) {
             // Fix the trigger
             this.mPointerRadius = value;
+            this.fixTouchOnPathThreshold();
             this.invalidate();
         }
     }
@@ -1304,35 +1268,7 @@ public abstract class ScGauge extends ScDrawer implements
         if (this.mPointerHaloWidth != value) {
             // Fix the trigger
             this.mPointerHaloWidth = value;
-            this.invalidate();
-        }
-    }
-
-
-    /****************************************************************************************
-     * Input
-     */
-
-    /**
-     * Return if the input is enabled.
-     *
-     * @return the current input status
-     */
-    @SuppressWarnings("unused")
-    public boolean getInputEnabled() {
-        return this.mInputEnabled;
-    }
-
-    /**
-     * Set the input status
-     *
-     * @param value the new input status
-     */
-    @SuppressWarnings("unused")
-    public void setInputEnabled(boolean value) {
-        // Check if value is changed
-        if (this.mInputEnabled != value) {
-            this.mInputEnabled = value;
+            this.fixTouchOnPathThreshold();
             this.invalidate();
         }
     }
@@ -1414,7 +1350,13 @@ public abstract class ScGauge extends ScDrawer implements
      */
     @SuppressWarnings("unused")
     public void setOnDrawListener(OnDrawListener listener) {
+        // Hold the reference
         this.mOnDrawListener = listener;
+
+        // Attach the listener to all features
+        for (ScFeature feature : this.mFeatures) {
+            this.attachFeatureToListener(feature);
+        }
     }
 
 }

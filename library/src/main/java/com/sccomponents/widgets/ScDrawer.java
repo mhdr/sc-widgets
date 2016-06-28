@@ -10,6 +10,7 @@ import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -54,17 +55,6 @@ public abstract class ScDrawer extends ScWidget {
      * Private and protected attributes
      */
 
-    protected FillingArea mFillingArea;
-    protected FillingMode mFillingMode;
-
-    protected int mMaximumWidth;
-    protected int mMaximumHeight;
-
-
-    /****************************************************************************************
-     * Private and protected variables
-     */
-
     protected Path mPath;
     protected ScPathMeasure mPathMeasure;
 
@@ -72,8 +62,21 @@ public abstract class ScDrawer extends ScWidget {
     protected RectF mVirtualArea;
     protected PointF mAreaScale;
 
-    private List<ScFeature> mFeatures;
+    protected List<ScFeature> mFeatures;
+
+    private FillingArea mFillingArea;
+    private FillingMode mFillingMode;
+
+    private int mMaximumWidth;
+    private int mMaximumHeight;
+
     private Path mCopyPath;
+
+    private boolean mRecognizePathTouch;
+    private float mPathTouchThreshold;
+    private boolean mPathIsTouched;
+
+    private OnPathTouchListener mOnPathTouchListener;
 
 
     /****************************************************************************************
@@ -161,6 +164,10 @@ public abstract class ScDrawer extends ScWidget {
         int fillingMode = attrArray.getInt(
                 R.styleable.ScComponents_scc_fill_mode, FillingMode.DRAW.ordinal());
         this.mFillingMode = FillingMode.values()[fillingMode];
+
+        // Input
+        this.mRecognizePathTouch = attrArray.getBoolean(
+                R.styleable.ScComponents_scc_path_touchable, false);
 
         // Recycle
         attrArray.recycle();
@@ -413,6 +420,69 @@ public abstract class ScDrawer extends ScWidget {
         this.setMeasuredDimension(width, height);
     }
 
+    /**
+     * On touch management
+     *
+     * @param event the touch event
+     * @return Event propagation
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        // Check if the input is enabled
+        if (!this.mRecognizePathTouch) {
+            // Return false mean that on touch event will not capture all the event propagation
+            // after the touch event.
+            return false;
+        }
+
+        // Adjust the point
+        // TODO: on stretch wrong the point
+        float x = (event.getX() - this.getPaddingLeft() - this.mVirtualArea.left) / this.mAreaScale.x;
+        float y = (event.getY() - this.getPaddingTop() - this.mVirtualArea.top) / this.mAreaScale.y;
+
+        // Get the nearest point on the path from the touch of the user and calculate the distance
+        // from the path start. Note that if the path is already pressed the threshold will be
+        // infinite.
+        float distance = this.mPathMeasure.getDistance(
+                x, y,
+                this.mPathIsTouched ? Float.POSITIVE_INFINITY : this.mPathTouchThreshold
+        );
+
+        // Select case by action type
+        switch (event.getAction()) {
+            // Press
+            case MotionEvent.ACTION_DOWN:
+                // If the point belong to the arc set the current value and the pressed trigger.
+                if (distance != -1.0f) {
+                    // Hold the trigger and call the method
+                    this.mPathIsTouched = true;
+                    this.onPathTouch(distance);
+                }
+                break;
+
+            // Release
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                // Trigger is released and call the methos
+                this.mPathIsTouched = false;
+                this.onPathRelease();
+                break;
+
+            // Move
+            case MotionEvent.ACTION_MOVE:
+                // Check if the point belong to the path and if pressed.
+                if (distance != -1.0f && this.mPathIsTouched) {
+                    // Call method
+                    this.onPathSlide(distance);
+                }
+                break;
+        }
+
+        // Event propagation.
+        // Return true so this method will capture events after the pressure.
+        return true;
+    }
+
 
     /****************************************************************************************
      * Instance state
@@ -460,6 +530,21 @@ public abstract class ScDrawer extends ScWidget {
         this.mMaximumHeight = savedState.getInt("mMaximumHeight");
         this.mFillingArea = FillingArea.values()[savedState.getInt("mFillingArea")];
         this.mFillingMode = FillingMode.values()[savedState.getInt("mFillingMode")];
+    }
+
+
+    /****************************************************************************************
+     * Public
+     */
+
+    /**
+     * Return true is the path is touched.
+     *
+     * @return the pressure status
+     */
+    @SuppressWarnings("unused")
+    public boolean isPressed() {
+        return this.mPathIsTouched;
     }
 
 
@@ -582,6 +667,115 @@ public abstract class ScDrawer extends ScWidget {
         return founds;
     }
 
+    /**
+     * Find the feature searching by tag.
+     * If found something return the first element found.
+     * If the tag param is null return the first feature found avoid the comparison check.
+     *
+     * @param tag the tag reference
+     * @return the found feature
+     */
+    @SuppressWarnings("unused")
+    public ScFeature findFeature(String tag) {
+        // Get all the features of this class
+        List<ScFeature> features = this.findFeatures(null, tag);
+        // If here mean not find correspondence with tag
+        return features.size() > 0 ? features.get(0) : null;
+    }
+
+    /**
+     * Find the feature searching by the class.
+     * If found something return the first element found.
+     * If the class param is null return the first feature found avoid the comparison check.
+     *
+     * @param classRef the class reference
+     * @return the found feature
+     */
+    @SuppressWarnings("unused")
+    public ScFeature findFeature(Class<?> classRef) {
+        // Get all the features of this class
+        List<ScFeature> features = this.findFeatures(classRef, null);
+        // If here mean not find correspondence with tag
+        return features.size() > 0 ? features.get(0) : null;
+    }
+
+    /**
+     * Find all feature tagged as param and move they at the end of the list so will draw for
+     * least (on top).
+     *
+     * @param tag the tag reference
+     */
+    @SuppressWarnings("unused")
+    public void bringOnTop(String tag) {
+        // Find all features
+        List<ScFeature> features = this.findFeatures(null, tag);
+        // If exists and have at least one
+        if (features != null && features.size() > 0) {
+            // Remove all features from list
+            this.mFeatures.removeAll(features);
+            // Add all features at the end of the list
+            this.mFeatures.addAll(features);
+        }
+    }
+
+    /**
+     * Find all feature that inherit from class param and move they at the end of the list so will
+     * draw for least (on top).
+     *
+     * @param classRef the class reference
+     */
+    @SuppressWarnings("unused")
+    public void bringOnTop(Class<?> classRef) {
+        // Find all features
+        List<ScFeature> features = this.findFeatures(classRef, null);
+        // If exists and have at least one
+        if (features != null && features.size() > 0) {
+            // Remove all features from list
+            this.mFeatures.removeAll(features);
+            // Add all features at the end of the list
+            this.mFeatures.addAll(features);
+        }
+    }
+
+
+    /****************************************************************************************
+     * User input interface
+     */
+
+    /**
+     * Called when the path is touched.
+     *
+     * @param distance the distance from the path start
+     */
+    protected void onPathTouch(float distance) {
+        // Call the event if need
+        if (this.mOnPathTouchListener != null) {
+            this.mOnPathTouchListener.onTouch(distance);
+        }
+    }
+
+    /**
+     * Called when the user release the touch after than he touched the path.
+     */
+    protected void onPathRelease() {
+        // Call the event if need
+        if (this.mOnPathTouchListener != null) {
+            this.mOnPathTouchListener.onRelease();
+        }
+    }
+
+    /**
+     * Called when, after a path touch, the user move the finger on the component.
+     *
+     * @param distance the distance from the path start
+     */
+    protected void onPathSlide(float distance) {
+        // Call the event if need
+        if (this.mOnPathTouchListener != null) {
+            this.mOnPathTouchListener.onSlide(distance);
+        }
+    }
+
 
     /****************************************************************************************
      * Public properties
@@ -701,6 +895,92 @@ public abstract class ScDrawer extends ScWidget {
             this.checkValues();
             this.requestLayout();
         }
+    }
+
+    /**
+     * Return if the input is enabled.
+     *
+     * @return the current input status
+     */
+    @SuppressWarnings("unused")
+    public boolean getRecognizePathTouch() {
+        return this.mRecognizePathTouch;
+    }
+
+    /**
+     * Set the input status
+     *
+     * @param value the new input status
+     */
+    @SuppressWarnings("unused")
+    public void setRecognizePathTouch(boolean value) {
+        // Check if value is changed
+        if (this.mRecognizePathTouch != value) {
+            this.mRecognizePathTouch = value;
+            this.invalidate();
+        }
+    }
+
+    /**
+     * Return the recognize threshold for find the point on path.
+     *
+     * @return the threshold value
+     */
+    @SuppressWarnings("unused")
+    public float getPathTouchThreshold() {
+        return this.mPathTouchThreshold;
+    }
+
+    /**
+     * Set the recognize threshold for find the point on path.
+     *
+     * @param value the threshold value
+     */
+    @SuppressWarnings("unused")
+    public void setPathTouchThreshold(float value) {
+            this.mPathTouchThreshold = value;
+    }
+
+
+    /********************************************************************************************
+     * Public listener and interface
+     */
+
+    /**
+     * Generic event listener
+     */
+    @SuppressWarnings("unused")
+    public interface OnPathTouchListener {
+
+        /**
+         * Called when the path is touched.
+         *
+         * @param distance the distance from the path start
+         */
+        void onTouch(float distance);
+
+        /**
+         * Called when the user release the pressure.
+         */
+        void onRelease();
+
+        /**
+         * Called when the user move the pressure on the screen.
+         * This called only if before had a onTouch event.
+         *
+         * @param distance the distance from the path start
+         */
+        void onSlide(float distance);
+    }
+
+    /**
+     * Set the generic event listener
+     *
+     * @param listener the listener
+     */
+    @SuppressWarnings("unused")
+    public void setOnPathTouchListener(OnPathTouchListener listener) {
+        this.mOnPathTouchListener = listener;
     }
 
 }

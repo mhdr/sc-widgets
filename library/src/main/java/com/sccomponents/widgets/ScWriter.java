@@ -73,20 +73,6 @@ public class ScWriter extends ScFeature {
      */
 
     /**
-     * Reset the token info.
-     *
-     * @param info the token info
-     */
-    private void resetTokenInfo(TokenInfo info) {
-        info.point = null;
-        info.offset = new PointF(this.mTokenOffset.x, this.mTokenOffset.y);
-        info.position = TokenPositions.OUTSIDE;
-        info.unbend = this.mUnbend;
-        info.color = this.mPaint.getColor();
-        info.visible = true;
-    }
-
-    /**
      * Calculate the extra vertical offset by the text position respect to the path.
      *
      * @param info the token info
@@ -271,7 +257,10 @@ public class ScWriter extends ScFeature {
             boolean isLast = index == this.mTokens.length - 1;
 
             // Define the notch info structure and fill with the local settings
-            this.resetTokenInfo(info);
+            info.point = null;
+            info.offset = new PointF(this.mTokenOffset.x, this.mTokenOffset.y);
+            info.position = this.mTokenPosition;
+            info.unbend = this.mUnbend;
             info.text = this.mTokens[index];
             info.index = index;
             info.distance = (index + (this.mLastTokenOnEnd && isLast ? -1 : 0)) * step;
@@ -304,12 +293,10 @@ public class ScWriter extends ScFeature {
      * Public classes and methods
      */
 
-    // TODO: revise the note
-
     /**
      * This is a structure to hold the token information before draw it
      * Note that the "point" represent the point from will start to draw.
-     * Note that the "distance" is the distance from the oath starting.
+     * Note that the "distance" is the distance from the path starting.
      * Note that the "angle" is in degrees.
      */
     public class TokenInfo {

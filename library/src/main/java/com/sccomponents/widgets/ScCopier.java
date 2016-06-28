@@ -10,8 +10,6 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.Shader;
 
-import com.sccomponents.utils.ScObserver;
-
 /**
  * Create a copy of the path.
  * The most important of this feature is that can decide the path segment to draw.
@@ -26,13 +24,6 @@ public class ScCopier extends ScFeature {
      * Private and protected variables
      */
 
-    private Path mSegment;
-    private Matrix mMatrix;
-    private Shader mShader;
-
-    private ScObserver mPaintObserver;
-    private ScObserver mPathObserver;
-
     private OnDrawListener mOnDrawListener;
 
 
@@ -44,66 +35,54 @@ public class ScCopier extends ScFeature {
     public ScCopier(Path path) {
         // Super
         super(path);
-
-        // Init
-        this.mSegment = new Path();
-        this.mMatrix = new Matrix();
-
-        // Observers
-        this.mPathObserver = new ScObserver(this.mPath);
-        this.mPaintObserver = new ScObserver(this.mPaint);
     }
 
 
     /****************************************************************************************
-     * Shader
+     * Draw methods
+     *
+     * ATTENTION!
+     * In these methods I used to instantiate new objects and is preferable NOT do it for improve
+     * the performance of the component drawing.
+     * In case of low performance the first solution must be to move the new object creation in
+     * the global scope for do it once.
      */
 
     /**
-     * Create the paint shader.
-     * This methods need to define what kind of shader filling to coloring the draw path.
-     * Essentially there are two different mode of filling: GRADIENT or SOLID.
-     * <p/>
-     * Note that this method was created to be a generic method for work proper on all path but
-     * could be slow given the big amount of calculations. So in any case may be better to create
-     * a custom shader to attach directly to the painter.
-     * <p/>
-     * In all cases this method will create a series of color that following the path and in some
-     * case this could be not the right choice.
-     * For example if you build a filled circle might be better to create a radial gradient.
+     * Create a colored bitmap following the path.
+     * Note that the bitmap will be created on the whole path and not on the extracted segment.
+     * This bitmap is rough and must clipped before draw it on the destination canvas.
      *
-     * @return return the shader
+     * @return the bitmap
      */
-    protected Shader createShader() {
-        // Check no values inside the array
-        if (this.mColors == null || this.mColors.length < 2)
-            return null;
-
-        // Create the bitmap using the path boundaries
+    private Bitmap createColoredBitmap() {
+        // Create the bitmap using the path boundaries and retrieve the canvas where draw
         RectF bounds = this.mPathMeasure.getBounds();
         Bitmap bitmap = Bitmap.createBitmap(
-                (int) bounds.right, (int) bounds.bottom, Bitmap.Config.ARGB_8888);
-
-        // Retrieve the canvas where draw and create the painter to use
+                (int) (bounds.right + this.mPaint.getStrokeWidth()),
+                (int) (bounds.bottom + this.mPaint.getStrokeWidth()),
+                Bitmap.Config.ARGB_8888
+        );
         Canvas canvas = new Canvas(bitmap);
-        Paint clonePaint = new Paint(this.mPaint);
 
         // Hold if a rounded stroke and the point holder
         boolean isRoundedStroke = this.mPaint.getStrokeCap() == Paint.Cap.ROUND;
+        float halfStroke = this.mPaint.getStrokeWidth() / 2;
         float[] point;
 
         // Cycle all points of the path
         for (int distance = 0; distance < this.mPathLength; distance++) {
-            // Get the point and check for null value
+            // Get the point and adjust the for the stroke size
             point = this.mPathMeasure.getPosTan(distance);
+            point[0] += halfStroke;
 
             // Trigger for index position and get the color
             boolean isFirstOrLast = distance == 0 || distance == this.mPathLength - 1;
             int color = this.getGradientColor(distance);
 
             // Set the current painter color and stroke
-            clonePaint.setColor(color);
-            clonePaint.setStrokeCap(
+            this.mPaint.setColor(color);
+            this.mPaint.setStrokeCap(
                     isRoundedStroke && isFirstOrLast ? Paint.Cap.ROUND : Paint.Cap.BUTT);
 
             // If the round stroke is not settled the point have a square shape.
@@ -111,28 +90,36 @@ public class ScCopier extends ScFeature {
             // To avoid this issue the point (square) will be rotate of the tangent angle
             // before to write it on the canvas.
             canvas.save();
-            canvas.rotate((float) Math.toDegrees(point[3]), point[0], point[1]);
-            canvas.drawPoint(point[0], point[1], clonePaint);
+            canvas.rotate((float) Math.toDegrees(point[3]), point[0] - halfStroke, point[1]);
+            canvas.drawPoint(point[0], point[1], this.mPaint);
             canvas.restore();
         }
 
-        // Return the shader
-        return new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        // Return the new bitmap
+        return bitmap;
     }
 
-
-    /****************************************************************************************
-     * Draw methods
+    /**
+     * Draw a copy of the source path on the canvas.
+     *
+     * @param canvas the destination canvas
      */
-
     private void drawCopy(Canvas canvas) {
         // Convert the percentage values in distance referred to the current path length.
         float startDistance = (this.mPathLength * this.mStartPercentage) / 100.0f;
         float endDistance = (this.mPathLength * this.mEndPercentage) / 100.0f;
 
         // Extract the segment to draw
-        this.mSegment.reset();
-        this.mPathMeasure.getSegment(startDistance, endDistance, this.mSegment, true);
+        Path segment = new Path();
+        this.mPathMeasure.getSegment(startDistance, endDistance, segment, true);
+
+        // Check the number of colors and create the shader if needed
+        BitmapShader shader = null;
+        if (this.mColors != null && this.mColors.length > 0) {
+            // Create the shader
+            shader = new BitmapShader(
+                    this.createColoredBitmap(), Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        }
 
         // Check the listener
         if (this.mOnDrawListener != null) {
@@ -146,22 +133,27 @@ public class ScCopier extends ScFeature {
             this.mOnDrawListener.onBeforeDrawCopy(info);
 
             // Define the matrix to transform the path and the shader
-            this.mMatrix.postScale(info.scale.x, info.scale.y);
-            this.mMatrix.postTranslate(info.offset.x, info.offset.y);
-            this.mMatrix.postRotate(
+            Matrix matrix = new Matrix();
+            matrix.postScale(info.scale.x, info.scale.y);
+            matrix.postTranslate(info.offset.x, info.offset.y);
+            matrix.postRotate(
                     info.rotate,
                     this.mPathMeasure.getBounds().centerX(),
                     this.mPathMeasure.getBounds().centerY()
             );
 
-            // Apply
-            if (this.mShader != null) this.mShader.setLocalMatrix(this.mMatrix);
-            if (this.mSegment != null) this.mSegment.transform(this.mMatrix);
+            // Apply the matrix on the shader
+            if (shader != null) shader.setLocalMatrix(matrix);
+            // Apply the matrix on the segment
+            segment.transform(matrix);
         }
 
-        // Draw only a path segment if the canvas is not null
-        if (canvas != null) {
-            canvas.drawPath(this.mSegment, this.mPaint);
+        // Draw only a path segment if the canvas is not null and the painter allow to draw
+        if (canvas != null && this.mPaint != null &&
+                (this.mPaint.getStyle() != Paint.Style.STROKE || this.mPaint.getStrokeWidth() > 0)) {
+            // Draw the segment on the canvas
+            this.mPaint.setShader(shader);
+            canvas.drawPath(segment, this.mPaint);
         }
     }
 
@@ -180,12 +172,6 @@ public class ScCopier extends ScFeature {
         //Check the domain
         if (this.mPath == null || this.mStartPercentage == this.mEndPercentage)
             return;
-
-        // Refresh the shader if needed
-        if (this.mPathObserver.isChanged() || this.mPaintObserver.isChanged()) {
-            this.mShader = this.createShader();
-            this.mPaint.setShader(this.mShader);
-        }
 
         // Draw a copy
         this.drawCopy(canvas);

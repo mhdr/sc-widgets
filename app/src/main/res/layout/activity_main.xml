@@ -10,21 +10,67 @@
     android:padding="10dp"
     android:weightSum="1">
 
-    <com.sccomponents.widgets.ScArcGauge
-        android:layout_width="300dp"
+    <FrameLayout
+        android:layout_width="230dp"
         android:layout_height="wrap_content"
-        android:padding="30dp"
-        android:background="#f5f5f5"
-        sc:scc_angle_start="135"
-        sc:scc_angle_sweep="270"
-        sc:scc_stroke_size="6dp"
-        sc:scc_progress_size="4dp"
-        sc:scc_value="45"
-        sc:scc_notchs="8"
-        sc:scc_notchs_length="10dp"
-        sc:scc_text_tokens="01|02|03|04|05|06|07|08"
-        sc:scc_pointer_radius="10dp"
-        />
+        android:background="#f5f5f5">
+
+        <com.sccomponents.widgets.ScArcGauge
+            android:id="@+id/gauge"
+            xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:padding="30dp"
+            sc:scc_angle_start="-90"
+            sc:scc_stroke_size="4dp"
+            sc:scc_stroke_color="#e9e6e6"
+            sc:scc_pointer_radius="10dp"
+            sc:scc_pointer_color="#a4abaa"
+            sc:scc_progress_size="4dp"
+            sc:scc_progress_color="#a4abaa"
+            sc:scc_path_touchable="true"
+            sc:scc_notchs="1"
+            sc:scc_notchs_size="4dp"
+            sc:scc_notchs_length="10dp"
+            sc:scc_notchs_color="#e9e6e6"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LOW"
+                android:textColor="#dddada"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#a4abaa"
+                android:id="@+id/lowValue"
+                android:textSize="20dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HIGHT"
+                android:textColor="#dddada"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#a4abaa"
+                android:id="@+id/highValue"
+                android:textSize="20dp"/>
+
+        </LinearLayout>
+
+    </FrameLayout>
 
 </LinearLayout>
 
