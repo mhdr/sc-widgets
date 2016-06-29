@@ -63,6 +63,7 @@ public abstract class ScDrawer extends ScWidget {
     protected PointF mAreaScale;
 
     protected List<ScFeature> mFeatures;
+    private boolean mFeaturesMustBeRefresh;
 
     private FillingArea mFillingArea;
     private FillingMode mFillingMode;
@@ -178,6 +179,7 @@ public abstract class ScDrawer extends ScWidget {
         this.checkValues();
         this.mPathMeasure = new ScPathMeasure();
         this.mCopyPath = new Path();
+        this.mFeaturesMustBeRefresh = true;
     }
 
     /**
@@ -290,9 +292,18 @@ public abstract class ScDrawer extends ScWidget {
         if (this.mFeatures != null) {
             // Cycle all features
             for (ScFeature feature : this.mFeatures) {
-                //Call the draw methods.
-                feature.draw(canvas);
+                // Check for empty value
+                if (feature != null) {
+                    // Check if need to refresh
+                    if (this.mFeaturesMustBeRefresh) {
+                        feature.refresh();
+                    }
+                    //Call the draw methods.
+                    feature.draw(canvas);
+                }
             }
+            // Trigger
+            this.mFeaturesMustBeRefresh = false;
         }
     }
 
@@ -360,10 +371,6 @@ public abstract class ScDrawer extends ScWidget {
         if (this.mPath == null ||
                 (this.mDrawArea == null || this.mDrawArea.isEmpty())) return;
 
-        // Create a copy of the original path.
-        // I need to move the offset or scale the path and not want lost the original one values.
-        this.mCopyPath.set(this.mPath);
-
         // Select the drawing mode by the case
         switch (this.mFillingMode) {
             // Draw
@@ -397,6 +404,11 @@ public abstract class ScDrawer extends ScWidget {
         // Force to re-create the path passing the real dimensions to draw and get the measurer
         this.mPath = this.createPath(width - widthGlobalPadding, height - heightGlobalPadding);
         this.mPathMeasure.setPath(this.mPath, false);
+
+        // Create a copy of the original path.
+        // I need to move the offset or scale the path and not want lost the original one values.
+        this.mCopyPath.set(this.mPath);
+        this.mFeaturesMustBeRefresh = true;
 
         // If have some dimension to wrap will use the path boundaries for have the right
         // dimension summed to the global padding.
@@ -938,7 +950,7 @@ public abstract class ScDrawer extends ScWidget {
      */
     @SuppressWarnings("unused")
     public void setPathTouchThreshold(float value) {
-            this.mPathTouchThreshold = value;
+        this.mPathTouchThreshold = value;
     }
 
 

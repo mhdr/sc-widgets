@@ -6,8 +6,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 
-import java.util.Arrays;
-
 /**
  * Create a feature to draw on a given path.
  * <p/>
@@ -118,10 +116,6 @@ public class ScFeature {
         // Check for the visibility
         if (!this.mVisible || this.mPath == null) return;
 
-        // Refresh the path if needed
-        this.mPathMeasure.setPath(this.mPath, false);
-        this.mPathLength = this.mPathMeasure.getLength();
-
         // If the have only one color inside the colors array set it directly on the painter
         if (this.mColors != null && this.mColors.length == 1) {
             this.mPaint.setColor(this.mColors[0]);
@@ -129,6 +123,15 @@ public class ScFeature {
 
         // Call the base onDraw method
         this.onDraw(canvas);
+    }
+
+    /**
+     * Refresh the feature measure.
+     */
+    @SuppressWarnings("unused")
+    public void refresh() {
+        this.mPathMeasure.setPath(this.mPath, false);
+        this.mPathLength = this.mPathMeasure.getLength();
     }
 
     /**
@@ -209,7 +212,7 @@ public class ScFeature {
         // Get the point
         float[] point = this.mPathMeasure.getPosTan(distance);
         // Check and return
-        return point == null ? null : (float) Math.toDegrees(point[3]);
+        return point == null ? 0.0f : (float) Math.toDegrees(point[3]);
     }
 
     /**

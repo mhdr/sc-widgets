@@ -17,9 +17,6 @@ The class is a basic class and not expose only one proprietary method and all th
  
 #### Public Methods
 
-- **void forceToCreateGradient()**<br />
-Force to recreate the bitmap shader with the colors gradient.
-
 - **void setOnDrawListener(OnDrawListener listener)**<br />
 Link the listener.
 

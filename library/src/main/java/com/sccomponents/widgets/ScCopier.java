@@ -206,6 +206,15 @@ public class ScCopier extends ScFeature {
 
 
     /**
+     * Refresh the feature measure.
+     */
+    @Override
+    public void refresh() {
+        super.refresh();
+        this.mForceCreateShader = true;
+    }
+
+    /**
      * Set the current stroke colors
      *
      * @param value the new stroke colors
@@ -251,14 +260,6 @@ public class ScCopier extends ScFeature {
         public PointF offset;
         public float rotate;
 
-    }
-
-    /**
-     * Force to recreate the bitmap shader with the colors gradient.
-     */
-    @SuppressWarnings("unused")
-    public void forceToCreateGradient() {
-        this.mForceCreateShader = true;
     }
 
 

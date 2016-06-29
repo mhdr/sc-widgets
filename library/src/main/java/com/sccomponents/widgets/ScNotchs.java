@@ -93,6 +93,9 @@ public class ScNotchs extends ScFeature {
      * @param info   the notch info
      */
     private void drawLine(Canvas canvas, NotchInfo info) {
+        // Check the point
+        if (info.point == null) return;
+
         // Global offset
         float globalOffset = info.offset;
         if (info.align == NotchPositions.MIDDLE) globalOffset -= info.length / 2;
@@ -120,6 +123,9 @@ public class ScNotchs extends ScFeature {
      * @param info   the notch info
      */
     private void drawCircle(Canvas canvas, NotchInfo info) {
+        // Check the point
+        if (info.point == null) return;
+
         // Global offset
         float radius = info.length / 2;
         float globalOffset = info.offset;

@@ -124,23 +124,10 @@ You can download the indicator image used below from [**HERE**](indicator-06.png
 ####### Example 2
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-02.jpg"> 
-You can download the indicator image used below from [**HERE**](indicator-02.png).
-```xml
-```
-
-```java
-```
-
-
----
-####### Example 4
-
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/i-05.jpg">
-This is another way to proceed.
-You can download the indicator image used below from [**HERE**](indicator-05.png).
+You can download the indicator image used below from [**HERE**](indicator-07.png).
 ```xml
     <FrameLayout
-        android:layout_width="230dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:background="#f5f5f5">
 
@@ -151,20 +138,29 @@ You can download the indicator image used below from [**HERE**](indicator-05.png
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:padding="30dp"
-            sc:scc_angle_start="180"
-            sc:scc_angle_sweep="180"
-            sc:scc_stroke_size="50dp"/>
+            sc:scc_angle_start="135"
+            sc:scc_angle_sweep="270"
+            sc:scc_stroke_size="10dp"
+            sc:scc_notchs="80"
+            sc:scc_notchs_size="1dp"
+            sc:scc_notchs_length="10dp"
+            sc:scc_notchs_color="#000000"
+            sc:scc_progress_size="3dp"
+            sc:scc_path_touchable="true"/>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:id="@+id/counter"
-            android:layout_gravity="bottom|center"
-            android:textColor="#f5f5f5"
-            android:textSize="40dp"
+            android:layout_gravity="center"
+            android:textColor="#424242"
+            android:textSize="32dp"
             android:textStyle="bold"
-            android:text="0"
-            android:layout_marginLeft="5dp"/>
+            android:text="0.0°"
+            android:layout_marginRight="2dp"
+            android:background="#d8dee0"
+            android:gravity="center"
+            android:paddingLeft="10dp"/>
 
     </FrameLayout>
 ```
@@ -180,39 +176,73 @@ You can download the indicator image used below from [**HERE**](indicator-05.png
     // Create a drawable
     final Bitmap indicator = BitmapFactory.decodeResource(this.getResources(), R.drawable.indicator);
 
-    // If you set the value from the xml that not produce an event so I will change the
-    // value from code.
-    gauge.setHighValue(30);
+    // Set the values.
+    gauge.setHighValue(14, -10, 30);
+    gauge.setPathTouchThreshold(40);
 
-    // Get the base feature
+    // Set colors of the base
     final ScFeature base = gauge.findFeature(ScGauge.BASE_IDENTIFIER);
     base.setColors(
-            Color.parseColor("#079900"), Color.parseColor("#079900"),
-            Color.parseColor("#F0F501"), Color.parseColor("#F0F501"),
-            Color.parseColor("#F6C713"), Color.parseColor("#F6C713"),
-            Color.parseColor("#F36300"), Color.parseColor("#F36300"),
-            Color.parseColor("#BD0000"), Color.parseColor("#BD0000")
+            Color.parseColor("#15B7FF"), Color.parseColor("#15B7FF"),
+            Color.parseColor("#98CA06"), Color.parseColor("#98CA06"),
+            Color.parseColor("#98CA06"), Color.parseColor("#98CA06"),
+            Color.parseColor("#98CA06"),
+            Color.parseColor("#DC1E10")
     );
+    base.setFillingColors(ScFeature.ColorsMode.SOLID);
+
+    // Notchs
+    ScNotchs notchs = (ScNotchs) gauge.findFeature(ScGauge.NOTCHS_IDENTIFIER);
+    notchs.setPosition(ScNotchs.NotchPositions.INSIDE);
+
+    // Writer
+    String[] tokens = new String[9];
+    for (int index = 0; index < 9; index++) {
+        tokens[index] = Integer.toString(index * 5 - 10);
+    }
+
+    ScWriter writer = (ScWriter) gauge.findFeature(ScGauge.WRITER_IDENTIFIER);
+    writer.setTokens(tokens);
+    writer.setLastTokenOnEnd(true);
+    writer.setPosition(ScWriter.TokenPositions.INSIDE);
 
     // Each time I will change the value I must write it inside the counter text.
     gauge.setOnEventListener(new ScGauge.OnEventListener() {
         @Override
         public void onValueChange(float lowValue, float highValue) {
             // Write the value
-            counter.setTextColor(base.getGradientColor(highValue, 100));
-            counter.setText((int) highValue + "°");
+            highValue = ScGauge.percentageToValue(highValue, -10, 30);
+            float round = (Math.round(highValue * 10.0f)) / 10.0f;
+            counter.setText(Float.toString(round) + "°");
         }
     });
 
     gauge.setOnDrawListener(new ScGauge.OnDrawListener() {
         @Override
         public void onBeforeDrawCopy(ScCopier.CopyInfo info) {
-            // Do nothing
+            // Check if is the progress
+            if (info.source.getTag() == ScGauge.PROGRESS_IDENTIFIER) {
+                // Scale and adjust the offset
+                info.scale = new PointF(1.1f, 1.1f);
+                info.offset = new PointF(-28, -28);
+
+                // Adjust the color
+                int color = base.getGradientColor(gauge.getHighValue(), 100);
+                info.source.getPainter().setColor(color);
+            }
         }
 
         @Override
         public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
-            // Do nothing
+            // Move the offset
+            info.offset = -info.length / 2;
+
+            // Check for module highlight the notchs than have module 5 and 10
+            if (info.index % 10 == 0) {
+                info.size = 6;
+            } else if (info.index % 5 != 0) {
+                info.length -= 5;
+            }
         }
 
         @Override
@@ -221,7 +251,7 @@ You can download the indicator image used below from [**HERE**](indicator-05.png
             if (info.source.getTag() == ScGauge.HIGH_POINTER_IDENTIFIER) {
                 // Adjust the offset
                 info.offset.x = -indicator.getWidth() / 2;
-                info.offset.y = -indicator.getHeight() / 2;
+                info.offset.y = -indicator.getHeight() / 2 - gauge.getStrokeSize();
                 // Assign the bitmap to the pointer info structure
                 info.bitmap = indicator;
             }
@@ -229,10 +259,259 @@ You can download the indicator image used below from [**HERE**](indicator-05.png
 
         @Override
         public void onBeforeDrawToken(ScWriter.TokenInfo info) {
+            // Center on the notchs
+            Rect bounds = new Rect();
+            info.source.getPainter().getTextBounds(info.text, 0, info.text.length(), bounds);
+            info.offset.x = - (bounds.width() / 2) - 1;
+        }
+    });
+```
+
+
+---
+####### Example 3
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-03.jpg"> 
+```xml
+    <FrameLayout
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:background="#f5f5f5">
+
+        <com.sccomponents.widgets.ScArcGauge
+            android:id="@+id/gauge"
+            xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:padding="30dp"
+            sc:scc_angle_start="-90"
+            sc:scc_stroke_size="10dp"
+            sc:scc_stroke_color="#dbdfe6"
+            sc:scc_progress_size="10dp"
+            sc:scc_progress_color="#6184be"
+            />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#b6c2d5"
+            android:textSize="30dp"
+            android:text="Loading"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/counter"
+            android:textColor="#6184be"
+            android:textSize="44dp"
+            android:textStyle="bold"
+            android:text="0%"
+            android:gravity="center"
+            android:paddingLeft="10dp"/>
+
+        </LinearLayout>
+
+    </FrameLayout>
+```
+
+```java
+    // Find the components
+    final ScArcGauge gauge = (ScArcGauge) this.findViewById(R.id.gauge);
+    assert gauge != null;
+
+    final TextView counter = (TextView) this.findViewById(R.id.counter);
+    assert counter != null;
+
+    // Clear all default features from the gauge
+    gauge.removeAllFeatures();
+
+    // Take in mind that when you tagged a feature after this feature inherit the principal
+    // characteristic of the identifier.
+    // For example in the case of the BASE_IDENTIFIER the feature notchs (always) will be
+    // settle as the color and stroke size settle for the base (in xml or via code).
+
+    // Create the base notchs.
+    ScNotchs base = (ScNotchs) gauge.addFeature(ScNotchs.class);
+    base.setTag(ScGauge.BASE_IDENTIFIER);
+    base.setCount(40);
+    base.setLength(gauge.dipToPixel(18));
+
+    // Note that I will create two progress because to one will add the blur and to the other
+    // will be add the emboss effect.
+
+    // Create the progress notchs.
+    ScNotchs progressBlur = (ScNotchs) gauge.addFeature(ScNotchs.class);
+    progressBlur.setTag(ScGauge.PROGRESS_IDENTIFIER);
+    progressBlur.setCount(40);
+    progressBlur.setLength(gauge.dipToPixel(18));
+
+    // Create the progress notchs.
+    ScNotchs progressEmboss = (ScNotchs) gauge.addFeature(ScNotchs.class);
+    progressEmboss.setTag(ScGauge.PROGRESS_IDENTIFIER);
+    progressEmboss.setCount(40);
+    progressEmboss.setLength(gauge.dipToPixel(18));
+
+    // Blur filter
+    BlurMaskFilter blur = new BlurMaskFilter(5.0f, BlurMaskFilter.Blur.SOLID);
+    progressBlur.getPainter().setMaskFilter(blur);
+
+    // Emboss filter
+    EmbossMaskFilter emboss = new EmbossMaskFilter(new float[]{0.0f, 1.0f, 0.5f}, 0.8f, 3.0f, 0.5f);
+    progressEmboss.getPainter().setMaskFilter(emboss);
+
+    // Set the value
+    gauge.setHighValue(60);
+
+    // Each time I will change the value I must write it inside the counter text.
+    gauge.setOnEventListener(new ScGauge.OnEventListener() {
+        @Override
+        public void onValueChange(float lowValue, float highValue) {
+            // Write the value
+            counter.setText((int) highValue + "%");
+        }
+    });    
+```
+
+
+---
+####### Example 4
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-04.jpg"> 
+```xml
+    <FrameLayout
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:background="#f5f5f5">
+
+        <com.sccomponents.widgets.ScArcGauge
+            android:id="@+id/gauge"
+            xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:padding="10dp"
+            sc:scc_angle_start="-180"
+            sc:scc_angle_sweep="90"
+            sc:scc_stroke_size="4dp"
+            sc:scc_stroke_color="#dbdfe6"
+            sc:scc_progress_size="4dp"
+            sc:scc_progress_color="#6184be"
+            />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="right"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#b6c2d5"
+            android:textSize="20dp"
+            android:text="speedometer"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/counter"
+            android:textColor="#787b80"
+            android:textSize="40dp"
+            android:textStyle="bold"
+            android:text="0"
+            android:gravity="center"
+            android:paddingLeft="10dp"/>
+
+        </LinearLayout>
+
+    </FrameLayout>
+```
+
+```java
+    // Find the components
+    final ScArcGauge gauge = (ScArcGauge) this.findViewById(R.id.gauge);
+    assert gauge != null;
+
+    final TextView counter = (TextView) this.findViewById(R.id.counter);
+    assert counter != null;
+
+    // Clear all default features from the gauge
+    gauge.removeAllFeatures();
+
+    // Take in mind that when you tagged a feature after this feature inherit the principal
+    // characteristic of the identifier.
+    // For example in the case of the BASE_IDENTIFIER the feature notchs (always) will be
+    // settle as the color and stroke size settle for the base (in xml or via code).
+
+    // Create the base notchs.
+    ScNotchs base = (ScNotchs) gauge.addFeature(ScNotchs.class);
+    base.setTag(ScGauge.BASE_IDENTIFIER);
+    base.setCount(40);
+    base.setPosition(ScNotchs.NotchPositions.INSIDE);
+
+    // Note that I will create two progress because to one will add the blur and to the other
+    // will be add the emboss effect.
+
+    // Create the progress notchs.
+    ScNotchs progress = (ScNotchs) gauge.addFeature(ScNotchs.class);
+    progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
+    progress.setCount(40);
+    progress.setPosition(ScNotchs.NotchPositions.INSIDE);
+    progress.setColors(
+            Color.parseColor("#0BA60A"),
+            Color.parseColor("#FEF301"),
+            Color.parseColor("#EA0C01")
+    );
+
+    // Set the value
+    gauge.setHighValue(90);
+
+    // Each time I will change the value I must write it inside the counter text.
+    gauge.setOnEventListener(new ScGauge.OnEventListener() {
+        @Override
+        public void onValueChange(float lowValue, float highValue) {
+            // Write the value
+            counter.setText((int) highValue + "%");
+        }
+    });
+
+    // Before draw
+    gauge.setOnDrawListener(new ScGauge.OnDrawListener() {
+        @Override
+        public void onBeforeDrawCopy(ScCopier.CopyInfo info) {
+            // Do nothing
+        }
+
+        @Override
+        public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+            // Set the length of the notch
+            info.source.setLength(gauge.dipToPixel(info.index + 5));
+        }
+
+        @Override
+        public void onBeforeDrawPointer(ScPointer.PointerInfo info) {
+            // Do nothing
+        }
+
+        @Override
+        public void onBeforeDrawToken(ScWriter.TokenInfo info) {
             // Do nothing
         }
     });
-}
 ```
 
 

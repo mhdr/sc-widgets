@@ -34,6 +34,9 @@ When you use the colors properties to create a shader it will create as a Bitmap
 - **void draw(Canvas canvas)**<br />
 Draw something on the canvas.
 
+- **void refresh()**<br />
+Refresh the feature measure.
+
 - **static PointF toPoint(float[] point)**<br />
 Convert a point represented by an array to an modern object.
 Supposed that the 0 array position correspond to the x coordinate and on the 1 array position correspond the y coordinate.
