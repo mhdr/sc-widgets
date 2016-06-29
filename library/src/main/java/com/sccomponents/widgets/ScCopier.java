@@ -1,5 +1,6 @@
 package com.sccomponents.widgets;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
@@ -9,6 +10,8 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.Shader;
+
+import java.util.Arrays;
 
 /**
  * Create a copy of the path.
@@ -24,6 +27,10 @@ public class ScCopier extends ScFeature {
      * Private and protected variables
      */
 
+    private Path mSegment;
+    private Bitmap mGradientBitmap;
+    private boolean mForceCreateShader;
+
     private OnDrawListener mOnDrawListener;
 
 
@@ -35,6 +42,10 @@ public class ScCopier extends ScFeature {
     public ScCopier(Path path) {
         // Super
         super(path);
+
+        // Init
+        this.mSegment = new Path();
+        this.mForceCreateShader = true;
     }
 
 
@@ -110,15 +121,14 @@ public class ScCopier extends ScFeature {
         float endDistance = (this.mPathLength * this.mEndPercentage) / 100.0f;
 
         // Extract the segment to draw
-        Path segment = new Path();
-        this.mPathMeasure.getSegment(startDistance, endDistance, segment, true);
+        this.mSegment.reset();
+        this.mPathMeasure.getSegment(startDistance, endDistance, this.mSegment, true);
 
-        // Check the number of colors and create the shader if needed
+        // Create the shader
         BitmapShader shader = null;
-        if (this.mColors != null && this.mColors.length > 0) {
-            // Create the shader
+        if (this.mGradientBitmap != null) {
             shader = new BitmapShader(
-                    this.createColoredBitmap(), Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+                    this.mGradientBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
         }
 
         // Check the listener
@@ -145,15 +155,17 @@ public class ScCopier extends ScFeature {
             // Apply the matrix on the shader
             if (shader != null) shader.setLocalMatrix(matrix);
             // Apply the matrix on the segment
-            segment.transform(matrix);
+            this.mSegment.transform(matrix);
         }
+
+        // Apply the shader to the painter
+        this.mPaint.setShader(shader);
 
         // Draw only a path segment if the canvas is not null and the painter allow to draw
         if (canvas != null && this.mPaint != null &&
                 (this.mPaint.getStyle() != Paint.Style.STROKE || this.mPaint.getStrokeWidth() > 0)) {
             // Draw the segment on the canvas
-            this.mPaint.setShader(shader);
-            canvas.drawPath(segment, this.mPaint);
+            canvas.drawPath(this.mSegment, this.mPaint);
         }
     }
 
@@ -167,14 +179,59 @@ public class ScCopier extends ScFeature {
      *
      * @param canvas where draw
      */
+    @SuppressLint("DrawAllocation")
     @Override
     protected void onDraw(Canvas canvas) {
         //Check the domain
         if (this.mPath == null || this.mStartPercentage == this.mEndPercentage)
             return;
 
+        // Check the number of colors for create the shader if requested
+        if (this.mColors != null && this.mColors.length > 0) {
+            // Check if need to create the shader bitmap
+            if (this.mForceCreateShader) {
+                // Create the bitmap
+                this.mForceCreateShader = false;
+                this.mGradientBitmap = this.createColoredBitmap();
+            }
+
+        } else {
+            // Reset the shader
+            this.mGradientBitmap = null;
+        }
+
         // Draw a copy
         this.drawCopy(canvas);
+    }
+
+
+    /**
+     * Set the current stroke colors
+     *
+     * @param value the new stroke colors
+     */
+    @Override
+    public void setColors(int... value) {
+        // Check if value is changed
+        if (!Arrays.equals(this.mColors, value)) {
+            this.mForceCreateShader = true;
+            super.setColors(value);
+        }
+    }
+
+    /**
+     * Set the colors filling mode.
+     * You can have to way for draw the colors of the path: SOLID or GRADIENT.
+     *
+     * @param value the new color filling mode
+     */
+    @Override
+    public void setFillingColors(ColorsMode value) {
+        // Check if value is changed
+        if (this.mColorsMode != value) {
+            this.mForceCreateShader = true;
+            super.setFillingColors(value);
+        }
     }
 
 
@@ -194,6 +251,14 @@ public class ScCopier extends ScFeature {
         public PointF offset;
         public float rotate;
 
+    }
+
+    /**
+     * Force to recreate the bitmap shader with the colors gradient.
+     */
+    @SuppressWarnings("unused")
+    public void forceToCreateGradient() {
+        this.mForceCreateShader = true;
     }
 
 

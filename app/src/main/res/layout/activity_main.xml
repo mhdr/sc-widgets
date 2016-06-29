@@ -11,7 +11,7 @@
     android:weightSum="1">
 
     <FrameLayout
-        android:layout_width="230dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:background="#f5f5f5">
 
@@ -22,53 +22,29 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:padding="30dp"
-            sc:scc_angle_start="-90"
-            sc:scc_stroke_size="4dp"
-            sc:scc_stroke_color="#e9e6e6"
-            sc:scc_pointer_radius="10dp"
-            sc:scc_pointer_color="#a4abaa"
-            sc:scc_progress_size="4dp"
-            sc:scc_progress_color="#a4abaa"
-            sc:scc_path_touchable="true"
-            sc:scc_notchs="1"
-            sc:scc_notchs_size="4dp"
+            sc:scc_angle_start="135"
+            sc:scc_angle_sweep="270"
+            sc:scc_stroke_size="10dp"
+            sc:scc_notchs="80"
+            sc:scc_notchs_size="1dp"
             sc:scc_notchs_length="10dp"
-            sc:scc_notchs_color="#e9e6e6"/>
+            sc:scc_notchs_color="#000000"
+            sc:scc_progress_size="3dp"
+            sc:scc_path_touchable="true"/>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:id="@+id/counter"
             android:layout_gravity="center"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="LOW"
-                android:textColor="#dddada"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#a4abaa"
-                android:id="@+id/lowValue"
-                android:textSize="20dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="HIGHT"
-                android:textColor="#dddada"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#a4abaa"
-                android:id="@+id/highValue"
-                android:textSize="20dp"/>
-
-        </LinearLayout>
+            android:textColor="#424242"
+            android:textSize="32dp"
+            android:textStyle="bold"
+            android:text="0.0°"
+            android:layout_marginRight="2dp"
+            android:background="#d8dee0"
+            android:gravity="center"
+            android:paddingStart="10dp"/>
 
     </FrameLayout>
 

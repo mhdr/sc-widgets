@@ -2,7 +2,6 @@ package com.sccomponents.widgets;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
@@ -34,7 +33,9 @@ public class ScPointer extends ScFeature {
 
     private float mHaloWidth;
     private int mHaloAlpha;
+
     private Paint mHaloPaint;
+    private Paint mPaintClone;
 
     private OnDrawListener mOnDrawListener;
 
@@ -58,6 +59,7 @@ public class ScPointer extends ScFeature {
         this.mPaint.setStyle(Paint.Style.FILL);
 
         this.mHaloPaint = new Paint();
+        this.mPaintClone = new Paint(this.mPaint);
     }
 
 
@@ -80,7 +82,7 @@ public class ScPointer extends ScFeature {
      */
     private void drawCircles(Canvas canvas, PointerInfo info) {
         // Set the halo painter
-        this.mHaloPaint.set(this.mPaint);
+        this.mHaloPaint.set(this.mPaintClone);
         this.mHaloPaint.setAlpha(info.pressed ? 255 : this.mHaloAlpha);
         this.mHaloPaint.setStyle(Paint.Style.STROKE);
         this.mHaloPaint.setStrokeWidth(this.mHaloWidth);
@@ -92,7 +94,7 @@ public class ScPointer extends ScFeature {
         if (canvas != null && this.mPointerRadius > 0.0f) {
             // Draw the halo and the pointer
             canvas.drawCircle(info.point.x, info.point.y, this.mPointerRadius, this.mHaloPaint);
-            canvas.drawCircle(info.point.x, info.point.y, this.mPointerRadius, this.mPaint);
+            canvas.drawCircle(info.point.x, info.point.y, this.mPointerRadius, this.mPaintClone);
         }
     }
 
@@ -143,8 +145,9 @@ public class ScPointer extends ScFeature {
         }
 
         // Set the pointer painter
-        this.mPaint.setColor(info.color);
-        this.mPaint.setAlpha(info.pressed ? this.mHaloAlpha : 255);
+        this.mPaintClone.set(this.mPaint);
+        this.mPaintClone.setColor(info.color);
+        this.mPaintClone.setAlpha(info.pressed ? this.mHaloAlpha : 255);
 
         // Check if the bitmap is not null
         if (info.bitmap != null) {

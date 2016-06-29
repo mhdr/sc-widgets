@@ -921,7 +921,7 @@ public abstract class ScGauge extends ScDrawer implements
         // Find the relative percentage
         float percentage = this.findPercentage(value, startRange, endRange);
         // Call the base method
-        this.setGenericValue(value, false);
+        this.setGenericValue(percentage, false);
     }
 
     /**
@@ -975,7 +975,7 @@ public abstract class ScGauge extends ScDrawer implements
         // Find the relative percentage
         float percentage = this.findPercentage(value, startRange, endRange);
         // Call the base method
-        this.setGenericValue(value, true);
+        this.setGenericValue(percentage, true);
     }
 
 

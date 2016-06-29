@@ -34,6 +34,8 @@ public class ScWriter extends ScFeature {
      * Private variables
      */
 
+    private Paint mPaintClone;
+
     private String[] mTokens;
     private TokenPositions mTokenPosition;
     private PointF mTokenOffset;
@@ -65,6 +67,8 @@ public class ScWriter extends ScFeature {
         this.mPaint.setStrokeWidth(0.0f);
         this.mPaint.setTextSize(16.0f);
         this.mPaint.setStyle(Paint.Style.FILL);
+
+        this.mPaintClone = new Paint(this.mPaint);
     }
 
 
@@ -109,10 +113,10 @@ public class ScWriter extends ScFeature {
         // Return the calculated offset
         switch (info.position) {
             case OUTSIDE:
-                return this.mPaint.getFontMetrics().bottom;
+                return this.mPaintClone.getFontMetrics().bottom;
 
             case INSIDE:
-                return this.mPaint.getFontMetrics().top;
+                return this.mPaintClone.getFontMetrics().top;
 
             default:
                 return 0.0f;
@@ -132,17 +136,17 @@ public class ScWriter extends ScFeature {
     /**
      * Draw the single token on canvas.
      *
-     * @param canvas  the canvas where draw
-     * @param info    the token info
-     * @param segment the path segment to follow
+     * @param canvas the canvas where draw
+     * @param info   the token info
      */
-    private void drawToken(Canvas canvas, TokenInfo info, Path segment) {
+    private void drawToken(Canvas canvas, TokenInfo info, float step) {
         // Check for empty values
         if (info.point == null || info.offset == null || info.text == null)
-            return ;
+            return;
 
         // Apply the current settings to the painter
-        this.mPaint.setColor(info.color);
+        this.mPaintClone.set(this.mPaint);
+        this.mPaintClone.setColor(info.color);
 
         // Fix the vertical offset considering the position of the text on the path and the
         // font metrics offset.
@@ -162,10 +166,18 @@ public class ScWriter extends ScFeature {
             canvas.drawText(
                     info.text,
                     info.point.x + info.offset.x, info.point.y + info.offset.y,
-                    this.mPaint
+                    this.mPaintClone
             );
 
         } else {
+            // Holder
+            Path segment = new Path();
+
+            // Extract the path segment
+            this.mSegmentMeasure.setPath(this.mPath, false);
+            this.mSegmentMeasure
+                    .getSegment(info.distance, info.distance + step, segment, true);
+
             // Draw the text on the path
             canvas.drawTextOnPath(
                     info.text,
@@ -187,31 +199,27 @@ public class ScWriter extends ScFeature {
      * @param step   the step
      */
     private void prepareTokenInfo(Canvas canvas, TokenInfo info, float step) {
-        // Get the arc of path
-        Path segment = new Path();
-        this.mPathMeasure.getSegment(
-                info.distance,
-                info.distance + step,
-                segment,
-                true
-        );
+        // Define the point holder
+        float[] point;
 
-        // Calculate the distance from start starting consider the text align in the painter.
-        // Take as RIGHT the initial value.
-        this.mSegmentMeasure.setPath(segment, false);
-        float distance = this.mSegmentMeasure.getLength();
+        // Check if the last token must be on the last path point
+        if (this.mLastTokenOnEnd && info.index == this.mTokens.length - 1) {
+            // Get the last point on the original path
+            point = this.mPathMeasure.getPosTan(this.mPathLength);
 
-        // If must write the last token on the end of path and this is the last token avoid to
-        // consider the text align and hold the right position as true.
-        if (!this.mLastTokenOnEnd || info.index != this.mTokens.length - 1) {
-            // Choose by case
-            if (this.getPainter().getTextAlign() == Paint.Align.LEFT) distance = 0.0f;
-            if (this.getPainter().getTextAlign() == Paint.Align.LEFT) distance /= 2.0f;
+        } else {
+            // Local distance
+            float local = info.distance;
+
+            // Check the alignment
+            if (this.mPaint.getTextAlign() == Paint.Align.CENTER) local += step / 2;
+            if (this.mPaint.getTextAlign() == Paint.Align.RIGHT) local += step;
+
+            // Get the point on the path by the current distance
+            point = this.mPathMeasure.getPosTan(local);
         }
 
-        // Find the point on path segment respect to the alignment type find the tangent angle
-        // in degrees.
-        float[] point = this.mSegmentMeasure.getPosTan(distance);
+        // Define the properties.
         if (point != null) {
             info.angle = (float) Math.toDegrees(this.mUnbend ? point[3] : 0.0f);
             info.point = ScWriter.toPoint(point);
@@ -224,7 +232,7 @@ public class ScWriter extends ScFeature {
 
         // Draw the token on the canvas
         if (info.visible) {
-            this.drawToken(canvas, info, segment);
+            this.drawToken(canvas, info, step);
         }
     }
 
@@ -263,7 +271,7 @@ public class ScWriter extends ScFeature {
             info.unbend = this.mUnbend;
             info.text = this.mTokens[index];
             info.index = index;
-            info.distance = (index + (this.mLastTokenOnEnd && isLast ? -1 : 0)) * step;
+            info.distance = isLast && this.mLastTokenOnEnd ? this.mPathLength : index * step;
             info.visible = info.distance >= startLimit && info.distance <= endLimit;
             info.color = this.getGradientColor(info.distance);
 
@@ -424,12 +432,15 @@ public class ScWriter extends ScFeature {
 
     /**
      * Set true if want that the last token is forced to draw to the end of the path.
+     * Note that the last token on the last point of path cannot work proper with the bending text
+     * enable. So, if value is true, this method will forced to disable the bending.
      *
      * @param value the current status
      */
     @SuppressWarnings("unused")
     public void setLastTokenOnEnd(boolean value) {
         this.mLastTokenOnEnd = value;
+        if (value) this.mUnbend = true;
     }
 
 

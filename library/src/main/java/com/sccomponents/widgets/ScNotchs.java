@@ -43,6 +43,8 @@ public class ScNotchs extends ScFeature {
      * Private and protected variables
      */
 
+    private Paint mPaintClone;
+
     private int mNotchsCount;
     private float mNotchsLen;
 
@@ -68,6 +70,8 @@ public class ScNotchs extends ScFeature {
         this.mNotchType = NotchTypes.LINE;
         this.mNotchPosition = NotchPositions.MIDDLE;
         this.mDividePathInContours = true;
+
+        this.mPaintClone = new Paint(this.mPaint);
     }
 
     /****************************************************************************************
@@ -103,7 +107,7 @@ public class ScNotchs extends ScFeature {
 
         // Draw the line if the canvas is not null
         if (canvas != null) {
-            canvas.drawLine(first.x, first.y, second.x, second.y, this.mPaint);
+            canvas.drawLine(first.x, first.y, second.x, second.y, this.mPaintClone);
         }
     }
 
@@ -140,9 +144,9 @@ public class ScNotchs extends ScFeature {
      */
     private void drawNotch(Canvas canvas, NotchInfo info) {
         // Apply the current info settings to the painter
-        this.mPaint.setStrokeWidth(info.size);
-        this.mPaint.setColor(info.color);
-        this.mPaint.setStyle(
+        this.mPaintClone.setStrokeWidth(info.size);
+        this.mPaintClone.setColor(info.color);
+        this.mPaintClone.setStyle(
                 info.type == NotchTypes.CIRCLE_FILLED ? Paint.Style.FILL_AND_STROKE : Paint.Style.STROKE);
 
         // Draw the notchs by the case
@@ -218,6 +222,7 @@ public class ScNotchs extends ScFeature {
 
             // Draw the single notch if visible
             if (info.visible) {
+                this.mPaintClone.set(this.mPaint);
                 this.drawNotch(canvas, info);
             }
         }

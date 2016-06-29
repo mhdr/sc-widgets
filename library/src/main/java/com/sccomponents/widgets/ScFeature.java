@@ -6,6 +6,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 
+import java.util.Arrays;
+
 /**
  * Create a feature to draw on a given path.
  * <p/>
@@ -375,7 +377,6 @@ public class ScFeature {
      */
     @SuppressWarnings("unused")
     public void setColors(int... value) {
-        // Save the new value and refresh
         this.mColors = value;
     }
 
@@ -398,11 +399,8 @@ public class ScFeature {
      */
     @SuppressWarnings("unused")
     public void setFillingColors(ColorsMode value) {
-        // Check if value is changed
-        if (this.mColorsMode != value) {
-            // Store the new value and refresh the component
-            this.mColorsMode = value;
-        }
+        // Store the new value and refresh the component
+        this.mColorsMode = value;
     }
 
 }
