@@ -1,8 +1,14 @@
 # ScArcGauge examples
-Following some example of the [ScArcGauge](..\sc-arcgauge\ScArcGauge.md) application.
-Is simple to understand that inheriting from the [ScGauge](..\sc-arcgauge\ScGauge.md) class the possibilities are infinite.
+Following some example of the [ScArcGauge](../sc-arcgauge/ScArcGauge.md) application.
+
+Is simple to understand that inheriting from the [ScGauge](../sc-arcgauge/ScGauge.md) class the possibilities are infinite.
 So this example as been only a demonstration of the most used configurations.
 
+> **ATTENTION**
+> Please keep in mind that you can enable the user input (`setInputEnabled`) to allow the user to drive the gauge values.
+> Also you can use the animator (`getHighValueAnimator` or `getLowValueAnimator`) to animate the value changing.
+<br />
+<br />
 
 ---
 ####### Example 1
