@@ -101,7 +101,7 @@ Press on the picture linked below to see the demonstration.
 [![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/i-04.jpg)](indicator.md)
 
 [![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-01.jpg)](notchs.md)
-[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-02.jpg)](notchs.md)
+[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-02single.jpg)](notchs.md)
 [![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-03.jpg)](notchs.md)
 [![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-04.jpg)](notchs.md)
 [![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-05.jpg)](notchs.md)
