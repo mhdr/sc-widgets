@@ -114,7 +114,7 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 <br />
 
-- **Circle contour type**
+- **Circle contour type**<br />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/2.jpg" align="right" />
 ```java
     ...
@@ -130,7 +130,7 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 <br />
 
-- **Circle filled type**
+- **Circle filled type**<br />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/3.jpg" align="right" />
 ```java
     ...
@@ -145,7 +145,7 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 <br />
 
-- **Play with colors and notchs info structure**
+- **Play with colors and notchs info structure**<br />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/4.jpg" align="right" />
 ```java
     ...
@@ -177,7 +177,7 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 <br />
 
-- **Complex path and play with the points distance from path start**
+- **Complex path and play with the points distance from path start**<br />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/5.jpg" align="right" />
 ```java
     // Dimensions
@@ -231,7 +231,7 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 <br />
 
-- **Multiple contours path managing**
+- **Multiple contours path managing**<br />
 img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/6.jpg" align="right" />
 ```java
     ...
