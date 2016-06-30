@@ -4,8 +4,8 @@ Following some example of the [ScArcGauge](../sc-arcgauge/ScArcGauge.md) applica
 Is simple to understand that inheriting from the [ScGauge](../sc-arcgauge/ScGauge.md) class the possibilities are infinite.
 These example as been only a demonstration of the most used configurations and are building by the case (**not responsive**).
 
-> **ATTENTION**
-> Please keep in mind that you can enable the user input (`setInputEnabled`) to allow the user to drive the gauge values.
+> **ATTENTION**<br />
+> Please keep in mind that you can enable the user input (`setInputEnabled`) to allow the user to drive the gauge values.<br />
 > Also you can use the animator (`getHighValueAnimator` or `getLowValueAnimator`) to animate the value changing.
 <br />
 <br />
