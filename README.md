@@ -51,6 +51,7 @@ This is a very simple sliding panel manager.<br />
 Respect to others components same this it follow the parent alignment.
 Put the component inside a RelativeLayout, give an alignment and the panel slide from.
 
+
 ---
 ### Some examples from **[ScArcGauge](sc-arcgauge\ScArcGauge.md)**
 
