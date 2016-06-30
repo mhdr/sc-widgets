@@ -1,7 +1,7 @@
 # ScCopier
 
 Create a feature that draw a line copy of the given path.
-You can define the line characteristic by setting the inner painter
+You can define the line characteristic by setting the inner painter.
 
 This class inherit all its properties from the [ScFeature](..\sc-feature\ScFeature.md) so please take a look to the related documentation.
 The class is a basic class and not expose only one proprietary method and all the methods inherited from [ScFeature](..\sc-feature\ScFeature.md).

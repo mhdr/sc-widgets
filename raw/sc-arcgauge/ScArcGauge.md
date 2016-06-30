@@ -1,5 +1,5 @@
 # ScArcGauge
-This class is a specialized to create an arc.
+This class is a specialized to create an arc gauge.
 By default the arc create a closed circle: from 0° to 360°.
 Note that all angle is usually expressed in degrees and almost methods need to have an delta angle relative to the start angle.
 

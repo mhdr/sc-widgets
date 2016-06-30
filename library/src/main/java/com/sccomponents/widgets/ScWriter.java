@@ -8,6 +8,8 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
 
+import com.sccomponents.utils.ScPathMeasure;
+
 /**
  * Write some token texts on the linked path.
  *

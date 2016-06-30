@@ -1,4 +1,4 @@
-# ScCopier
+# ScNotchs
 
 Create a feature that draw a series of notchs following the base path.
 You can define the line characteristic by setting the inner painter.

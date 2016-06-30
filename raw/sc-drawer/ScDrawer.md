@@ -1,5 +1,4 @@
 # ScDrawer
-
 This is a small class to design the future components using the "path following" way.
 The duty of this class is divided in two main: define settings where draw the path and provide the possibility to add some "features" for drawing it.
 Whereas the "[features](..\sc-feature\ScFeature.md)" are independent from this class but are necessary to draw the path on the canvas.
