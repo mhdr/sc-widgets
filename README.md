@@ -16,7 +16,7 @@ This class extend the [ScGauge](raw/sc-gauge/ScGauge.md) class.
 You can define the line characteristic by setting the inner painter.<br />
 This class inherit all its properties from the [ScFeature](raw/sc-feature/ScFeature.md).
 
-- **[ScCopier](raw/sc-drawer/ScDrawer.md)**<br />
+- **[ScDrawer](raw/sc-drawer/ScDrawer.md)**<br />
 This is a small class to design the future components using the "path following" way.<br />
 The duty of this class is divided in two main: define settings where draw the path and provide the possibility to add some "features" for drawing it.
 Whereas the "[features](raw/sc-feature/ScFeature.md)" are independent from this class but are necessary to draw the path on the canvas.

@@ -20,13 +20,16 @@ In this class are exposed many methods to drive the most used properties from th
 To manage the features will recognized from the class type and its tag so changing, for example, the color of notchs you will change the color of all notchs tagged.
 This is useful when you have a custom features configuration that use one more of feature per type. 
 All the custom features added without a defined tag should be managed by the user by himself.
+<br />
+<br />
 
 ## ScGauge class details
-This class extend the [ScDrawer](..\sc-drawer\ScDrawer.md) class.
+This class extend the [ScDrawer](../sc-drawer/ScDrawer.md) class.<br />
 This is an abstract class and cannot be instantiate directly but only inherited from another class.
 Note that this class no have path properties exposed to modify it directly but you need to override the `createPath()` method.
 If you decide to expose some property for manage the path you can use the **protected** property named `mPath`.
-
+<br />
+<br />
 
 #### Constants
 
@@ -36,16 +39,17 @@ If you decide to expose some property for manage the path you can use the **prot
 - **static final String PROGRESS_IDENTIFIER**
 - **static final String HIGH_POINTER_IDENTIFIER**
 - **static final String LOW_POINTER_IDENTIFIER**
-
+<br />
+<br />
 
 #### Public methods
 
 - **Animator getHighValueAnimator()**<br />
-Get the high value animator.
+Get the high value animator.<br />
 Note that the initial value duration of the animation is zero equal to "no animation".
 
 - **Animator getLowValueAnimator()**<br />
-Get the low value animator.
+Get the low value animator.<br />
 Note that the initial value duration of the animation is zero equal to "no animation".
 
 - **void setOnEventListener(OnEventListener listener)**<br />
@@ -53,7 +57,8 @@ Link the listener.
 
 - **void setOnDrawListener(OnDrawListener listener)**<br />
 Link the listener.
-
+<br />
+<br />
 
 #### Getter and Setter
 
@@ -64,7 +69,7 @@ The value must be passed in pixel.
 The stroke color of painter.
 
 - **get/setProgressSize**  -> `float` value, default `1dp`<br />
-Define the stroke width of the progress.
+Define the stroke width of the progress.<br />
 The value must be passed in pixel.
 
 - **get/setProgressColor**  -> `int` value, default `Color.BLACK`<br />
@@ -77,7 +82,7 @@ Set the current progress high value in percentage from the path start or respect
 Set the current progress low value in percentage from the path start or respect a range of values.
 
 - **get/setNotchsSize**  -> `float` value, default `3dp`<br />
-Define the notch stroke width.
+Define the notch stroke width.<br />
 The value must be passed in pixel.
 
 - **get/setNotchsColor**  -> `int` value, default `Color.BLACK`<br />
@@ -103,24 +108,24 @@ The value must be passed in pixel.
 The color of text tokens.
 
 - **get/setPointerRadius**  -> `float` value, default `0`<br />
-The radius of the pointers.
+The radius of the pointers.<br />
 The value must be passed in pixel.
 
 - **get/setPointersColor**  -> `int` value, default `Color.BLACK`<br />
 The pointers color.
 
 - **get/setPointerHaloWidth**  -> `float` value, default `10dp`<br />
-The pointers halo width.
+The pointers halo width.<br />
 The value must be passed in pixel.
 Note that the halo will draw half out the pointer and half inside.
-
+<br />
+<br />
 
 #### OnPathTouchListener
 
 **OnEventListener**
 - **void onValueChange(float lowValue, float highValue)**<br />
 Called when the high or the low value changed.
-
 
 **OnDrawListener**
 - **void onBeforeDrawCopy(ScCopier.CopyInfo info)**<br />
@@ -135,7 +140,8 @@ If the method set the bitmap inside the info object the default drawing will be 
 
 - **onBeforeDrawToken(ScWriter.TokenInfo info)**<br />
 Called before draw the single text token.
-
+<br />
+<br />
 
 ---
 ####### XML Properties
@@ -160,7 +166,8 @@ Called before draw the single text token.
         <attr name="scc_halo_size" format="dimension" />
     </declare-styleable>
 ```
-
+<br />
+<br />
 
 # License
 <pre>

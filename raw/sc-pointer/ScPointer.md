@@ -1,20 +1,21 @@
 # ScPointer
-
 Create a feature that draw a pointer on the given path.
-By default the pointer is building as a circle with halo around and you can modify the pointer settings directly using the class properties.
 
+By default the pointer is building as a circle with halo around and you can modify the pointer settings directly using the class properties.
 Also this feature allow to define a custom bitmap to stamp on the path.
 This custom bitmap will following the angle rotation by the tangent of the position on path.
 
-The position will defined by the distance of the point from the path starting.
-This class inherit all its properties from the [ScFeature](..\sc-feature\ScFeature.md) so please take a look to the related documentation.
-
+The position will defined by the distance of the point from the path starting.<br />
+This class inherit all its properties from the [ScFeature](../sc-feature/ScFeature.md) so please take a look to the related documentation.
+<br />
+<br />
 
 #### Public methods
 
 - **void setOnDrawListener(OnDrawListener listener)**<br />
 Link the listener.
-
+<br />
+<br />
 
 #### Getter and Setter
 
@@ -32,22 +33,24 @@ Set the halo alpha .
 
 - **get/setHaloAlpha**  -> `boolean` value, default `false`<br />
 Set the pointer status.
-
+<br />
+<br />
 
 #### Interfaces
 
 - **OnDrawListener**<br />
 **void onBeforeDrawPointer(CopyInfo info)**<br />
 Called before draw pointer on the path.
-Note that changing the `info` properties you will change the pointer drawing.
-Properties list: `bitmap`, `point`, `offset`, `angle`, `color`, `pressed`.
+Note that changing the `info` properties you will change the pointer drawing.<br />
+Properties list: `bitmap`, `point`, `offset`, `angle`, `color`, `pressed`.<br />
 If assign a bitmap the default drawing will be bypassed and the new bitmap will be draw on the canvas following the **some** other setting.
-
+<br />
+<br />
 
 ---
 ####### Let's play
 
-Common xml configuration
+- **Common xml configuration**
 ```xml
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -68,7 +71,7 @@ Common xml configuration
 
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/1.jpg" align="right" />
-Normal and pressed
+- **Normal and pressed**
 ```java
     // Dimensions
     int padding = 24;
@@ -115,7 +118,7 @@ Normal and pressed
 
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
-Play with colors.
+- **Play with colors.**<br />
 If you define a colors sequence the pointer will assume the gradient color by its position respect the path.
 ```java
     ...
@@ -140,7 +143,7 @@ If you define a colors sequence the pointer will assume the gradient color by it
 
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/3.jpg" align="right" />
-Custom bitmap.
+- **Custom bitmap.**
 ```java
     ...
     // Preload the bitmap
@@ -165,6 +168,8 @@ Custom bitmap.
     }
     ...
 ```
+<br />
+<br />
 
 # License
 <pre>

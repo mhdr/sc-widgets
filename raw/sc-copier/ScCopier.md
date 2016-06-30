@@ -1,10 +1,10 @@
 # ScCopier
+Create a feature that draw a line copy of the given path.
 
-Create a feature that draw a line copy of the given path.<br />
-You can define the line characteristic by setting the inner painter.
-
+You can define the line characteristic by setting the inner painter.<br />
 This class inherit all its properties from the [ScFeature](../sc-feature/ScFeature.md) so please take a look to the related documentation.
 The class is a basic class and not expose only one proprietary method and all the methods inherited from [ScFeature](../sc-feature/ScFeature.md).
+<br />
 <br />
 
 > **KNOWN ISSUES**
@@ -15,13 +15,14 @@ The class is a basic class and not expose only one proprietary method and all th
 > Generally the shader have problem to work proper with the hardware-accelerate enable.<br />
 > So maybe better to disable it when you use more that one colors otherwise you could be have a unexpected visual result.
 <br />
-
+<br />
  
 #### Public Methods
 
 - **void setOnDrawListener(OnDrawListener listener)**<br />
 Link the listener.
-
+<br />
+<br />
 
 #### Interfaces
 
@@ -31,12 +32,13 @@ Called before draw the path copy.<br />
 Note that changing the `info` properties you will change the copy drawing.<br />
 Properties list: `scale`, `offset`.
 <br />
+<br />
 
 
 ---
 ####### Let's play
 
-Common xml configuration
+- **Common xml configuration**
 ```xml
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -112,6 +114,8 @@ Using `onBeforeDrawCopy` listener method.<br />
     copier.draw(canvas);
     ...
 ```
+<br />
+<br />
 
 # License
 <pre>

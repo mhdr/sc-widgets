@@ -1,16 +1,19 @@
 # ScArcGauge
-This class is a specialized to create an arc gauge.<br />
+This class is a specialized to create an arc gauge.
+
 By default the arc create a closed circle: from 0° to 360°.
 Note that all angle is usually expressed in degrees and almost methods need to have an delta angle relative to the start angle.
 
 This class extend the [ScGauge](../sc-gauge/ScGauge.md) class.<br />
 This class inherit all its properties from the [ScGauge](../sc-feature/ScGauge.md) so please take a look to the related documentation.
-
+<br />
+<br />
 
 #### Public methods
 
 - **float percentageToAngle(float percentage)**<br />
 Convert a percentage value in a angle (in degrees) value respect the start and sweep angles.
+<br />
 <br />
 
 #### Getter and Setter
@@ -22,6 +25,7 @@ The start angle in degrees.
 The sweep angle (in degrees) is the delta value between the start angle and the end angle.<br />
 This is limited angle: from -360° to 360°.<br />
 Values over the limits will be normalized to the limit.
+<br />
 <br />
 
 ---
@@ -50,7 +54,7 @@ Values over the limits will be normalized to the limit.
 ####### Let's play
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/1.jpg" align="right" />
-Basic
+- **Basic**
 ```xml
     <com.sccomponents.widgets.ScArc
         android:layout_width="300dp"
@@ -60,7 +64,7 @@ Basic
 ```
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/2.jpg" align="right" />
-All feature in basic mode
+- **All feature in basic mode**
 ```xml
     <com.sccomponents.widgets.ScArcGauge
         android:layout_width="300dp"
@@ -78,6 +82,8 @@ All feature in basic mode
         sc:scc_pointer_radius="10dp"
         />
 ```
+<br />
+<br />
 
 ---
 ####### Examples
@@ -99,7 +105,8 @@ Press on the picture linked below to see the demonstration.
 [![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-03.jpg)](notchs.md)
 [![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-04.jpg)](notchs.md)
 [![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-05.jpg)](notchs.md)
-
+<br />
+<br />
 
 # License
 <pre>

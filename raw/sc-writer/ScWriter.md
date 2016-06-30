@@ -1,23 +1,25 @@
 # ScWriter
 
 Create a feature that draw a series of texts on the given path.
-By default each text token will follow the path and will be distributed with equity on all length of the path. 
 
+By default each text token will follow the path and will be distributed with equity on all length of the path. 
 Also this feature allow to define the position and rotation of the text respect to the path.
-This class inherit all its properties from the [ScFeature](..\sc-feature\ScFeature.md) so please take a look to the related documentation.
+This class inherit all its properties from the [ScFeature](../sc-feature/ScFeature.md) so please take a look to the related documentation.
 
 > **IMPORTANT**
 > When you use the bending to write the text on the path will separate the path in segments.
 > Each text token will be write on each corresponding path segment.
 > If the you move the token offset on the x coordinate and the token will be over the segment limit the token will be clipped.
 > The better way to avoid this issue it disable the bending (`setUnbend`).
-
+<br />
+<br />
 
 #### Public methods
 
 - **void setOnDrawListener(OnDrawListener listener)**<br />
 Link the listener.
-
+<br />
+<br />
 
 #### Getter and Setter
 
@@ -25,8 +27,8 @@ Link the listener.
 Set the string tokens to draw on path.
 
 - **get/setPosition**  -> `TokenPositions` value, default `TokenPositions.OUTSIDE`<br />
-Set the string tokens alignment respect the path.
-Possibly values by enum: `INSIDE`, `MIDDLE`, `OUTSIDE`<br />
+Set the string tokens alignment respect the path.<br />
+Possibly values by enum: `INSIDE`, `MIDDLE`, `OUTSIDE`
 
 - **get/setUnbend**  -> `boolean` value, default `false`<br />
 When unbend the text not follow the curve of the path but will follow the tangent to the starting point related to the path.
@@ -35,24 +37,26 @@ When unbend the text not follow the curve of the path but will follow the tangen
 Set true if want that the offset calculation consider the font metrics too.
 
 - **get/setLastTokenOnEnd**  -> `boolean` value, default `false`<br />
-Set true if want that the last token is forced to draw to the end of the path.
+Set true if want that the last token is forced to draw to the end of the path.<br />
 Note that the last token on the last point of path cannot work proper with the bending text enable. 
 So, if value is true, this method will forced to disable the bending.
-
+<br />
+<br />
 
 #### Interfaces
 
 - **OnDrawListener**<br />
 **void onBeforeDrawToken(TokenInfo info)**<br />
-Called before draw string token on the path.
-Note that changing the `info` properties you will change the drawing.
+Called before draw string token on the path.<br />
+Note that changing the `info` properties you will change the drawing.<br />
 Properties list: `point`, `index`, `text`, `distance`, `angle`, `unbend`, `color`, `visible`, `offset`, `position`.
-
+<br />
+<br />
 
 ---
 ####### Let's play
 
-Common xml configuration
+- **Common xml configuration**
 ```xml
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -73,7 +77,7 @@ Common xml configuration
 
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/1.jpg" align="right" />
-Normal and pressed
+- **Normal and pressed**
 ```java
     // Dimensions
     int padding = 30;
@@ -115,7 +119,7 @@ Normal and pressed
 
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
-Before drawing the token
+- **Before drawing the token**
 ```java
     ...
     // Create the tokens
@@ -141,7 +145,8 @@ Before drawing the token
     writer.draw(canvas);
     ...
 ```
-
+<br />
+<br />
 
 # License
 <pre>

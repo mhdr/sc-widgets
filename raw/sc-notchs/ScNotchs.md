@@ -1,11 +1,12 @@
 # ScNotchs
-
 Create a feature that draw a series of notchs following the base path.
+
 You can define the line characteristic by setting the inner painter.
 Many other characteristics can be change before drawing the single notch linking the dedicated listener.
 
-This class inherit all its properties from the [ScFeature](..\sc-feature\ScFeature.md) so please take a look to the related documentation.
-
+This class inherit all its properties from the [ScFeature](../sc-feature/ScFeature.md) so please take a look to the related documentation.
+<br />
+<br />
 
 #### Public Methods
 
@@ -13,12 +14,13 @@ This class inherit all its properties from the [ScFeature](..\sc-feature\ScFeatu
 Round the value near the closed notch.
 
 - **void setDividePathInContours(boolean value)**<br />
-By default the class will draw the n notchs on each contours that compose the current path. 
+By default the class will draw the n notchs on each contours that compose the current path.<br />
 If settle on false the class will consider the path as a unique path.
 
 - **void setOnDrawListener(OnDrawListener listener)**<br />
 Link the listener.
-
+<br />
+<br />
 
 #### Getter and Setter
 
@@ -26,7 +28,7 @@ Link the listener.
 Set or get the notchs count.
 
 - **get/setLength**  -> `float` value, default `0`<br />
-Set or get the notchs length.
+Set or get the notchs length.<br />
 The value must be passed in pixel.
 
 - **get/setType**  -> `NotchTypes` value, default `NotchTypes.LINE`<br />
@@ -36,21 +38,23 @@ Set or get the notchs type
 - **get/setPosition**  -> `NotchPositions` value, default `NotchPositions.MIDDLE`<br />
 Possibly values by enum: `INSIDE`, `MIDDLE`, `OUTSIDE`<br />
 Set or get the notchs alignment respect the path.
-
+<br />
+<br />
 
 #### Interfaces
 
 - **OnDrawListener**<br />
 **void onBeforeDrawNotch(NotchInfo info)**<br />
-Called before draw the single notch.
-Note that changing the `info` properties you will change the current notch drawing.
+Called before draw the single notch.<br />
+Note that changing the `info` properties you will change the current notch drawing.<br />
 NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distanceFromStart`, `visible`, `type`, `align`.
-
+<br />
+<br />
 
 ---
 ####### Let's play
 
-Common examples xml
+- **Common examples xml**
 ```xml
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -71,7 +75,7 @@ Common examples xml
 
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/1.jpg" align="right" />
-Create a bezier line path and the notchs on it.
+- **Create a bezier line path and the notchs on it.**
 ```java
     // Dimensions
     int padding = 24;
@@ -109,7 +113,7 @@ Create a bezier line path and the notchs on it.
 
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
-Circle contour type
+- **Circle contour type**
 ```java
     ...
     // Feature
@@ -124,7 +128,7 @@ Circle contour type
 
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/3.jpg" align="right" />
-Circle filled type
+- **Circle filled type**
 ```java
     ...
     // Feature
@@ -138,7 +142,7 @@ Circle filled type
 
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/4.jpg" align="right" />
-Play with colors and notchs info structure
+- **Play with colors and notchs info structure**
 ```java
     ...
     // Create a line path
@@ -169,7 +173,7 @@ Play with colors and notchs info structure
 
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/5.jpg" align="right" />
-Complex path and play with the points distance from path start
+- **Complex path and play with the points distance from path start**
 ```java
     // Dimensions
     int padding = 24;
@@ -222,7 +226,7 @@ Complex path and play with the points distance from path start
 
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/6.jpg" align="right" />
-Multiple contours path managing
+- **Multiple contours path managing**
 ```java
     ...
     // Create path with two contours
@@ -250,7 +254,8 @@ Multiple contours path managing
     notchs.draw(canvas);
     ...
 ```
-
+<br />
+<br />
 
 # License
 <pre>

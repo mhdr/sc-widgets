@@ -1,11 +1,14 @@
 # ScWidget
 The base class for all widget component of this series.<br />
 Contains just utility methods for facilitate the building of a component.
-
+<br />
+<br />
 
 ## ScWidget class details
 This is an abstract class and extend the <code>View</code> class.<br />
 This class cannot instanced directly but must be inherited.
+<br />
+<br />
 
 #### Static methods
 
@@ -32,13 +35,15 @@ Reset the rectangle to its origin.
 - **void swapArrayPosition(T[] source, int first, int second)**<br />
 **void swapArrayPosition(int[] source, int first, int second)**<br />
 Swap two array elements position.
-
+<br />
+<br />
 
 #### Public methods
 
 - **float dipToPixel(float dip)**<br />
 Convert Dip to Pixel.
-
+<br />
+<br />
 
 # License
 <pre>
