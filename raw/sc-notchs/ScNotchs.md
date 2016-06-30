@@ -74,7 +74,7 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 ```
 
 
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/1.jpg" align="right" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/1.jpg" align="right" />
 - **Create a bezier line path and the notchs on it.**
 ```java
     // Dimensions
@@ -112,7 +112,7 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 ```
 
 
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/2.jpg" align="right" />
 - **Circle contour type**
 ```java
     ...
@@ -126,8 +126,7 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
     ...
 ```
 
-
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/3.jpg" align="right" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/3.jpg" align="right" />
 - **Circle filled type**
 ```java
     ...
@@ -141,7 +140,7 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 ```
 
 
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/4.jpg" align="right" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/4.jpg" align="right" />
 - **Play with colors and notchs info structure**
 ```java
     ...
@@ -172,7 +171,7 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 ```
 
 
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/5.jpg" align="right" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/5.jpg" align="right" />
 - **Complex path and play with the points distance from path start**
 ```java
     // Dimensions
