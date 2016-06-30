@@ -68,10 +68,11 @@ If assign a bitmap the default drawing will be bypassed and the new bitmap will 
 
 </LinearLayout>
 ```
+<br />
+<br />
 
-
+- **Normal and pressed**<br />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/1.jpg" align="right" />
-- **Normal and pressed**
 ```java
     // Dimensions
     int padding = 24;
@@ -115,10 +116,11 @@ If assign a bitmap the default drawing will be bypassed and the new bitmap will 
     // Add the bitmap to the container
     imageContainer.setImageBitmap(bitmap);
 ```
+<br />
+<br />
 
-
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
 - **Play with colors.**<br />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
 If you define a colors sequence the pointer will assume the gradient color by its position respect the path.
 ```java
     ...
@@ -140,10 +142,11 @@ If you define a colors sequence the pointer will assume the gradient color by it
     pointer.draw(canvas);
     ...
 ```
+<br />
+<br />
 
-
+- **Custom bitmap.**<br />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/3.jpg" align="right" />
-- **Custom bitmap.**
 ```java
     ...
     // Preload the bitmap

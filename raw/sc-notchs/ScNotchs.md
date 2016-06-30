@@ -232,7 +232,7 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 
 - **Multiple contours path managing**<br />
-img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/6.jpg" align="right" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/6.jpg" align="right" />
 ```java
     ...
     // Create path with two contours

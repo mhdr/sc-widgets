@@ -14,9 +14,9 @@ These example as been only a demonstration of the most used configurations and a
 
 ---
 ####### Example 1
+You can download the indicator image used below from [**HERE**](indicator-06.png).
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-01.jpg"> 
-You can download the indicator image used below from [**HERE**](indicator-06.png).
 ```xml
     <FrameLayout
         android:layout_width="300dp"
@@ -126,9 +126,9 @@ You can download the indicator image used below from [**HERE**](indicator-06.png
 
 ---
 ####### Example 2
+You can download the indicator image used below from [**HERE**](indicator-07.png).
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-02.jpg"> 
-You can download the indicator image used below from [**HERE**](indicator-07.png).
 ```xml
     <FrameLayout
         android:layout_width="300dp"
@@ -667,7 +667,8 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
         }
     });
 ```
-
+<br />
+<br />
 
 # License
 <pre>

@@ -57,10 +57,11 @@ Properties list: `scale`, `offset`.
 
 </LinearLayout>
 ```
+<br />
+<br />
 
-
+- **Create a bezier line and colorize it**<br />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/1.jpg" align="right" />
-- **Create a bezier line and colorize it**
 ```java
     // Dimensions
     int padding = 24;
@@ -95,10 +96,12 @@ Properties list: `scale`, `offset`.
     // Add the bitmap to the container
     imageContainer.setImageBitmap(bitmap);
 ```
+<br />
+<br />
 
+- **Using `onBeforeDrawCopy` listener method.**<br />
+Refer to known issue listed above.<br />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
-Using `onBeforeDrawCopy` listener method.<br />
-- **Refer to known issue listed above**
 ```java
     ...
     // Feature

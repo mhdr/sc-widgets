@@ -180,9 +180,9 @@ So this example as been only a demonstration of the most used configurations.
 
 ---
 ####### Example 3
+Note that the `scc_path_touchable` is enable so you can drag the pointers.
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-04.jpg"> 
-Note that the `scc_path_touchable` is enable so you can drag the pointers.
 ```xml
     <FrameLayout
         android:layout_width="230dp"
@@ -280,7 +280,8 @@ Note that the `scc_path_touchable` is enable so you can drag the pointers.
         }
     });
 ```
-
+<br />
+<br />
 
 # License
 <pre>

@@ -76,10 +76,11 @@ Properties list: `point`, `index`, `text`, `distance`, `angle`, `unbend`, `color
 
 </LinearLayout>
 ```
+<br />
+<br />
 
-
+- **Normal and pressed**<br />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/1.jpg" align="right" />
-- **Normal and pressed**
 ```java
     // Dimensions
     int padding = 30;
@@ -118,10 +119,11 @@ Properties list: `point`, `index`, `text`, `distance`, `angle`, `unbend`, `color
     // Add the bitmap to the container
     imageContainer.setImageBitmap(bitmap);
 ```
+<br />
+<br />
 
-
+- **Before drawing the token**<br />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
-- **Before drawing the token**
 ```java
     ...
     // Create the tokens
