@@ -56,6 +56,8 @@ Put the component inside a RelativeLayout, give an alignment and the panel slide
 ---
 ### Some examples from **[ScArcGauge](raw/sc-arcgauge/ScArcGauge.md)**
 
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-02.jpg" align="right" />
+
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-01.jpg" height="100px" />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-02.jpg" height="100px" />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-03.jpg" height="100px" />
@@ -69,11 +71,10 @@ Put the component inside a RelativeLayout, give an alignment and the panel slide
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/i-05.jpg" height="100px" />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-01.jpg" height="100px" />
 <br />
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-02.jpg" height="100px" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-03.jpg" height="100px" />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-04.jpg" height="100px" />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-05.jpg" height="100px" />
 <br />
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-03.jpg" />
 
 
 # Usage

@@ -1,18 +1,20 @@
 # ScCopier
 
-Create a feature that draw a line copy of the given path.
+Create a feature that draw a line copy of the given path.<br />
 You can define the line characteristic by setting the inner painter.
 
-This class inherit all its properties from the [ScFeature](..\sc-feature\ScFeature.md) so please take a look to the related documentation.
-The class is a basic class and not expose only one proprietary method and all the methods inherited from [ScFeature](..\sc-feature\ScFeature.md).
+This class inherit all its properties from the [ScFeature](../sc-feature/ScFeature.md) so please take a look to the related documentation.
+The class is a basic class and not expose only one proprietary method and all the methods inherited from [ScFeature](../sc-feature/ScFeature.md).
+<br />
 
 > **KNOWN ISSUES**
-> When you using the more than one color the class produce a **bitmap shader** and apply it on the painter.
-> If you will use to scale the path before draw (`onBeforeDrawCopy`), being the shader a `Bitmap`, the stroke width will scaled too.
+> When you using the more than one color the class produce a **bitmap shader** and apply it on the painter.<br />
+> If you will use to scale the path before draw (`onBeforeDrawCopy`), being the shader a `Bitmap`, the stroke width will scaled too.<br />
 > This issue can be solved drawing the colors gradient directly on the canvas but in this case will lost the possibility to override the shader in the future.
 >
-> Generally the shader have problem to work proper with the hardware-accelerate enable.
+> Generally the shader have problem to work proper with the hardware-accelerate enable.<br />
 > So maybe better to disable it when you use more that one colors otherwise you could be have a unexpected visual result.
+<br />
 
  
 #### Public Methods
@@ -25,9 +27,10 @@ Link the listener.
 
 - **OnDrawListener**<br />
 **void onBeforeDrawCopy(CopyInfo info)**<br />
-Called before draw the path copy.
-Note that changing the `info` properties you will change the copy drawing.
+Called before draw the path copy.<br />
+Note that changing the `info` properties you will change the copy drawing.<br />
 Properties list: `scale`, `offset`.
+<br />
 
 
 ---
@@ -54,7 +57,7 @@ Common xml configuration
 
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/1.jpg" align="right" />
-Create a bezier line and colorize it.
+- **Create a bezier line and colorize it**
 ```java
     // Dimensions
     int padding = 24;
@@ -92,7 +95,7 @@ Create a bezier line and colorize it.
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
 Using `onBeforeDrawCopy` listener method.<br />
-_Refer to known issue listed above._
+- **Refer to known issue listed above**
 ```java
     ...
     // Feature
