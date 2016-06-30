@@ -53,8 +53,7 @@ Put the component inside a RelativeLayout, give an alignment and the panel slide
 <br />
 
 
----
-### Some examples from **[ScArcGauge](raw/sc-arcgauge/ScArcGauge.md)**
+# Some examples from **[ScArcGauge](raw/sc-arcgauge/ScArcGauge.md)**
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-01.jpg" height="120px" />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-02.jpg" height="120px" />
