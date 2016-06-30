@@ -72,9 +72,10 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 
 </LinearLayout>
 ```
+<br />
+<br />
 
-
-- **Create a bezier line path and the notchs on it.**
+- **Create a bezier line path and the notchs on it.**<br />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/1.jpg" align="right" />
 ```java
     // Dimensions
