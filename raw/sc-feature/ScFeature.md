@@ -12,7 +12,7 @@ The base class provides only a common set of methods to display something on the
 One of most important characteristic of this class is the possibility to create a colors gradient and get the current color based on the distance from the path starting.
 Have available two ways to calculate the current color: **GRADIENT** or **SOLID**.
 
-The GRADIENT one is simple to understand while the SOLID choice will divide the path in sectors equal to the number of colors and return the sector referenced color.
+The **GRADIENT** one is simple to understand while the **SOLID** choice will divide the path in sectors equal to the number of colors and return the sector referenced color.
 Note that this method was created to be a generic and it based on the distance from the starting of the path so in some cases may be better to create a custom shader to attach directly to the painter.
 For example if you build a filled circle might be better to create a radial gradient.
 <br />

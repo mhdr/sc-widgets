@@ -6,11 +6,13 @@ By default each text token will follow the path and will be distributed with equ
 Also this feature allow to define the position and rotation of the text respect to the path.
 This class inherit all its properties from the [ScFeature](../sc-feature/ScFeature.md) so please take a look to the related documentation.
 
-> **IMPORTANT**
+> **IMPORTANT**<br />
 > When you use the bending to write the text on the path will separate the path in segments.
 > Each text token will be write on each corresponding path segment.
+>
 > If the you move the token offset on the x coordinate and the token will be over the segment limit the token will be clipped.
 > The better way to avoid this issue it disable the bending (`setUnbend`).
+
 <br />
 <br />
 

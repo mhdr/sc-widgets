@@ -14,6 +14,7 @@ The class is a basic class and not expose only one proprietary method and all th
 >
 > Generally the shader have problem to work proper with the hardware-accelerate enable.<br />
 > So maybe better to disable it when you use more that one colors otherwise you could be have a unexpected visual result.
+
 <br />
 <br />
  
