@@ -121,7 +121,7 @@ Note that the halo will draw half out the pointer and half inside.
 <br />
 <br />
 
-#### OnPathTouchListener
+#### Interface
 
 **OnEventListener**
 - **void onValueChange(float lowValue, float highValue)**<br />
