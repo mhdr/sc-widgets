@@ -169,6 +169,10 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
     </FrameLayout>
 ```
 
+<br />
+<br />
+<br />
+
 ```java
     // Find the components
     final ScArcGauge gauge = (ScArcGauge) this.findViewById(R.id.gauge);
