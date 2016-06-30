@@ -172,6 +172,7 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
 <br />
 <br />
 <br />
+<br />
 
 ```java
     // Find the components
