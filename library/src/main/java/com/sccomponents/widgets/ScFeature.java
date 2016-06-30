@@ -153,7 +153,7 @@ public class ScFeature {
     }
 
     /**
-     * Translate a point considering the angle (in radiant) and the offset.
+     * Translate a point considering the angle (in degrees) and the offset.
      * Move the pointer on the tangent defined by the angle.
      *
      * @param point  the point to translate
@@ -170,20 +170,21 @@ public class ScFeature {
     }
 
     /**
-     * Translate a point considering the angle (in radiant) and the offset (x, y).
+     * Translate a point considering the angle (in degrees) and the offset (x, y).
      * Move the pointer on the tangent defined by the angle by the x value and move the pointer
      * on the perpendicular defined by the angle by the y value.
      *
-     * @param point  the point to translate
-     * @param offset the point offset
-     * @param angle  the angle reference in degrees
+     * @param point   the point to translate
+     * @param offsetX the point offset
+     * @param offsetY the point offset
+     * @param angle   the angle reference in degrees
      */
     @SuppressWarnings("unused")
-    public static void translatePoint(PointF point, PointF offset, float angle) {
+    public static void translatePoint(PointF point, float offsetX, float offsetY, float angle) {
         // Translate on the x
-        ScFeature.translatePoint(point, offset.x, angle);
+        ScFeature.translatePoint(point, offsetX, angle);
         // Translate on the y
-        ScFeature.translatePoint(point, offset.y, angle + 90.0f);
+        ScFeature.translatePoint(point, offsetY, angle + 90.0f);
     }
 
     /**

@@ -138,7 +138,7 @@ public class ScNotchs extends ScFeature {
 
         // Draw the circle if the canvas is not null
         if (canvas != null) {
-            canvas.drawCircle(info.point.x, info.point.y, radius, this.mPaint);
+            canvas.drawCircle(info.point.x, info.point.y, radius, this.mPaintClone);
         }
     }
 
@@ -151,9 +151,9 @@ public class ScNotchs extends ScFeature {
     private void drawNotch(Canvas canvas, NotchInfo info) {
         // Apply the current info settings to the painter
         this.mPaintClone.setStrokeWidth(info.size);
-        this.mPaintClone.setColor(info.color);
         this.mPaintClone.setStyle(
                 info.type == NotchTypes.CIRCLE_FILLED ? Paint.Style.FILL_AND_STROKE : Paint.Style.STROKE);
+        this.mPaintClone.setColor(info.color);
 
         // Draw the notchs by the case
         switch (info.type) {

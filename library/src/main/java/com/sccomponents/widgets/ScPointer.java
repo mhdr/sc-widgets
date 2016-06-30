@@ -88,7 +88,7 @@ public class ScPointer extends ScFeature {
         this.mHaloPaint.setStrokeWidth(this.mHaloWidth);
 
         // Adjust the pointer offset
-        ScPointer.translatePoint(info.point, info.offset, info.angle);
+        ScPointer.translatePoint(info.point, info.offset.x, info.offset.y, info.angle);
 
         // Check for null values and for the pointer radius
         if (canvas != null && this.mPointerRadius > 0.0f) {

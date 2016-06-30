@@ -478,14 +478,15 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
     );
 
     // Set the value
-    gauge.setHighValue(90);
+    gauge.setHighValue(12000, 0, 13000);
 
     // Each time I will change the value I must write it inside the counter text.
     gauge.setOnEventListener(new ScGauge.OnEventListener() {
         @Override
         public void onValueChange(float lowValue, float highValue) {
             // Write the value
-            counter.setText((int) highValue + "%");
+            int value = (int) ScGauge.percentageToValue(highValue, 0, 13000);
+            counter.setText(Integer.toString(value));
         }
     });
 
@@ -510,6 +511,155 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
         @Override
         public void onBeforeDrawToken(ScWriter.TokenInfo info) {
             // Do nothing
+        }
+    });
+```
+
+
+---
+####### Example 5
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-05.jpg"> 
+```xml
+    <FrameLayout
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:background="#000000">
+
+        <com.sccomponents.widgets.ScArcGauge
+            android:id="@+id/gauge"
+            xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:layout_width="240dp"
+            android:layout_height="150dp"
+            android:padding="10dp"
+            sc:scc_angle_start="-180"
+            sc:scc_angle_sweep="135"
+            sc:scc_stroke_size="2dp"
+            sc:scc_stroke_color="#ffffff"
+            sc:scc_progress_size="15dp"
+            sc:scc_notchs="8"
+            sc:scc_notchs_size="2dp"
+            sc:scc_notchs_color="#ffffff"
+            sc:scc_text_tokens="0|40|80|120|160|200|240|280"
+            sc:scc_text_color="#ffffff"
+            sc:scc_text_size="12dp"
+            />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="right"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="10dp"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/counter"
+                android:textColor="#ffffff"
+                android:textSize="44dp"
+                android:textStyle="bold"
+                android:text="0"
+                android:gravity="center"
+                />
+
+            <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffff"
+            android:textSize="20dp"
+            android:text="km/h"
+            android:gravity="center"
+            />
+
+        </LinearLayout>
+
+    </FrameLayout>
+```
+
+```java
+    // Find the components
+    final ScArcGauge gauge = (ScArcGauge) this.findViewById(R.id.gauge);
+    assert gauge != null;
+
+    final TextView counter = (TextView) this.findViewById(R.id.counter);
+    assert counter != null;
+
+    // Bring on top
+    gauge.bringOnTop(ScGauge.BASE_IDENTIFIER);
+    gauge.bringOnTop(ScGauge.NOTCHS_IDENTIFIER);
+
+    // Get the base
+    ScFeature base = gauge.findFeature(ScGauge.BASE_IDENTIFIER);
+    base.setFillingColors(ScFeature.ColorsMode.SOLID);
+    base.setColors(
+            Color.WHITE, Color.WHITE, Color.WHITE,
+            Color.WHITE, Color.WHITE, Color.WHITE,
+            Color.RED, Color.RED
+    );
+
+    // Get the notchs
+    ScNotchs notchs = (ScNotchs) gauge.findFeature(ScGauge.NOTCHS_IDENTIFIER);
+    notchs.setPosition(ScNotchs.NotchPositions.INSIDE);
+
+    // Get the writer
+    ScWriter writer = (ScWriter) gauge.findFeature(ScGauge.WRITER_IDENTIFIER);
+    writer.setPosition(ScWriter.TokenPositions.INSIDE);
+    writer.setUnbend(true);
+
+    // Set the value
+    gauge.setHighValue(180, 0, 320);
+
+    // Each time I will change the value I must write it inside the counter text.
+    gauge.setOnEventListener(new ScGauge.OnEventListener() {
+        @Override
+        public void onValueChange(float lowValue, float highValue) {
+            // Write the value
+            int value = (int) ScGauge.percentageToValue(highValue, 0, 320);
+            counter.setText(Integer.toString(value));
+        }
+    });
+
+    // Before draw
+    gauge.setOnDrawListener(new ScGauge.OnDrawListener() {
+        @Override
+        public void onBeforeDrawCopy(ScCopier.CopyInfo info) {
+            // Check for the progress
+            if (info.source.getTag() == ScGauge.PROGRESS_IDENTIFIER) {
+                // Scale
+                info.scale = new PointF(0.95f, 0.95f);
+                info.offset = new PointF(14.0f, 14.0f);
+            }
+        }
+
+        @Override
+        public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+            // Set the length of the notch
+            info.length = info.index == 0 || info.index == info.source.getCount() ?
+                    gauge.dipToPixel(15) : gauge.dipToPixel(5);
+            info.color = info.index > 6 ? Color.RED : Color.WHITE;
+        }
+
+        @Override
+        public void onBeforeDrawPointer(ScPointer.PointerInfo info) {
+            // Do nothing
+        }
+
+        @Override
+        public void onBeforeDrawToken(ScWriter.TokenInfo info) {
+            // Get the text bounds
+            Rect bounds = new Rect();
+            info.source.getPainter().getTextBounds(info.text, 0, info.text.length(), bounds);
+
+            // Hide the first
+            info.visible = info.index != 0;
+
+            // Reset the angle and the offset
+            info.angle = 0.0f;
+            info.offset.y = bounds.height() / 2 + 5;
+            info.offset.x = -bounds.width() * ((float) info.index / (float) info.source.getTokens().length);
         }
     });
 ```

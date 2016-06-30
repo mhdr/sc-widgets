@@ -713,7 +713,7 @@ public abstract class ScDrawer extends ScWidget {
 
     /**
      * Find all feature tagged as param and move they at the end of the list so will draw for
-     * least (on top).
+     * last (on top).
      *
      * @param tag the tag reference
      */
@@ -732,7 +732,7 @@ public abstract class ScDrawer extends ScWidget {
 
     /**
      * Find all feature that inherit from class param and move they at the end of the list so will
-     * draw for least (on top).
+     * draw for last (on top).
      *
      * @param classRef the class reference
      */
@@ -746,6 +746,21 @@ public abstract class ScDrawer extends ScWidget {
             this.mFeatures.removeAll(features);
             // Add all features at the end of the list
             this.mFeatures.addAll(features);
+        }
+    }
+
+    /**
+     * Find the feature and move it at the end of the list so will draw for last (on top).
+     *
+     * @param feature the feature
+     */
+    @SuppressWarnings("unused")
+    public void bringOnTop(ScFeature feature) {
+        // Check for empty value
+        if (feature != null && this.mFeatures.contains(feature)) {
+            // Remove the feature
+            this.mFeatures.remove(feature);
+            this.mFeatures.add(feature);
         }
     }
 

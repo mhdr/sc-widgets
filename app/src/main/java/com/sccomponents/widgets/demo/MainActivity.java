@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.EmbossMaskFilter;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
@@ -36,43 +37,38 @@ public class MainActivity extends AppCompatActivity {
         final TextView counter = (TextView) this.findViewById(R.id.counter);
         assert counter != null;
 
-        // Clear all default features from the gauge
-        gauge.removeAllFeatures();
+        // Bring on top
+        gauge.bringOnTop(ScGauge.BASE_IDENTIFIER);
+        gauge.bringOnTop(ScGauge.NOTCHS_IDENTIFIER);
 
-        // Take in mind that when you tagged a feature after this feature inherit the principal
-        // characteristic of the identifier.
-        // For example in the case of the BASE_IDENTIFIER the feature notchs (always) will be
-        // settle as the color and stroke size settle for the base (in xml or via code).
-
-        // Create the base notchs.
-        ScNotchs base = (ScNotchs) gauge.addFeature(ScNotchs.class);
-        base.setTag(ScGauge.BASE_IDENTIFIER);
-        base.setCount(40);
-        base.setPosition(ScNotchs.NotchPositions.INSIDE);
-
-        // Note that I will create two progress because to one will add the blur and to the other
-        // will be add the emboss effect.
-
-        // Create the progress notchs.
-        ScNotchs progress = (ScNotchs) gauge.addFeature(ScNotchs.class);
-        progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
-        progress.setCount(40);
-        progress.setPosition(ScNotchs.NotchPositions.INSIDE);
-        progress.setColors(
-                Color.parseColor("#0BA60A"),
-                Color.parseColor("#FEF301"),
-                Color.parseColor("#EA0C01")
+        // Get the base
+        ScFeature base = gauge.findFeature(ScGauge.BASE_IDENTIFIER);
+        base.setFillingColors(ScFeature.ColorsMode.SOLID);
+        base.setColors(
+                Color.WHITE, Color.WHITE, Color.WHITE,
+                Color.WHITE, Color.WHITE, Color.WHITE,
+                Color.RED, Color.RED
         );
 
+        // Get the notchs
+        ScNotchs notchs = (ScNotchs) gauge.findFeature(ScGauge.NOTCHS_IDENTIFIER);
+        notchs.setPosition(ScNotchs.NotchPositions.INSIDE);
+
+        // Get the writer
+        ScWriter writer = (ScWriter) gauge.findFeature(ScGauge.WRITER_IDENTIFIER);
+        writer.setPosition(ScWriter.TokenPositions.INSIDE);
+        writer.setUnbend(true);
+
         // Set the value
-        gauge.setHighValue(90);
+        gauge.setHighValue(180, 0, 320);
 
         // Each time I will change the value I must write it inside the counter text.
         gauge.setOnEventListener(new ScGauge.OnEventListener() {
             @Override
             public void onValueChange(float lowValue, float highValue) {
                 // Write the value
-                counter.setText((int) highValue + "%");
+                int value = (int) ScGauge.percentageToValue(highValue, 0, 320);
+                counter.setText(Integer.toString(value));
             }
         });
 
@@ -80,13 +76,20 @@ public class MainActivity extends AppCompatActivity {
         gauge.setOnDrawListener(new ScGauge.OnDrawListener() {
             @Override
             public void onBeforeDrawCopy(ScCopier.CopyInfo info) {
-                // Do nothing
+                // Check for the progress
+                if (info.source.getTag() == ScGauge.PROGRESS_IDENTIFIER) {
+                    // Scale
+                    info.scale = new PointF(0.95f, 0.95f);
+                    info.offset = new PointF(14.0f, 14.0f);
+                }
             }
 
             @Override
             public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
                 // Set the length of the notch
-                info.source.setLength(gauge.dipToPixel(info.index + 5));
+                info.length = info.index == 0 || info.index == info.source.getCount() ?
+                        gauge.dipToPixel(15) : gauge.dipToPixel(5);
+                info.color = info.index > 6 ? Color.RED : Color.WHITE;
             }
 
             @Override
@@ -96,7 +99,17 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onBeforeDrawToken(ScWriter.TokenInfo info) {
-                // Do nothing
+                // Get the text bounds
+                Rect bounds = new Rect();
+                info.source.getPainter().getTextBounds(info.text, 0, info.text.length(), bounds);
+
+                // Hide the first
+                info.visible = info.index != 0;
+
+                // Reset the angle and the offset
+                info.angle = 0.0f;
+                info.offset.y = bounds.height() / 2 + 5;
+                info.offset.x = -bounds.width() * ((float) info.index / (float) info.source.getTokens().length);
             }
         });
     }

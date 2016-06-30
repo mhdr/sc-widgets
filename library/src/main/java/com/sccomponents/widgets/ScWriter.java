@@ -1,6 +1,8 @@
 package com.sccomponents.widgets;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
@@ -134,71 +136,85 @@ public class ScWriter extends ScFeature {
      */
 
     /**
-     * Draw the single token on canvas.
+     * Draw a single unbend string token.
      *
-     * @param canvas the canvas where draw
+     * @param canvas where to draw
      * @param info   the token info
      */
-    private void drawToken(Canvas canvas, TokenInfo info, float step) {
-        // Check for empty values
-        if (info.point == null || info.offset == null || info.text == null)
-            return;
-
-        // Apply the current settings to the painter
-        this.mPaintClone.set(this.mPaint);
-        this.mPaintClone.setColor(info.color);
+    private void drawUnbend(Canvas canvas, TokenInfo info, float originalAngle) {
+        // Check for null value
+        if (canvas == null) return;
 
         // Fix the vertical offset considering the position of the text on the path and the
         // font metrics offset.
-        info.offset.y += this.getVerticalOffsetByPosition(info) -
+        float extraVerticalOffset = this.getVerticalOffsetByPosition(info) -
                 this.getVerticalOffsetByFontMetrics(info);
-
-        // Check for null value
-        if (canvas == null) return;
+        ScFeature.translatePoint(info.point, 0.0f, extraVerticalOffset, originalAngle);
 
         // Save the canvas status and rotate by the calculated tangent angle
         canvas.save();
         canvas.rotate(info.angle, info.point.x, info.point.y);
 
-        // Draw by the case
-        if (this.mUnbend) {
-            // Draw the straight text
-            canvas.drawText(
-                    info.text,
-                    info.point.x + info.offset.x, info.point.y + info.offset.y,
-                    this.mPaintClone
-            );
-
-        } else {
-            // Holder
-            Path segment = new Path();
-
-            // Extract the path segment
-            this.mSegmentMeasure.setPath(this.mPath, false);
-            this.mSegmentMeasure
-                    .getSegment(info.distance, info.distance + step, segment, true);
-
-            // Draw the text on the path
-            canvas.drawTextOnPath(
-                    info.text,
-                    segment,
-                    info.offset.x, info.offset.y,
-                    this.mPaint
-            );
-        }
+        // Draw the straight text
+        canvas.drawText(
+                info.text,
+                info.point.x + info.offset.x, info.point.y + info.offset.y,
+                this.mPaintClone
+        );
 
         // Restore the canvas status
         canvas.restore();
     }
 
     /**
-     * Find the last setting before draw.
+     * Draw the bend token on canvas following a segment extracted from the original path.
+     *
+     * @param canvas where to draw
+     * @param info   the token info
+     * @param step   the length of segment
+     */
+    private void drawBend(Canvas canvas, TokenInfo info, float step) {
+        // Check for null value
+        if (canvas == null) return;
+
+        // Holder
+        Path segment = new Path();
+
+        // Extract the path segment
+        this.mSegmentMeasure.setPath(this.mPath, false);
+        this.mSegmentMeasure
+                .getSegment(info.distance, info.distance + step, segment, true);
+
+        // Check for the angle
+        if (info.angle != 0) {
+            // Get the matrix and rotate it
+            Matrix matrix = new Matrix();
+            matrix.postRotate(info.angle);
+            // Apply the new matrix to the segment
+            segment.transform(matrix);
+        }
+
+        // Fix the vertical offset considering the position of the text on the path and the
+        // font metrics offset.
+        float extraVerticalOffset = this.getVerticalOffsetByPosition(info) -
+                this.getVerticalOffsetByFontMetrics(info);
+
+        // Draw the text on the path
+        canvas.drawTextOnPath(
+                info.text,
+                segment,
+                info.offset.x, info.offset.y + extraVerticalOffset,
+                this.mPaint
+        );
+    }
+
+    /**
+     * Draw the single token on canvas.
      *
      * @param canvas the canvas where draw
      * @param info   the token info
-     * @param step   the step
      */
-    private void prepareTokenInfo(Canvas canvas, TokenInfo info, float step) {
+    private void drawToken(Canvas canvas, TokenInfo info, float step) {
         // Define the point holder
         float[] point;
 
@@ -221,7 +237,7 @@ public class ScWriter extends ScFeature {
 
         // Define the properties.
         if (point != null) {
-            info.angle = (float) Math.toDegrees(this.mUnbend ? point[3] : 0.0f);
+            info.angle = (float) Math.toDegrees(this.mUnbend ? Math.toDegrees(point[3]) : 0.0f);
             info.point = ScWriter.toPoint(point);
         }
 
@@ -230,9 +246,22 @@ public class ScWriter extends ScFeature {
             this.mOnDrawListener.onBeforeDrawToken(info);
         }
 
-        // Draw the token on the canvas
-        if (info.visible) {
-            this.drawToken(canvas, info, step);
+        // Check for empty values
+        if (!info.visible || info.point == null || info.offset == null || info.text == null)
+            return;
+
+        // Apply the current settings to the painter
+        this.mPaintClone.set(this.mPaint);
+        this.mPaintClone.setColor(info.color);
+
+        // Draw by the case
+        if (this.mUnbend) {
+            // Unbend
+            this.drawUnbend(canvas, info, (float) Math.toDegrees(point[3]));
+
+        } else {
+            // Bend
+            this.drawBend(canvas, info, step);
         }
     }
 
@@ -276,7 +305,7 @@ public class ScWriter extends ScFeature {
             info.color = this.getGradientColor(info.distance);
 
             // Draw the single token
-            this.prepareTokenInfo(canvas, info, step);
+            this.drawToken(canvas, info, step);
         }
     }
 

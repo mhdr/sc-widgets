@@ -54,7 +54,8 @@ If the param is null return the first feature found avoid the comparison check.
 
 - **void bringOnTop(String tag)**<br />
 **void bringOnTop(Class<?> classRef)**<br />
-Find all feature that are tagged or inherit from class param and move they at the end of the list so will draw for least (on top).
+**void bringOnTop(ScFeature feature)**<br />
+Find all feature that are tagged or inherit from class param and move they at the end of the list so will draw for last (on top).
 
 - **Paint getPainter()**<br />
 Get the arc painter.
