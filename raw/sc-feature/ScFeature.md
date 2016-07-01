@@ -29,7 +29,7 @@ When you use the colors properties to create a shader it will create as a Bitmap
 
 > **NOTE**
 > When you use a series of color the class will product a shader and will apply it on the class Painter.<br />
-> If you need to have a custom shader you can assign directly a new shader to the painter calling the `getPainter` method but you must to reset the colors before to do it (`setColors(null)`);
+> If you need to have a custom shader you can assign directly a new shader to the painter calling the `getPainter` method but you must to reset the colors if you have (`setColors(null)`);
 <br />
 <br />
 
