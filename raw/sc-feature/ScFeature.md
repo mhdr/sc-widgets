@@ -30,6 +30,7 @@ When you use the colors properties to create a shader it will create as a Bitmap
 > **NOTE**<br />
 > When you use a series of color the class will product a shader and will apply it on the class Painter.<br />
 > If you need to have a custom shader you can assign directly a new shader to the painter calling the `getPainter` method but you must to reset the colors if you have (`setColors(null)`);
+
 <br />
 <br />
 
@@ -46,11 +47,11 @@ Convert a point represented by an array to an modern object.<br />
 Supposed that the 0 array position correspond to the x coordinate and on the 1 array position correspond the y coordinate.
 
 - **static void translatePoint(PointF point, float offset, float angle)**<br />
-Translate a point considering the angle (in radiant) and the offset.<br />
+Translate a point considering the angle (in degrees) and the offset.<br />
 Move the pointer on the tangent defined by the angle.
 
 - **static void translatePoint(PointF point, PointF offset, float angle)**<br />
-Translate a point considering the angle (in radiant) and the offset (x, y).<br />
+Translate a point considering the angle (in degrees) and the offset (x, y).<br />
 Move the pointer on the tangent defined by the angle by the x value and move the pointer on the perpendicular defined by the angle by the y value.
 
 - **void setLimits(float start, float end)**<br />
