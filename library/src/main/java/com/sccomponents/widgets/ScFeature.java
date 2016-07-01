@@ -301,7 +301,6 @@ public class ScFeature {
         return this.getGradientColor(distance, this.mPathLength);
     }
 
-
     /****************************************************************************************
      * Public properties
      */

@@ -38,13 +38,13 @@ This class inherit all its properties from the [ScFeature](raw/sc-feature/ScFeat
 Create a feature that draw a pointer on the given path.<br />
 This class inherit all its properties from the [ScFeature](raw/sc-feature/ScFeature.md).
 
-- **[ScPointer](raw/sc-pointer/ScPointer.md)**<br />
-Create a feature that draw a pointer on the given path.<br />
-This class inherit all its properties from the [ScFeature](raw/sc-feature/ScFeature.md).
+- **[ScWidget](raw/sc-widget/ScWidget.md)**<br />
+The base class for all widget component of this series.<br />
+Contains just utility methods for facilitate the building of a component.
 
-- **[ScWriter](raw/sc-widget/ScWriter.md)**<br />
-The base class for all (or almost) widget components of this series.<br />
-Create a feature that draw a series of texts on the given path.
+- **[ScWriter](raw/sc-writer/ScWriter.md)**<br />
+Create a feature that draw a series of texts on the given path.<br />
+This class inherit all its properties from the [ScFeature](raw/sc-feature/ScFeature.md).
 
 - **[ScSlidingPanel](raw/sc-slidingpanel/ScSlidingPanel.md)**<br />
 This is a very simple sliding panel manager.<br />
