@@ -28,8 +28,8 @@ When you use the colors properties to create a shader it will create as a Bitmap
 > So it is a not sense to use this class directly.
 
 > **NOTE**
-> About the shader you can override the `Shader createShader()` protected method to create a custom shader.<br />
-> Or you can assign directly your shader to the painter calling the `getPainter` method.
+> When you use a series of color the class will product a shader and will apply it on the class Painter.<br />
+> If you need to have a custom shader you can assign directly a new shader to the painter calling the `getPainter` method but you must to reset the colors before to do it (`setColors(null)`);
 <br />
 <br />
 
