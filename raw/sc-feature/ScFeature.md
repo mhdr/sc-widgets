@@ -22,12 +22,12 @@ For example if you build a filled circle might be better to create a radial grad
 This class expose a `draw` method to call to draw something on the passed canvas.<br />
 When you use the colors properties to create a shader it will create as a BitmapShader and settle in the painter object.
 
-> **IMPORTANT**
+> **IMPORTANT**<br />
 > The `draw` method of this class do nothing. <br />
 > Is important to understand that you need to override the `void onDraw()` protected method for specialize this class.
 > So it is a not sense to use this class directly.
 
-> **NOTE**
+> **NOTE**<br />
 > When you use a series of color the class will product a shader and will apply it on the class Painter.<br />
 > If you need to have a custom shader you can assign directly a new shader to the painter calling the `getPainter` method but you must to reset the colors if you have (`setColors(null)`);
 <br />
