@@ -80,7 +80,7 @@ Properties list: `point`, `index`, `text`, `distance`, `angle`, `unbend`, `color
 <br />
 
 - **Normal and pressed**<br />
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/1.jpg" align="right" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-writer/1.jpg" align="right" />
 ```java
     // Dimensions
     int padding = 30;
@@ -123,7 +123,7 @@ Properties list: `point`, `index`, `text`, `distance`, `angle`, `unbend`, `color
 <br />
 
 - **Before drawing the token**<br />
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-writer/2.jpg" align="right" />
 ```java
     ...
     // Create the tokens
