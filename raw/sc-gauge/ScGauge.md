@@ -198,12 +198,16 @@ Called before draw the single text token.
         <attr name="scc_notchs_colors_mode"/>
         <attr name="scc_notchs" format="integer" />
         <attr name="scc_notchs_length" format="float" />
+        <attr name="scc_notchs_position"/>
         <attr name="scc_snap_to_notchs" format="boolean" />
         <attr name="scc_text_size" format="dimension" />
         <attr name="scc_text_color" format="color" />
         <attr name="scc_text_colors" format="string" />
         <attr name="scc_text_colors_mode"/>
+        <attr name="scc_text_position"/>
+        <attr name="scc_text_align"/>
         <attr name="scc_text_tokens" format="string" />
+        <attr name="scc_text_unbend" format="boolean"/>
         <attr name="scc_pointer_radius" format="dimension" />
         <attr name="scc_pointer_color" format="color" />
         <attr name="scc_pointer_colors" format="string" />
