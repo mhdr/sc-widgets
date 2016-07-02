@@ -79,6 +79,7 @@ Put the component inside a RelativeLayout, give an alignment and the panel slide
 
 The idea was to create a base (solid) class that help the user to design more quickly every type of gauges.
 Now the base is, still raw and improvable, for this every "fork" or help it is welcome.
+
 The road-map now is to create a specialized class for draw linear gauges (ScLineGauge) and some examples.
 After do that I would like to create a series of preset classes that can be used without write "code" but always but still offering to the advanced users to go deep in the code.
 
@@ -101,7 +102,7 @@ Add the dependency
 ```java
 dependencies {
     ...
-    compile 'com.github.paroca72:sc-widgets:2.0.PREVIEW'
+    compile 'com.github.paroca72:sc-widgets:2.0.0'
 }
 ```
 
