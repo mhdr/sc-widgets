@@ -6,22 +6,24 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Manage a generic gauge.
- * <p/>
+ * <p>
  * This class is studied to be an "helper class" to facilitate the user to create a gauge.
  * The path is generic and the class start with a standard configuration of features.
  * One base (inherited from the ScDrawer), one notchs manager, one writer manager, one copier to
  * create the progress effect and two pointer for manage the user touch input.
- * <p/>
+ * <p>
  * Here are exposed many methods to drive the common feature from the code or directly by the XML.
  * The features are recognized from the class by its tag so changing, for example, the color of
  * notchs you will change the color of all notchs tagged.
@@ -64,25 +66,36 @@ public abstract class ScGauge extends ScDrawer implements
      * Privates attribute
      */
 
-    protected float mStrokeSize;
-    protected int mStrokeColor;
+    private float mStrokeSize;
+    private int[] mStrokeColors;
+    private ScFeature.ColorsMode mStrokeColorsMode;
 
-    protected float mProgressSize;
-    protected int mProgressColor;
+    private float mProgressSize;
+    private int[] mProgressColors;
+    private ScFeature.ColorsMode mProgressColorsMode;
 
-    protected float mNotchsSize;
-    protected int mNotchsColor;
-    protected int mNotchsCount;
-    protected float mNotchsLength;
-    protected boolean mSnapToNotchs;
+    private float mNotchsSize;
+    private int[] mNotchsColors;
+    private ScFeature.ColorsMode mNotchsColorsMode;
+    private int mNotchsCount;
+    private float mNotchsLength;
+    private ScNotchs.NotchPositions mNotchsPosition;
+    private boolean mSnapToNotchs;
 
-    protected String[] mTextTokens;
-    protected float mTextSize;
-    protected int mTextColor;
+    private String[] mTextTokens;
+    private float mTextSize;
+    private int[] mTextColors;
+    private ScFeature.ColorsMode mTextColorsMode;
+    private ScWriter.TokenPositions mTextPosition;
+    private ScWriter.TokenAlignments mTextAlignment;
+    private boolean mTextUnbend;
 
-    protected float mPointerRadius;
-    protected int mPointerColor;
-    protected float mPointerHaloWidth;
+    private float mPointerRadius;
+    private int[] mPointerColors;
+    private ScFeature.ColorsMode mPointerColorsMode;
+    private float mPointerHaloWidth;
+    private boolean mPointerLowVisible;
+    private boolean mPointerHighVisible;
 
 
     /****************************************************************************************
@@ -140,16 +153,18 @@ public abstract class ScGauge extends ScDrawer implements
         // Base
         if (tag.equalsIgnoreCase(ScGauge.BASE_IDENTIFIER)) {
             // fill
-            feature.getPainter().setColor(this.mStrokeColor);
             feature.getPainter().setStrokeWidth(this.mStrokeSize);
+            feature.setColors(this.mStrokeColors);
+            feature.setColorsMode(this.mStrokeColorsMode);
         }
 
         // Progress
         if (tag.equalsIgnoreCase(ScGauge.PROGRESS_IDENTIFIER)) {
             // fill
             feature.setLimits(this.mLowValue, this.mHighValue);
-            feature.getPainter().setColor(this.mProgressColor);
             feature.getPainter().setStrokeWidth(this.mProgressSize);
+            feature.setColors(this.mProgressColors);
+            feature.setColorsMode(this.mProgressColorsMode);
         }
 
         // Notchs
@@ -159,8 +174,10 @@ public abstract class ScGauge extends ScDrawer implements
             ScNotchs notchs = (ScNotchs) feature;
             notchs.setLength(this.mNotchsLength);
             notchs.setCount(this.mNotchsCount);
-            notchs.getPainter().setColor(this.mNotchsColor);
             notchs.getPainter().setStrokeWidth(this.mNotchsSize);
+            notchs.setColors(this.mNotchsColors);
+            notchs.setColorsMode(this.mNotchsColorsMode);
+            notchs.setPosition(this.mNotchsPosition);
         }
 
         // Writer
@@ -168,8 +185,13 @@ public abstract class ScGauge extends ScDrawer implements
                 tag.equalsIgnoreCase(ScGauge.WRITER_IDENTIFIER)) {
             // Cast and fill
             ScWriter writer = (ScWriter) feature;
-            writer.getPainter().setColor(this.mTextColor);
             writer.getPainter().setTextSize(this.mTextSize);
+            writer.setColors(this.mTextColors);
+            writer.setColorsMode(this.mTextColorsMode);
+            writer.setPosition(this.mTextPosition);
+            writer.setUnbend(this.mTextUnbend);
+            writer.getPainter().setTextAlign(
+                    Paint.Align.values()[this.mTextAlignment.ordinal()]);
 
             if (this.mTextTokens != null) {
                 writer.setTokens(this.mTextTokens);
@@ -185,11 +207,18 @@ public abstract class ScGauge extends ScDrawer implements
             ScPointer pointer = (ScPointer) feature;
             pointer.setRadius(this.mPointerRadius);
             pointer.setHaloWidth(this.mPointerHaloWidth);
-            pointer.getPainter().setColor(this.mPointerColor);
+            pointer.setColors(this.mPointerColors);
+            pointer.setColorsMode(this.mPointerColorsMode);
 
             // Switch the case
-            if (isHigh) pointer.setPosition(this.mHighValue);
-            if (isLow) pointer.setPosition(this.mLowValue);
+            if (isHigh) {
+                pointer.setPosition(this.mHighValue);
+                pointer.setVisible(this.mPointerHighVisible);
+            }
+            if (isLow) {
+                pointer.setPosition(this.mLowValue);
+                pointer.setVisible(this.mPointerLowVisible);
+            }
         }
     }
 
@@ -220,6 +249,27 @@ public abstract class ScGauge extends ScDrawer implements
     }
 
     /**
+     * Split a string in a series of colors.
+     */
+    private int[] slipToColors(String source) {
+        // Check for empty values
+        if (source == null || source.isEmpty()) return null;
+
+        // Split the string and create the colors holder
+        String[] tokens = source.split("\\|");
+        int[] colors = new int[tokens.length];
+
+        // Cycle all token
+        for (int index = 0; index < tokens.length; index++) {
+            // Try to convert
+            colors[index] = Color.parseColor(tokens[index]);
+        }
+
+        // return
+        return colors;
+    }
+
+    /**
      * Init the component.
      * Retrieve all attributes with the default values if needed.
      * Check the values for internal use and create the painters.
@@ -236,54 +286,127 @@ public abstract class ScGauge extends ScDrawer implements
         final TypedArray attrArray = context
                 .obtainStyledAttributes(attrs, R.styleable.ScComponents, defStyle, 0);
 
-        // Base
+        //--------------------------------------------------
+        // BASE
+
         this.mStrokeSize = attrArray.getDimension(
                 R.styleable.ScComponents_scc_stroke_size, this.dipToPixel(ScGauge.DEFAULT_STROKE_SIZE));
-        this.mStrokeColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_stroke_color, ScGauge.DEFAULT_STROKE_COLOR);
+        this.mStrokeColors = this
+                .slipToColors(attrArray.getString(R.styleable.ScComponents_scc_stroke_colors));
 
-        // Progress
+        int strokeColor = attrArray.getColor(
+                R.styleable.ScComponents_scc_stroke_color, ScGauge.DEFAULT_STROKE_COLOR);
+        if (this.mStrokeColors == null) {
+            this.mStrokeColors = new int[]{strokeColor};
+        }
+
+        int strokeColorsMode = attrArray.getInt(
+                R.styleable.ScComponents_scc_stroke_colors_mode, ScFeature.ColorsMode.GRADIENT.ordinal());
+        this.mStrokeColorsMode = ScFeature.ColorsMode.values()[strokeColorsMode];
+
+        //--------------------------------------------------
+        // PROGRESS
+
         this.mProgressSize = attrArray.getDimension(
                 R.styleable.ScComponents_scc_progress_size, this.dipToPixel(ScGauge.DEFAULT_PROGRESS_SIZE));
-        this.mProgressColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_progress_color, ScGauge.DEFAULT_PROGRESS_COLOR);
+        this.mProgressColors = this
+                .slipToColors(attrArray.getString(R.styleable.ScComponents_scc_progress_colors));
         this.mHighValue = attrArray.getFloat(
                 R.styleable.ScComponents_scc_value, 0.0f);
 
-        // Notchs
+        int progressColor = attrArray.getColor(
+                R.styleable.ScComponents_scc_progress_color, ScGauge.DEFAULT_PROGRESS_COLOR);
+        if (this.mProgressColors == null) {
+            this.mProgressColors = new int[]{progressColor};
+        }
+
+        int progressColorsMode = attrArray.getInt(
+                R.styleable.ScComponents_scc_progress_colors_mode, ScFeature.ColorsMode.GRADIENT.ordinal());
+        this.mProgressColorsMode = ScFeature.ColorsMode.values()[progressColorsMode];
+
+        //--------------------------------------------------
+        // NOTCHS
+
         this.mNotchsSize = attrArray.getDimension(
                 R.styleable.ScComponents_scc_notchs_size, this.dipToPixel(ScGauge.DEFAULT_STROKE_SIZE));
-        this.mNotchsColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_notchs_color, ScGauge.DEFAULT_STROKE_COLOR);
         this.mNotchsCount = attrArray.getInt(
                 R.styleable.ScComponents_scc_notchs, 0);
         this.mNotchsLength = attrArray.getDimension(
                 R.styleable.ScComponents_scc_notchs_length, this.mStrokeSize * 2);
         this.mSnapToNotchs = attrArray.getBoolean(
                 R.styleable.ScComponents_scc_snap_to_notchs, false);
+        this.mNotchsColors = this
+                .slipToColors(attrArray.getString(R.styleable.ScComponents_scc_notchs_colors));
 
-        // Text
+        int notchsColor = attrArray.getColor(
+                R.styleable.ScComponents_scc_notchs_color, ScGauge.DEFAULT_STROKE_COLOR);
+        if (this.mNotchsColors == null) {
+            this.mNotchsColors = new int[]{notchsColor};
+        }
+
+        int notchsColorsMode = attrArray.getInt(
+                R.styleable.ScComponents_scc_notchs_colors_mode, ScFeature.ColorsMode.GRADIENT.ordinal());
+        this.mNotchsColorsMode = ScFeature.ColorsMode.values()[notchsColorsMode];
+
+        int notchsPosition = attrArray.getInt(
+                R.styleable.ScComponents_scc_notchs_position, ScNotchs.NotchPositions.MIDDLE.ordinal());
+        this.mNotchsPosition = ScNotchs.NotchPositions.values()[notchsPosition];
+
+        //--------------------------------------------------
+        // TEXT
+
         this.mTextSize = attrArray.getDimension(
                 R.styleable.ScComponents_scc_text_size, this.dipToPixel(ScGauge.DEFAULT_TEXT_SIZE));
-        this.mTextColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_text_color, ScGauge.DEFAULT_STROKE_COLOR);
+        this.mTextColors = this
+                .slipToColors(attrArray.getString(R.styleable.ScComponents_scc_text_colors));
+        this.mTextUnbend = attrArray.getBoolean(
+                R.styleable.ScComponents_scc_text_unbend, false);
 
         String stringTokens = attrArray.getString(R.styleable.ScComponents_scc_text_tokens);
         this.mTextTokens = stringTokens != null ? stringTokens.split("\\|") : null;
 
-        // Pointer
+        int textColor = attrArray.getColor(
+                R.styleable.ScComponents_scc_text_color, ScGauge.DEFAULT_STROKE_COLOR);
+        if (this.mTextColors == null) {
+            this.mTextColors = new int[]{textColor};
+        }
+
+        int textColorsMode = attrArray.getInt(
+                R.styleable.ScComponents_scc_text_colors_mode, ScFeature.ColorsMode.GRADIENT.ordinal());
+        this.mTextColorsMode = ScFeature.ColorsMode.values()[textColorsMode];
+
+        int textPosition = attrArray.getInt(
+                R.styleable.ScComponents_scc_text_position, ScWriter.TokenPositions.MIDDLE.ordinal());
+        this.mTextPosition = ScWriter.TokenPositions.values()[textPosition];
+        int textAlign = attrArray.getInt(
+                R.styleable.ScComponents_scc_text_align, ScWriter.TokenAlignments.LEFT.ordinal());
+        this.mTextAlignment = ScWriter.TokenAlignments.values()[textAlign];
+
+        //--------------------------------------------------
+        // POINTER
+
         this.mPointerRadius = attrArray.getDimension(
                 R.styleable.ScComponents_scc_pointer_radius, 0.0f);
-        this.mPointerColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_pointer_color, ScGauge.DEFAULT_STROKE_COLOR);
+        this.mPointerColors = this
+                .slipToColors(attrArray.getString(R.styleable.ScComponents_scc_pointer_colors));
         this.mPointerHaloWidth = attrArray.getDimension(
                 R.styleable.ScComponents_scc_halo_size, ScGauge.DEFAULT_HALO_SIZE);
 
-        // Recycle
-        attrArray.recycle();
+        int pointerColor = attrArray.getColor(
+                R.styleable.ScComponents_scc_pointer_color, ScGauge.DEFAULT_STROKE_COLOR);
+        if (this.mPointerColors == null) {
+            this.mPointerColors = new int[]{pointerColor};
+        }
+
+        int pointerColorsMode = attrArray.getInt(
+                R.styleable.ScComponents_scc_pointer_colors_mode, ScFeature.ColorsMode.GRADIENT.ordinal());
+        this.mPointerColorsMode = ScFeature.ColorsMode.values()[pointerColorsMode];
 
         //--------------------------------------------------
         // INTERNAL
+
+        // Recycle
+        attrArray.recycle();
 
         // Disable the hardware acceleration as have problem with the shader
         this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
@@ -297,6 +420,10 @@ public abstract class ScGauge extends ScDrawer implements
 
         // Define the touch threshold
         this.fixTouchOnPathThreshold();
+
+        // Pointer visibility
+        this.mPointerHighVisible = true;
+        this.mPointerLowVisible = false;
 
         //--------------------------------------------------
         // FEATURES
@@ -485,21 +612,26 @@ public abstract class ScGauge extends ScDrawer implements
         // Save all starting from the parent state
         state.putParcelable("PARENT", superState);
         state.putFloat("mStrokeSize", this.mStrokeSize);
-        state.putInt("mStrokeColor", this.mStrokeColor);
+        state.putIntArray("mStrokeColors", this.mStrokeColors);
+        state.putInt("mStrokeColorsMode", this.mStrokeColorsMode.ordinal());
         state.putFloat("mHighValue", this.mHighValue);
         state.putFloat("mLowValue", this.mLowValue);
         state.putFloat("mProgressSize", this.mProgressSize);
-        state.putInt("mProgressColor", this.mProgressColor);
+        state.putIntArray("mProgressColors", this.mProgressColors);
+        state.putInt("mProgressColorsMode", this.mProgressColorsMode.ordinal());
         state.putFloat("mNotchsSize", this.mNotchsSize);
-        state.putInt("mNotchsColor", this.mNotchsColor);
+        state.putIntArray("mNotchsColors", this.mNotchsColors);
+        state.putInt("mNotchsColorsMode", this.mNotchsColorsMode.ordinal());
         state.putInt("mNotchsCount", this.mNotchsCount);
         state.putFloat("mNotchsLength", this.mNotchsLength);
         state.putBoolean("mSnapToNotchs", this.mSnapToNotchs);
         state.putStringArray("mTextTokens", this.mTextTokens);
         state.putFloat("mTextSize", this.mTextSize);
-        state.putInt("mTextColor", this.mTextColor);
+        state.putIntArray("mTextColors", this.mTextColors);
+        state.putInt("mTextColorsMode", this.mTextColorsMode.ordinal());
         state.putFloat("mPointerRadius", this.mPointerRadius);
-        state.putInt("mPointerColor", this.mPointerColor);
+        state.putIntArray("mPointerColors", this.mPointerColors);
+        state.putInt("mPointerColorsMode", this.mPointerColorsMode.ordinal());
         state.putFloat("mPointerHaloWidth", this.mPointerHaloWidth);
 
         // Return the new state
@@ -522,21 +654,26 @@ public abstract class ScGauge extends ScDrawer implements
 
         // Now can restore all the saved variables values
         this.mStrokeSize = savedState.getFloat("mStrokeSize");
-        this.mStrokeColor = savedState.getInt("mStrokeColor");
+        this.mStrokeColors = savedState.getIntArray("mStrokeColors");
+        this.mStrokeColorsMode = ScFeature.ColorsMode.values()[savedState.getInt("mStrokeColorsMode")];
         this.mHighValue = savedState.getFloat("mHighValue");
         this.mLowValue = savedState.getFloat("mLowValue");
         this.mProgressSize = savedState.getFloat("mProgressSize");
-        this.mProgressColor = savedState.getInt("mProgressColor");
+        this.mProgressColors = savedState.getIntArray("mProgressColors");
+        this.mProgressColorsMode = ScFeature.ColorsMode.values()[savedState.getInt("mProgressColorsMode")];
         this.mNotchsSize = savedState.getFloat("mNotchsSize");
-        this.mNotchsColor = savedState.getInt("mNotchsColor");
+        this.mNotchsColors = savedState.getIntArray("mNotchsColors");
+        this.mNotchsColorsMode = ScFeature.ColorsMode.values()[savedState.getInt("mNotchsColorsMode")];
         this.mNotchsCount = savedState.getInt("mNotchsCount");
         this.mNotchsLength = savedState.getFloat("mNotchsLength");
         this.mSnapToNotchs = savedState.getBoolean("mSnapToNotchs");
         this.mTextTokens = savedState.getStringArray("mTextTokens");
         this.mTextSize = savedState.getFloat("mTextSize");
-        this.mTextColor = savedState.getInt("mTextColor");
+        this.mTextColors = savedState.getIntArray("mTextColors");
+        this.mTextColorsMode = ScFeature.ColorsMode.values()[savedState.getInt("mTextColorsMode")];
         this.mPointerRadius = savedState.getFloat("mPointerRadius");
-        this.mPointerColor = savedState.getInt("mPointerColor");
+        this.mPointerColors = savedState.getIntArray("mPointerColors");
+        this.mPointerColorsMode = ScFeature.ColorsMode.values()[savedState.getInt("mPointerColorsMode")];
         this.mPointerHaloWidth = savedState.getFloat("mPointerHaloWidth");
     }
 
@@ -594,12 +731,12 @@ public abstract class ScGauge extends ScDrawer implements
     /**
      * Add one feature to this drawer.
      * This particular overload instantiate a new object from the class reference passed.
-     * <p/>
+     * <p>
      * The passed class reference must implement the ScFeature interface and will be filled
      * with the setting default params of this object by the type.
      * For example if instance a ScNotchs the notchs count will be auto settle to the defined
      * getNotchsCount method.
-     * <p/>
+     * <p>
      * The new feature instantiate will linked to the gauge on draw listener.
      * If you will create the feature with another method you must manage the on draw listener by
      * yourself or attach it to the gauge at a later time using the proper method.
@@ -794,13 +931,13 @@ public abstract class ScGauge extends ScDrawer implements
     }
 
     /**
-     * Return the current stroke color
+     * Return the current stroke colors
      *
-     * @return the current stroke color
+     * @return the current stroke colors
      */
     @SuppressWarnings("unused")
-    public int getStrokesColors() {
-        return this.mStrokeColor;
+    public int[] getStrokeColors() {
+        return this.mStrokeColors;
     }
 
     /**
@@ -809,10 +946,38 @@ public abstract class ScGauge extends ScDrawer implements
      * @param value the new stroke colors
      */
     @SuppressWarnings("unused")
-    public void setStrokeColors(int value) {
-        // Save the new value and refresh
-        this.mStrokeColor = value;
-        this.requestLayout();
+    public void setStrokeColors(int[] value) {
+        // Check is values has changed
+        if (!Arrays.equals(this.mStrokeColors, value)) {
+            // Save the new value and refresh
+            this.mStrokeColors = value;
+            this.requestLayout();
+        }
+    }
+
+    /**
+     * Return the current stroke filling colors mode.
+     *
+     * @return the current mode
+     */
+    @SuppressWarnings("unused")
+    public ScFeature.ColorsMode getStrokeColorsMode() {
+        return this.mStrokeColorsMode;
+    }
+
+    /**
+     * Set the current stroke filling colors mode.
+     *
+     * @param value the new mode
+     */
+    @SuppressWarnings("unused")
+    public void setStrokeColorsMode(ScFeature.ColorsMode value) {
+        // Check is values has changed
+        if (this.mStrokeColorsMode != value) {
+            // Save the new value and refresh
+            this.mStrokeColorsMode = value;
+            this.requestLayout();
+        }
     }
 
 
@@ -846,27 +1011,52 @@ public abstract class ScGauge extends ScDrawer implements
     }
 
     /**
-     * Return the progress stroke color
+     * Return the progress stroke colors
      *
-     * @return the color
+     * @return the colors
      */
     @SuppressWarnings("unused")
-    public int getProgressColor() {
-        return this.mProgressColor;
+    public int[] getProgressColors() {
+        return this.mProgressColors;
     }
 
     /**
-     * Set the progress color
+     * Set the progress colors
      *
-     * @param value the new color
+     * @param value the new colors
      */
     @SuppressWarnings("unused")
-    public void setProgressColor(int value) {
+    public void setProgressColors(int[] value) {
         // Check if value is changed
-        if (this.mProgressColor != value) {
+        if (!Arrays.equals(this.mProgressColors, value)) {
             // Store the new value and refresh the component
-            this.mProgressColor = value;
+            this.mProgressColors = value;
             this.invalidate();
+        }
+    }
+
+    /**
+     * Return the current progress filling colors mode.
+     *
+     * @return the current mode
+     */
+    @SuppressWarnings("unused")
+    public ScFeature.ColorsMode getProgressColorsMode() {
+        return this.mProgressColorsMode;
+    }
+
+    /**
+     * Set the current progress filling colors mode.
+     *
+     * @param value the new mode
+     */
+    @SuppressWarnings("unused")
+    public void setProgressColorsMode(ScFeature.ColorsMode value) {
+        // Check is values has changed
+        if (this.mProgressColorsMode != value) {
+            // Save the new value and refresh
+            this.mProgressColorsMode = value;
+            this.requestLayout();
         }
     }
 
@@ -1009,27 +1199,52 @@ public abstract class ScGauge extends ScDrawer implements
     }
 
     /**
-     * Return the notchs color
+     * Return the notchs colors
      *
-     * @return the color
+     * @return the colors
      */
     @SuppressWarnings("unused")
-    public int getNotchsColor() {
-        return this.mNotchsColor;
+    public int[] getNotchsColors() {
+        return this.mNotchsColors;
     }
 
     /**
-     * Set the notchs color
+     * Set the notchs colors
      *
-     * @param value the new color
+     * @param value the new colors
      */
     @SuppressWarnings("unused")
-    public void setNotchsColor(int value) {
-        // Check if value is changed
-        if (this.mNotchsColor != value) {
+    public void setNotchsColors(int[] value) {
+        // Check is values has changed
+        if (!Arrays.equals(this.mNotchsColors, value)) {
             // Store the new value and refresh the component
-            this.mNotchsColor = value;
+            this.mNotchsColors = value;
             this.invalidate();
+        }
+    }
+
+    /**
+     * Return the current notchs filling colors mode.
+     *
+     * @return the current mode
+     */
+    @SuppressWarnings("unused")
+    public ScFeature.ColorsMode getNotchsColorsMode() {
+        return this.mNotchsColorsMode;
+    }
+
+    /**
+     * Set the current notchs filling colors mode.
+     *
+     * @param value the new mode
+     */
+    @SuppressWarnings("unused")
+    public void setNotchsColorsMode(ScFeature.ColorsMode value) {
+        // Check is values has changed
+        if (this.mNotchsColorsMode != value) {
+            // Save the new value and refresh
+            this.mNotchsColorsMode = value;
+            this.requestLayout();
         }
     }
 
@@ -1100,12 +1315,40 @@ public abstract class ScGauge extends ScDrawer implements
      */
     @SuppressWarnings("unused")
     public void setSnapToNotchs(boolean value) {
-        // Fix the trigger
-        this.mSnapToNotchs = value;
+        // Check if the value is changed
+        if (this.mSnapToNotchs != value) {
+            // Fix the trigger
+            this.mSnapToNotchs = value;
 
-        // Recall the set value method for apply the new setting
-        this.setHighValue(this.getHighValue());
-        this.setLowValue(this.getLowValue());
+            // Recall the set value method for apply the new setting
+            this.setHighValue(this.getHighValue());
+            this.setLowValue(this.getLowValue());
+        }
+    }
+
+    /**
+     * Return the notchs position respect the path.
+     *
+     * @return the position
+     */
+    @SuppressWarnings("unused")
+    public ScNotchs.NotchPositions getNotchsPosition() {
+        return this.mNotchsPosition;
+    }
+
+    /**
+     * Set the notchs position respect the path.
+     *
+     * @param value the position
+     */
+    @SuppressWarnings("unused")
+    public void setNotchsPosition(ScNotchs.NotchPositions value) {
+        // Check if the value is changed
+        if (this.mNotchsPosition != value) {
+            // Fix the trigger
+            this.mNotchsPosition = value;
+            this.requestLayout();
+        }
     }
 
 
@@ -1161,27 +1404,127 @@ public abstract class ScGauge extends ScDrawer implements
     }
 
     /**
-     * Return the text color
+     * Return the text colors
      *
-     * @return the color
+     * @return the colors
      */
     @SuppressWarnings("unused")
-    public int getTextColor() {
-        return this.mTextColor;
+    public int[] getTextColors() {
+        return this.mTextColors;
     }
 
     /**
-     * Set the text color
+     * Set the text colors
      *
-     * @param value the color
+     * @param value the colors
      */
     @SuppressWarnings("unused")
-    public void setTextColor(int value) {
-        // Check if value is changed
-        if (this.mTextColor != value) {
+    public void setTextColors(int[] value) {
+        // Check is values has changed
+        if (!Arrays.equals(this.mTextColors, value)) {
             // Fix the trigger
-            this.mTextColor = value;
+            this.mTextColors = value;
             this.invalidate();
+        }
+    }
+
+    /**
+     * Return the current text filling colors mode.
+     *
+     * @return the current mode
+     */
+    @SuppressWarnings("unused")
+    public ScFeature.ColorsMode getTextColorsMode() {
+        return this.mTextColorsMode;
+    }
+
+    /**
+     * Set the current text filling colors mode.
+     *
+     * @param value the new mode
+     */
+    @SuppressWarnings("unused")
+    public void setTextColorsMode(ScFeature.ColorsMode value) {
+        // Check is values has changed
+        if (this.mTextColorsMode != value) {
+            // Save the new value and refresh
+            this.mTextColorsMode = value;
+            this.requestLayout();
+        }
+    }
+
+    /**
+     * Return the text position respect the path.
+     *
+     * @return the position
+     */
+    @SuppressWarnings("unused")
+    public ScWriter.TokenPositions getTextPosition() {
+        return this.mTextPosition;
+    }
+
+    /**
+     * Set the text position respect the path.
+     *
+     * @param value the position
+     */
+    @SuppressWarnings("unused")
+    public void setTextPosition(ScWriter.TokenPositions value) {
+        // Check if the value is changed
+        if (this.mTextPosition != value) {
+            // Fix the trigger
+            this.mTextPosition = value;
+            this.requestLayout();
+        }
+    }
+
+    /**
+     * Return the text alignment respect the path owner segment.
+     *
+     * @return the alignment
+     */
+    @SuppressWarnings("unused")
+    public ScWriter.TokenAlignments getTextAlign() {
+        return this.mTextAlignment;
+    }
+
+    /**
+     * Set the text alignment respect the path owner segment.
+     *
+     * @param value the alignment
+     */
+    @SuppressWarnings("unused")
+    public void setTextAlign(ScWriter.TokenAlignments value) {
+        // Check if the value is changed
+        if (this.mTextAlignment != value) {
+            // Fix the trigger
+            this.mTextAlignment = value;
+            this.requestLayout();
+        }
+    }
+
+    /**
+     * Return true if the text is unbend.
+     *
+     * @return the status
+     */
+    @SuppressWarnings("unused")
+    public boolean getTextUnbend() {
+        return this.mTextUnbend;
+    }
+
+    /**
+     * Set true to have a unbend text.
+     *
+     * @param value the status
+     */
+    @SuppressWarnings("unused")
+    public void setTextUnbend(boolean value) {
+        // Check if the value is changed
+        if (this.mTextUnbend != value) {
+            // Fix the trigger
+            this.mTextUnbend = value;
+            this.requestLayout();
         }
     }
 
@@ -1219,29 +1562,56 @@ public abstract class ScGauge extends ScDrawer implements
     }
 
     /**
-     * Return the pointers color.
+     * Return the pointers colors.
      * Note that in the standard configuration the pointers are two: high and low.
      *
-     * @return the color
+     * @return the colors
      */
     @SuppressWarnings("unused")
-    public int getPointersColor() {
-        return this.mPointerColor;
+    public int[] getPointersColors() {
+        return this.mPointerColors;
     }
 
     /**
-     * Set all pointers color.
+     * Set all pointers colors.
      * Note that in the standard configuration the pointers are two: high and low.
      *
-     * @param value the color
+     * @param value the colors
      */
     @SuppressWarnings("unused")
-    public void setPointersColor(int value) {
-        // Check if value is changed
-        if (this.mPointerColor != value) {
+    public void setPointersColors(int[] value) {
+        // Check is values has changed
+        if (!Arrays.equals(this.mPointerColors, value)) {
             // Fix the trigger
-            this.mPointerColor = value;
+            this.mPointerColors = value;
             this.invalidate();
+        }
+    }
+
+    /**
+     * Return the current pointer filling colors mode.
+     * Note that in the standard configuration the pointers are two: high and low.
+     *
+     * @return the current mode
+     */
+    @SuppressWarnings("unused")
+    public ScFeature.ColorsMode getPointerColorsMode() {
+        return this.mPointerColorsMode;
+    }
+
+    /**
+     * Set the current pointer filling colors mode.
+     * Note that in the standard configuration the pointers are two: high and low.
+     *
+     * @param value the new mode
+     */
+    @SuppressWarnings("unused")
+    public void setPointerColorsMode(ScFeature.ColorsMode value) {
+        // Check is values has changed
+        if (this.mPointerColorsMode != value) {
+            // Save the new value and refresh
+            this.mPointerColorsMode = value;
+            this.requestLayout();
         }
     }
 
@@ -1269,6 +1639,60 @@ public abstract class ScGauge extends ScDrawer implements
             // Fix the trigger
             this.mPointerHaloWidth = value;
             this.fixTouchOnPathThreshold();
+            this.invalidate();
+        }
+    }
+
+    /**
+     * Return the low pointers visibility.
+     * By default is false.
+     *
+     * @return the pointer visibility
+     */
+    @SuppressWarnings("unused")
+    public boolean getPointerLowVisibility() {
+        return this.mPointerLowVisible;
+    }
+
+    /**
+     * Set the low pointer visibility..
+     * By default is false.
+     *
+     * @param value the pointer visibility
+     */
+    @SuppressWarnings("unused")
+    public void setPointerLowVisibility(boolean value) {
+        // Check if value is changed
+        if (this.mPointerLowVisible != value) {
+            // Fix the trigger
+            this.mPointerLowVisible = value;
+            this.invalidate();
+        }
+    }
+
+    /**
+     * Return the high pointer visibility.
+     * By default is false.
+     *
+     * @return the pointer visibility
+     */
+    @SuppressWarnings("unused")
+    public boolean getPointerHighVisibility() {
+        return this.mPointerHighVisible;
+    }
+
+    /**
+     * Set the high pointer visibility..
+     * By default is true.
+     *
+     * @param value the pointer visibility
+     */
+    @SuppressWarnings("unused")
+    public void setPointerHighVisibility(boolean value) {
+        // Check if value is changed
+        if (this.mPointerHighVisible != value) {
+            // Fix the trigger
+            this.mPointerHighVisible = value;
             this.invalidate();
         }
     }

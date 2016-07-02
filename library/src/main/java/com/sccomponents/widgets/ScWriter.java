@@ -1,7 +1,6 @@
 package com.sccomponents.widgets;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -24,13 +23,23 @@ public class ScWriter extends ScFeature {
      */
 
     /**
-     * Define the notchs position respect path
+     * Define the text position respect path
      */
     @SuppressWarnings("unused")
     public enum TokenPositions {
-        MIDDLE,
         INSIDE,
+        MIDDLE,
         OUTSIDE
+    }
+
+    /**
+     * Define the text alignment respect the owner path segment
+     */
+    @SuppressWarnings("unused")
+    public enum TokenAlignments {
+        CENTER,
+        LEFT,
+        RIGHT
     }
 
 
@@ -237,11 +246,12 @@ public class ScWriter extends ScFeature {
             point = this.mPathMeasure.getPosTan(local);
         }
 
+        // Check for empty values
+        if (point == null) return;
+
         // Define the properties.
-        if (point != null) {
-            info.angle = (float) Math.toDegrees(this.mUnbend ? Math.toDegrees(point[3]) : 0.0f);
-            info.point = ScWriter.toPoint(point);
-        }
+        info.angle = (float) Math.toDegrees(this.mUnbend ? Math.toDegrees(point[3]) : 0.0f);
+        info.point = ScWriter.toPoint(point);
 
         // Check if have a liked listener
         if (this.mOnDrawListener != null) {

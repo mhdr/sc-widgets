@@ -92,7 +92,7 @@ Get or set the feature visibility.
 Get or set the filling colors.<br />
 When this properties is settle a shader will be created and assigned to the painter.
 
-- **get/setFillingColors**  -> `ColorsMode` value, default `ColorsMode.GRADIENT`<br />
+- **get/setColorsMode**  -> `ColorsMode` value, default `ColorsMode.GRADIENT`<br />
 Define the way to fill the feature with the colors defined above.<br />
 Possibly values by enum: `SOLID`, `GRADIENT`<br />
 <br />

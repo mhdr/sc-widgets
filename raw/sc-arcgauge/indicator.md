@@ -105,6 +105,8 @@ You can download the indicator image used below from [**HERE**](indicator-02.png
             sc:scc_notchs_size="6dp"
             sc:scc_notchs_color="#354051"
             sc:scc_text_tokens="1000|2000|3000"
+            sc:scc_text_align="left"
+            sc:scc_text_position="middle"
             sc:scc_text_color="#354051"/>
 
         <ImageView
@@ -152,11 +154,6 @@ You can download the indicator image used below from [**HERE**](indicator-02.png
     // value from code.
     gauge.setHighValue(60);
 
-    // Get the writer and set the position
-    ScWriter writer = (ScWriter) gauge.findFeature(ScGauge.WRITER_IDENTIFIER);
-    writer.setPosition(ScWriter.TokenPositions.MIDDLE);
-    writer.getPainter().setTextAlign(Paint.Align.CENTER);
-
     // Each time I will change the value I must write it inside the counter text.
     gauge.setOnEventListener(new ScGauge.OnEventListener() {
         @Override
@@ -194,6 +191,8 @@ You can download the indicator image used below from [**HERE**](indicator-02.png
             android:padding="30dp"
             sc:scc_angle_start="-180"
             sc:scc_angle_sweep="180"
+            sc:scc_stroke_colors="#EC4949|#EC4949|#F7AD36|#F7AD36|#F7AD36|#F7AD36|#8BBE28"
+            sc:scc_stroke_colors_mode="solid"
             sc:scc_stroke_size="30dp"/>
 
         <ImageView
@@ -223,19 +222,6 @@ You can download the indicator image used below from [**HERE**](indicator-02.png
     // If you set the value from the xml that not produce an event so I will change the
     // value from code.
     gauge.setHighValue(60);
-
-    // Get the base feature
-    ScFeature base = gauge.findFeature(ScGauge.BASE_IDENTIFIER);
-    base.setColors(
-            Color.parseColor("#EC4949"),
-            Color.parseColor("#EC4949"),
-            Color.parseColor("#F7AD36"),
-            Color.parseColor("#F7AD36"),
-            Color.parseColor("#F7AD36"),
-            Color.parseColor("#F7AD36"),
-            Color.parseColor("#8BBE28")
-    );
-    base.setFillingColors(ScFeature.ColorsMode.SOLID);
 
     // Each time I will change the value I must write it inside the counter text.
     gauge.setOnEventListener(new ScGauge.OnEventListener() {
@@ -312,14 +298,10 @@ You can download the indicator image used below from [**HERE**](indicator-04.png
     // Get the base feature
     ScFeature base = gauge.findFeature(ScGauge.BASE_IDENTIFIER);
     base.setColors(
-            Color.parseColor("#97B329"),
-            Color.parseColor("#A9CB2A"),
-            Color.parseColor("#D4E935"),
-            Color.parseColor("#F1DD31"),
-            Color.parseColor("#FBCB2E"),
-            Color.parseColor("#F3A328"),
-            Color.parseColor("#F18C23"),
-            Color.parseColor("#F3341E"),
+            Color.parseColor("#97B329"), Color.parseColor("#A9CB2A"),
+            Color.parseColor("#D4E935"), Color.parseColor("#F1DD31"),
+            Color.parseColor("#FBCB2E"), Color.parseColor("#F3A328"),
+            Color.parseColor("#F18C23"), Color.parseColor("#F3341E"),
             Color.parseColor("#F51319")
     );
     base.setFillingColors(ScFeature.ColorsMode.SOLID);

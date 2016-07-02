@@ -258,12 +258,9 @@ Note that the `scc_path_touchable` is enable so you can drag the pointers.
     final TextView txtHighValue = (TextView) this.findViewById(R.id.highValue);
     assert txtHighValue != null;
 
-    // Clear the pointers halo
+    // Clear the pointers halo and make visible the low one
     gauge.setPointerHaloWidth(0.0f);
-
-    // Low pointer visibility
-    ScFeature lowPointer = gauge.findFeature(ScGauge.LOW_POINTER_IDENTIFIER);
-    lowPointer.setVisible(true);
+    gauge.setPointerLowVisibility(true)
 
     // Set the values.
     // Note that the low cannot be over the high so you must set always for second because

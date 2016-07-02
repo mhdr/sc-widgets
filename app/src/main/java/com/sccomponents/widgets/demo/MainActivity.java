@@ -1,13 +1,8 @@
 package com.sccomponents.widgets.demo;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.BlurMaskFilter;
 import android.graphics.Color;
-import android.graphics.EmbossMaskFilter;
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
@@ -18,7 +13,6 @@ import com.sccomponents.widgets.ScFeature;
 import com.sccomponents.widgets.ScGauge;
 import com.sccomponents.widgets.ScNotchs;
 import com.sccomponents.widgets.ScPointer;
-import com.sccomponents.widgets.ScWidget;
 import com.sccomponents.widgets.ScWriter;
 
 
@@ -41,26 +35,8 @@ public class MainActivity extends AppCompatActivity {
         gauge.bringOnTop(ScGauge.BASE_IDENTIFIER);
         gauge.bringOnTop(ScGauge.NOTCHS_IDENTIFIER);
 
-        // Get the base
-        ScFeature base = gauge.findFeature(ScGauge.BASE_IDENTIFIER);
-        base.setFillingColors(ScFeature.ColorsMode.SOLID);
-        base.setColors(
-                Color.WHITE, Color.WHITE, Color.WHITE,
-                Color.WHITE, Color.WHITE, Color.WHITE,
-                Color.RED, Color.RED
-        );
-
-        // Get the notchs
-        ScNotchs notchs = (ScNotchs) gauge.findFeature(ScGauge.NOTCHS_IDENTIFIER);
-        notchs.setPosition(ScNotchs.NotchPositions.INSIDE);
-
-        // Get the writer
-        ScWriter writer = (ScWriter) gauge.findFeature(ScGauge.WRITER_IDENTIFIER);
-        writer.setPosition(ScWriter.TokenPositions.INSIDE);
-        writer.setUnbend(true);
-
         // Set the value
-        gauge.setHighValue(180, 0, 320);
+        gauge.setHighValue(320, 0, 320);
 
         // Each time I will change the value I must write it inside the counter text.
         gauge.setOnEventListener(new ScGauge.OnEventListener() {

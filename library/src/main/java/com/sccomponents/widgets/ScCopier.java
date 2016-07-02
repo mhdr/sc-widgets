@@ -142,15 +142,15 @@ public class ScCopier extends ScFeature {
             // Call the listener method
             this.mOnDrawListener.onBeforeDrawCopy(info);
 
+            // Find the center
+            float xCenter = this.mPathMeasure.getBounds().centerX();
+            float yCenter = this.mPathMeasure.getBounds().centerY();
+
             // Define the matrix to transform the path and the shader
             Matrix matrix = new Matrix();
             matrix.postScale(info.scale.x, info.scale.y);
             matrix.postTranslate(info.offset.x, info.offset.y);
-            matrix.postRotate(
-                    info.rotate,
-                    this.mPathMeasure.getBounds().centerX(),
-                    this.mPathMeasure.getBounds().centerY()
-            );
+            matrix.postRotate(info.rotate, xCenter, yCenter);
 
             // Apply the matrix on the shader
             if (shader != null) shader.setLocalMatrix(matrix);
@@ -235,11 +235,11 @@ public class ScCopier extends ScFeature {
      * @param value the new color filling mode
      */
     @Override
-    public void setFillingColors(ColorsMode value) {
+    public void setColorsMode(ColorsMode value) {
         // Check if value is changed
         if (this.mColorsMode != value) {
             this.mForceCreateShader = true;
-            super.setFillingColors(value);
+            super.setColorsMode(value);
         }
     }
 

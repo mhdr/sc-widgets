@@ -90,7 +90,7 @@ Properties list: `scale`, `offset`.
     ScCopier copier = new ScCopier(path);
     copier.getPainter().setStrokeWidth(8);
     copier.setColors(Color.RED, Color.GREEN, Color.BLUE);
-    copier.setFillingColors(ScCopier.ColorsMode.SOLID);
+    copier.setColorsMode(ScCopier.ColorsMode.SOLID);
     copier.draw(canvas);
 
     // Add the bitmap to the container

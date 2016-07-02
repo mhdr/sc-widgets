@@ -24,14 +24,18 @@
             sc:scc_angle_start="-180"
             sc:scc_angle_sweep="135"
             sc:scc_stroke_size="2dp"
-            sc:scc_stroke_color="#ffffff"
+            sc:scc_stroke_colors="white|white|white|white|white|white|red|red"
+            sc:scc_stroke_colors_mode="solid"
             sc:scc_progress_size="15dp"
             sc:scc_notchs="8"
             sc:scc_notchs_size="2dp"
             sc:scc_notchs_color="#ffffff"
+            sc:scc_notchs_position="inside"
             sc:scc_text_tokens="0|40|80|120|160|200|240|280"
             sc:scc_text_color="#ffffff"
             sc:scc_text_size="12dp"
+            sc:scc_text_position="inside"
+            sc:scc_text_unbend="true"
             />
 
         <LinearLayout

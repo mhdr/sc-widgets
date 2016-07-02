@@ -392,7 +392,7 @@ public class ScFeature {
      * @return the color filling mode
      */
     @SuppressWarnings("unused")
-    public ColorsMode getFillingColors() {
+    public ColorsMode getColorsMode() {
         return this.mColorsMode;
     }
 
@@ -403,7 +403,7 @@ public class ScFeature {
      * @param value the new color filling mode
      */
     @SuppressWarnings("unused")
-    public void setFillingColors(ColorsMode value) {
+    public void setColorsMode(ColorsMode value) {
         // Store the new value and refresh the component
         this.mColorsMode = value;
     }

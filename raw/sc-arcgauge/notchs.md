@@ -33,10 +33,12 @@ You can download the indicator image used below from [**HERE**](indicator-06.png
             sc:scc_angle_start="180"
             sc:scc_angle_sweep="180"
             sc:scc_stroke_size="40dp"
+            sc:scc_stroke_colors="#03A409|#FFF506|#EB0100"
             sc:scc_notchs="10"
             sc:scc_notchs_size="1dp"
             sc:scc_notchs_length="20dp"
-            sc:scc_notchs_color="#4e4e4e"/>
+            sc:scc_notchs_color="#4e4e4e"
+            sc:scc_text_align="center"/>
 
         <ImageView
             android:id="@+id/indicator"
@@ -65,14 +67,8 @@ You can download the indicator image used below from [**HERE**](indicator-06.png
     // Set the values.
     gauge.setHighValue(55);
 
-    // Set colors of the base
+    // Set the filter of the base
     ScFeature base = gauge.findFeature(ScGauge.BASE_IDENTIFIER);
-    base.setColors(
-            Color.parseColor("#03A409"),
-            Color.parseColor("#FFF506"),
-            Color.parseColor("#EB0100")
-    );
-
     BlurMaskFilter filter = new BlurMaskFilter(10, BlurMaskFilter.Blur.INNER);
     base.getPainter().setMaskFilter(filter);
 
@@ -84,7 +80,6 @@ You can download the indicator image used below from [**HERE**](indicator-06.png
 
     ScWriter writer = (ScWriter) gauge.findFeature(ScGauge.WRITER_IDENTIFIER);
     writer.setTokens(tokens);
-    writer.getPainter().setTextAlign(Paint.Align.CENTER);
     writer.setTokenOffset(0.0f, -40.0f);
 
     // Each time I will change the value I must write it inside the counter text.
@@ -149,7 +144,9 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
             sc:scc_notchs_size="1dp"
             sc:scc_notchs_length="10dp"
             sc:scc_notchs_color="#000000"
+            sc:scc_notchs_position="inside"
             sc:scc_progress_size="3dp"
+            sc:scc_text_position="inside"
             sc:scc_path_touchable="true"/>
 
         <TextView
@@ -195,14 +192,9 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
             Color.parseColor("#15B7FF"), Color.parseColor("#15B7FF"),
             Color.parseColor("#98CA06"), Color.parseColor("#98CA06"),
             Color.parseColor("#98CA06"), Color.parseColor("#98CA06"),
-            Color.parseColor("#98CA06"),
-            Color.parseColor("#DC1E10")
+            Color.parseColor("#98CA06"), Color.parseColor("#DC1E10")
     );
     base.setFillingColors(ScFeature.ColorsMode.SOLID);
-
-    // Notchs
-    ScNotchs notchs = (ScNotchs) gauge.findFeature(ScGauge.NOTCHS_IDENTIFIER);
-    notchs.setPosition(ScNotchs.NotchPositions.INSIDE);
 
     // Writer
     String[] tokens = new String[9];
@@ -213,7 +205,6 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
     ScWriter writer = (ScWriter) gauge.findFeature(ScGauge.WRITER_IDENTIFIER);
     writer.setTokens(tokens);
     writer.setLastTokenOnEnd(true);
-    writer.setPosition(ScWriter.TokenPositions.INSIDE);
 
     // Each time I will change the value I must write it inside the counter text.
     gauge.setOnEventListener(new ScGauge.OnEventListener() {
@@ -414,7 +405,7 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
             sc:scc_stroke_size="4dp"
             sc:scc_stroke_color="#dbdfe6"
             sc:scc_progress_size="4dp"
-            sc:scc_progress_color="#6184be"
+            sc:scc_progress_colors="#0BA60A|#FEF301|#EA0C01"
             />
 
         <LinearLayout
@@ -480,11 +471,6 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
     progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
     progress.setCount(40);
     progress.setPosition(ScNotchs.NotchPositions.INSIDE);
-    progress.setColors(
-            Color.parseColor("#0BA60A"),
-            Color.parseColor("#FEF301"),
-            Color.parseColor("#EA0C01")
-    );
 
     // Set the value
     gauge.setHighValue(12000, 0, 13000);
@@ -544,15 +530,19 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
             sc:scc_angle_start="-180"
             sc:scc_angle_sweep="135"
             sc:scc_stroke_size="2dp"
-            sc:scc_stroke_color="#ffffff"
+            sc:scc_stroke_colors="white|white|white|white|white|white|red|red"
+            sc:scc_stroke_colors_mode="solid"
             sc:scc_progress_size="15dp"
             sc:scc_notchs="8"
             sc:scc_notchs_size="2dp"
             sc:scc_notchs_color="#ffffff"
+            sc:scc_notchs_position="inside"
             sc:scc_text_tokens="0|40|80|120|160|200|240|280"
             sc:scc_text_color="#ffffff"
             sc:scc_text_size="12dp"
-            />
+            sc:scc_text_position="inside"
+            sc:scc_text_unbend="true"
+          />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -599,24 +589,6 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
     // Bring on top
     gauge.bringOnTop(ScGauge.BASE_IDENTIFIER);
     gauge.bringOnTop(ScGauge.NOTCHS_IDENTIFIER);
-
-    // Get the base
-    ScFeature base = gauge.findFeature(ScGauge.BASE_IDENTIFIER);
-    base.setFillingColors(ScFeature.ColorsMode.SOLID);
-    base.setColors(
-            Color.WHITE, Color.WHITE, Color.WHITE,
-            Color.WHITE, Color.WHITE, Color.WHITE,
-            Color.RED, Color.RED
-    );
-
-    // Get the notchs
-    ScNotchs notchs = (ScNotchs) gauge.findFeature(ScGauge.NOTCHS_IDENTIFIER);
-    notchs.setPosition(ScNotchs.NotchPositions.INSIDE);
-
-    // Get the writer
-    ScWriter writer = (ScWriter) gauge.findFeature(ScGauge.WRITER_IDENTIFIER);
-    writer.setPosition(ScWriter.TokenPositions.INSIDE);
-    writer.setUnbend(true);
 
     // Set the value
     gauge.setHighValue(180, 0, 320);

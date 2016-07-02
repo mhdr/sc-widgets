@@ -57,6 +57,7 @@ Link the listener.
 
 - **void setOnDrawListener(OnDrawListener listener)**<br />
 Link the listener.
+
 <br />
 <br />
 
@@ -65,15 +66,21 @@ Link the listener.
 - **get/setStrokeSize**  -> `float` value, default `3dp`<br />
 The value must be passed in pixel.
 
-- **get/setStrokeColor**  -> `int` value, default `Color.BLACK`<br />
-The stroke color of painter.
+- **get/setStrokeColors**  -> `int[]` value, default `Color.BLACK`<br />
+The stroke colors of painter.
+
+- **get/setStrokeColorsMode**  -> `ScFeature.ColorsMode` value, default `GRADIENT`<br />
+The stroke filling colors mode.
 
 - **get/setProgressSize**  -> `float` value, default `1dp`<br />
 Define the stroke width of the progress.<br />
 The value must be passed in pixel.
 
-- **get/setProgressColor**  -> `int` value, default `Color.BLACK`<br />
-The color of progress stroke.
+- **get/setProgressColors**  -> `int[]` value, default `Color.BLACK`<br />
+The colors of progress stroke.
+
+- **get/setProgressColorsMode**  -> `ScFeature.ColorsMode` value, default `GRADIENT`<br />
+The progress filling colors mode.
 
 - **get/setHighValue**  -> `float` value, default `0`<br />
 Set the current progress high value in percentage from the path start or respect a range of values.
@@ -85,14 +92,20 @@ Set the current progress low value in percentage from the path start or respect 
 Define the notch stroke width.<br />
 The value must be passed in pixel.
 
-- **get/setNotchsColor**  -> `int` value, default `Color.BLACK`<br />
-The color of notchs stroke.
+- **get/setNotchsColors**  -> `int[]` value, default `Color.BLACK`<br />
+The colors of notchs stroke.
+
+- **get/setNotchsColorsMode**  -> `ScFeature.ColorsMode` value, default `GRADIENT`<br />
+The notchs filling colors mode.
 
 - **get/setNotchs**  -> `int` value, default `0`<br />
 The number of the notchs.
 
 - **get/setNotchsLength**  -> `float` value, default `0`<br />
 Define the notchs line length.
+
+- **get/setNotchsPosition**  -> `ScNotchs.NotchPositions` value, default `MIDDLE`<br />
+Set the notchs position respect the path
 
 - **get/setSnapToNotchs**  -> `boolean` value, default `false`<br />
 Define if the progress values (low and high) will be rounded to the closed notch.
@@ -104,20 +117,42 @@ Set the text token to write on the path.
 Set the text size.
 The value must be passed in pixel.
 
-- **get/setTextColor**  -> `int` value, default `Color.BLACK`<br />
-The color of text tokens.
+- **get/setTextColors**  -> `int[]` value, default `Color.BLACK`<br />
+The colors of text tokens.
+
+- **get/setTextColorsMode**  -> `ScFeature.ColorsMode` value, default `GRADIENT`<br />
+The text filling colors mode.
+
+- **get/setTextPosition**  -> `ScWriter.TokenPositions` value, default `MIDDLE`<br />
+Set the text position respect the path
+
+- **get/setTextAlign**  -> `ScWriter.TokenAlignments` value, default `LEFT`<br />
+Set the text alignment respect the path segment.
+
+- **get/setTextUnbend**  -> `boolean` value, default `false`<br />
+When unbend the text not follow the curve of the path but will follow the tangent to the starting point related to the path.
 
 - **get/setPointerRadius**  -> `float` value, default `0`<br />
 The radius of the pointers.<br />
 The value must be passed in pixel.
 
-- **get/setPointersColor**  -> `int` value, default `Color.BLACK`<br />
-The pointers color.
+- **get/setPointersColors**  -> `int[]` value, default `Color.BLACK`<br />
+The pointers colors.
+
+- **get/setPointerColorsMode**  -> `ScFeature.ColorsMode` value, default `GRADIENT`<br />
+The pointer filling colors mode.
 
 - **get/setPointerHaloWidth**  -> `float` value, default `10dp`<br />
 The pointers halo width.<br />
 The value must be passed in pixel.
 Note that the halo will draw half out the pointer and half inside.
+
+- **get/setPointerLowVisibility**  -> `float` value, default `false`<br />
+Return the low pointer visibility.
+
+- **get/setPointerHighVisibility**  -> `float` value, default `true`<br />
+Return the high pointer visibility.
+
 <br />
 <br />
 
@@ -150,19 +185,29 @@ Called before draw the single text token.
         ...
         <attr name="scc_stroke_size" format="dimension" />
         <attr name="scc_stroke_color" format="color" />
+        <attr name="scc_stroke_colors" format="string" />
+        <attr name="scc_stroke_colors_mode"/>
         <attr name="scc_progress_size" format="dimension" />
         <attr name="scc_progress_color" format="color" />
+        <attr name="scc_progress_colors" format="string" />
+        <attr name="scc_progress_colors_mode"/>
         <attr name="scc_value" format="float" />
         <attr name="scc_notchs_size" format="dimension" />
         <attr name="scc_notchs_color" format="color" />
+        <attr name="scc_notchs_colors" format="string" />
+        <attr name="scc_notchs_colors_mode"/>
         <attr name="scc_notchs" format="integer" />
         <attr name="scc_notchs_length" format="float" />
         <attr name="scc_snap_to_notchs" format="boolean" />
         <attr name="scc_text_size" format="dimension" />
         <attr name="scc_text_color" format="color" />
+        <attr name="scc_text_colors" format="string" />
+        <attr name="scc_text_colors_mode"/>
         <attr name="scc_text_tokens" format="string" />
         <attr name="scc_pointer_radius" format="dimension" />
         <attr name="scc_pointer_color" format="color" />
+        <attr name="scc_pointer_colors" format="string" />
+        <attr name="scc_pointer_colors_mode"/>
         <attr name="scc_halo_size" format="dimension" />
     </declare-styleable>
 ```
