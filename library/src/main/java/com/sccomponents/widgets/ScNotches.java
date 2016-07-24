@@ -9,20 +9,20 @@ import com.sccomponents.utils.ScPathMeasure;
 
 
 /**
- * Create a series of notchs that follow a path
+ * Create a series of notches that follow a path
  *
  * @author Samuele Carassai
  * @version 2.0.0
  * @since 2016-05-30
  */
-public class ScNotchs extends ScFeature {
+public class ScNotches extends ScFeature {
 
     /****************************************************************************************
      * Enumerators
      */
 
     /**
-     * Define the types of notchs can be draw
+     * Define the types of notches can be draw
      */
     @SuppressWarnings("unused")
     public enum NotchTypes {
@@ -32,7 +32,7 @@ public class ScNotchs extends ScFeature {
     }
 
     /**
-     * Define the notchs position respect path
+     * Define the notches position respect path
      */
     @SuppressWarnings("unused")
     public enum NotchPositions {
@@ -48,8 +48,8 @@ public class ScNotchs extends ScFeature {
 
     private Paint mPaintClone;
 
-    private int mNotchsCount;
-    private float mNotchsLen;
+    private int mNotchesCount;
+    private float mNotchesLen;
 
     private NotchTypes mNotchType;
     private NotchPositions mNotchPosition;
@@ -63,13 +63,13 @@ public class ScNotchs extends ScFeature {
      */
 
     @SuppressWarnings("unused")
-    public ScNotchs(Path path) {
+    public ScNotches(Path path) {
         // Super
         super(path);
 
         // Init
-        this.mNotchsCount = 0;
-        this.mNotchsLen = 0.0f;
+        this.mNotchesCount = 0;
+        this.mNotchesLen = 0.0f;
         this.mNotchType = NotchTypes.LINE;
         this.mNotchPosition = NotchPositions.MIDDLE;
         this.mDividePathInContours = true;
@@ -106,10 +106,10 @@ public class ScNotchs extends ScFeature {
 
         // Find the start and end point to draw the line
         PointF first = new PointF(info.point.x, info.point.y);
-        ScNotchs.translatePoint(first, globalOffset, info.angle);
+        ScNotches.translatePoint(first, globalOffset, info.angle);
 
         PointF second = new PointF(first.x, first.y);
-        ScNotchs.translatePoint(second, info.length, info.angle);
+        ScNotches.translatePoint(second, info.length, info.angle);
 
         // Draw the line if the canvas is not null
         if (canvas != null) {
@@ -137,7 +137,7 @@ public class ScNotchs extends ScFeature {
         if (info.align == NotchPositions.OUTSIDE) globalOffset -= radius;
 
         // Apply the point offset
-        ScNotchs.translatePoint(info.point, globalOffset, info.angle);
+        ScNotches.translatePoint(info.point, globalOffset, info.angle);
 
         // Draw the circle if the canvas is not null
         if (canvas != null) {
@@ -158,7 +158,7 @@ public class ScNotchs extends ScFeature {
                 info.type == NotchTypes.CIRCLE_FILLED ? Paint.Style.FILL_AND_STROKE : Paint.Style.STROKE);
         this.mPaintClone.setColor(info.color);
 
-        // Draw the notchs by the case
+        // Draw the notches by the case
         switch (info.type) {
             // Draw a line
             case LINE:
@@ -174,16 +174,16 @@ public class ScNotchs extends ScFeature {
     }
 
     /**
-     * Draw all notchs on the path.
+     * Draw all notches on the path.
      *
      * @param canvas  where to draw
      * @param path    the current contour path
      * @param contour the contour index
      */
-    private void drawNotchs(Canvas canvas, Path path, int contour) {
+    private void drawNotches(Canvas canvas, Path path, int contour) {
         // Create the path measure and calculate the step
         ScPathMeasure measure = new ScPathMeasure(path, false);
-        float step = measure.getLength() / this.mNotchsCount;
+        float step = measure.getLength() / this.mNotchesCount;
 
         // Define the notch info.
         // I use to create the object here for avoid to create they n times after.
@@ -196,9 +196,9 @@ public class ScNotchs extends ScFeature {
         float endLimit = (measure.getLength() * this.mEndPercentage) / 100.0f;
 
         // If the path is not closed add one notch to the beginning of path.
-        int count = this.mNotchsCount + (measure.isClosed() ? 0 : 1);
+        int count = this.mNotchesCount + (measure.isClosed() ? 0 : 1);
 
-        // Cycle all notchs.
+        // Cycle all notches.
         for (int index = 0; index < count; index++) {
             // Get the point on the path
             float distance = index * step;
@@ -207,7 +207,7 @@ public class ScNotchs extends ScFeature {
             // Define the notch info structure and fill with the local settings
             info.point = null;
             info.size = this.mPaint.getStrokeWidth();
-            info.length = this.mNotchsLen;
+            info.length = this.mNotchesLen;
             info.offset = 0.0f;
             info.angle = 0.0f;
             info.type = this.mNotchType;
@@ -220,7 +220,7 @@ public class ScNotchs extends ScFeature {
 
             // Check if the point exists
             if (point != null) {
-                info.point = ScNotchs.toPoint(point);
+                info.point = ScNotches.toPoint(point);
                 info.angle = (float) Math.toDegrees(point[3]) + 90.0f;
             }
 
@@ -249,8 +249,8 @@ public class ScNotchs extends ScFeature {
 
         // Cycle all contours
         for (int index = 0; index < contours.length; index++) {
-            // Draw the notchs on the path
-            this.drawNotchs(canvas, contours[index], index);
+            // Draw the notches on the path
+            this.drawNotches(canvas, contours[index], index);
         }
     }
 
@@ -267,10 +267,10 @@ public class ScNotchs extends ScFeature {
     @Override
     protected void onDraw(Canvas canvas) {
         // Check for empty value
-        if (this.mNotchsCount == 0 || this.mPath == null)
+        if (this.mNotchesCount == 0 || this.mPath == null)
             return;
 
-        // Draw all notchs
+        // Draw all notches
         this.drawContours(canvas);
     }
 
@@ -288,10 +288,10 @@ public class ScNotchs extends ScFeature {
     @SuppressWarnings("unused")
     public PointF getPointOnPath(int index) {
         // Check the index limit
-        if (index < 0 || index > this.mNotchsCount) return new PointF();
+        if (index < 0 || index > this.mNotchesCount) return new PointF();
 
         // Get the path len and the step
-        float step = this.mPathLength / this.mNotchsCount;
+        float step = this.mPathLength / this.mNotchesCount;
 
         // Find the points of path
         float[] point = this.mPathMeasure.getPosTan(step * index);
@@ -312,7 +312,7 @@ public class ScNotchs extends ScFeature {
     @SuppressWarnings("unused")
     public class NotchInfo {
 
-        public ScNotchs source;
+        public ScNotches source;
         public PointF point;
         public float size;
         public float length;
@@ -335,17 +335,17 @@ public class ScNotchs extends ScFeature {
      * @return a rounded to notch value
      */
     @SuppressWarnings("unused")
-    public float snapToNotchs(float value) {
+    public float snapToNotches(float value) {
         // Check for empty values
-        if (this.mNotchsCount == 0) return value;
+        if (this.mNotchesCount == 0) return value;
 
-        // Calc the delta angle and round at notchs value
-        float deltaAngle = this.mPathLength / this.mNotchsCount;
+        // Calc the delta angle and round at notches value
+        float deltaAngle = this.mPathLength / this.mNotchesCount;
         return Math.round(value / deltaAngle) * deltaAngle;
     }
 
     /**
-     * By default the class will draw the n notchs on each contours that compose the current
+     * By default the class will draw the n notches on each contours that compose the current
      * path. If settle on false the class will consider the path as a unique path.
      *
      * @param value default true
@@ -361,51 +361,51 @@ public class ScNotchs extends ScFeature {
      */
 
     /**
-     * Return the notchs count.
+     * Return the notches count.
      *
-     * @return the notchs count
+     * @return the notches count
      */
     @SuppressWarnings("unused")
     public float getCount() {
-        return this.mNotchsCount;
+        return this.mNotchesCount;
     }
 
     /**
-     * Set the notchs count.
+     * Set the notches count.
      *
-     * @param value the notchs count
+     * @param value the notches count
      */
     @SuppressWarnings("unused")
     public void setCount(int value) {
         if (value < 0) value = 0;
-        this.mNotchsCount = value;
+        this.mNotchesCount = value;
     }
 
     /**
-     * Return the notchs length.
+     * Return the notches length.
      *
-     * @return the notchs count
+     * @return the notches count
      */
     @SuppressWarnings("unused")
     public float getLength() {
-        return this.mNotchsLen;
+        return this.mNotchesLen;
     }
 
     /**
-     * Set the notchs length.
+     * Set the notches length.
      *
-     * @param value the notchs count
+     * @param value the notches count
      */
     @SuppressWarnings("unused")
     public void setLength(float value) {
         if (value < 0) value = 0;
-        this.mNotchsLen = value;
+        this.mNotchesLen = value;
     }
 
     /**
-     * Return the notchs type.
+     * Return the notches type.
      *
-     * @return the notchs type
+     * @return the notches type
      */
     @SuppressWarnings("unused")
     public NotchTypes getType() {
@@ -413,9 +413,9 @@ public class ScNotchs extends ScFeature {
     }
 
     /**
-     * Set the notchs type.
+     * Set the notches type.
      *
-     * @param value the notchs type
+     * @param value the notches type
      */
     @SuppressWarnings("unused")
     public void setType(NotchTypes value) {
@@ -423,9 +423,9 @@ public class ScNotchs extends ScFeature {
     }
 
     /**
-     * Return the notchs alignment respect the path.
+     * Return the notches alignment respect the path.
      *
-     * @return the notchs alignment
+     * @return the notches alignment
      */
     @SuppressWarnings("unused")
     public NotchPositions getPosition() {
@@ -433,9 +433,9 @@ public class ScNotchs extends ScFeature {
     }
 
     /**
-     * Set the notchs alignment respect the path.
+     * Set the notches alignment respect the path.
      *
-     * @param value the notchs alignment
+     * @param value the notches alignment
      */
     @SuppressWarnings("unused")
     public void setPosition(NotchPositions value) {

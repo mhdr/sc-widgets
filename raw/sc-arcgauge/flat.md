@@ -204,10 +204,10 @@ Note that the `scc_path_touchable` is enable so you can drag the pointers.
             sc:scc_progress_size="4dp"
             sc:scc_progress_color="#a4abaa"
             sc:scc_path_touchable="true"
-            sc:scc_notchs="1"
-            sc:scc_notchs_size="4dp"
-            sc:scc_notchs_length="10dp"
-            sc:scc_notchs_color="#e9e6e6"/>
+            sc:scc_notches="1"
+            sc:scc_notches_size="4dp"
+            sc:scc_notches_length="10dp"
+            sc:scc_notches_color="#e9e6e6"/>
 
         <LinearLayout
             android:layout_width="wrap_content"

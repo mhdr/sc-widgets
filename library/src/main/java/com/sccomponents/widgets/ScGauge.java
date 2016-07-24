@@ -21,12 +21,12 @@ import java.util.List;
  * <p>
  * This class is studied to be an "helper class" to facilitate the user to create a gauge.
  * The path is generic and the class start with a standard configuration of features.
- * One base (inherited from the ScDrawer), one notchs manager, one writer manager, one copier to
+ * One base (inherited from the ScDrawer), one notches manager, one writer manager, one copier to
  * create the progress effect and two pointer for manage the user touch input.
  * <p>
  * Here are exposed many methods to drive the common feature from the code or directly by the XML.
  * The features are recognized from the class by its tag so changing, for example, the color of
- * notchs you will change the color of all notchs tagged.
+ * notches you will change the color of all notches tagged.
  * This is useful when you have a custom features configuration that use one more of feature per
  * type. All the custom added features not tagged should be managed by the user by himself.
  *
@@ -38,7 +38,7 @@ public abstract class ScGauge extends ScDrawer implements
         ValueAnimator.AnimatorUpdateListener,
         ScCopier.OnDrawListener,
         ScPointer.OnDrawListener,
-        ScNotchs.OnDrawListener,
+        ScNotches.OnDrawListener,
         ScWriter.OnDrawListener {
 
     /****************************************************************************************
@@ -54,12 +54,12 @@ public abstract class ScGauge extends ScDrawer implements
     public static final float DEFAULT_TEXT_SIZE = 16.0f;
     public static final float DEFAULT_HALO_SIZE = 10.0f;
 
-    public static final String BASE_IDENTIFIER = "base";
-    public static final String NOTCHS_IDENTIFIER = "notchs";
-    public static final String WRITER_IDENTIFIER = "writer";
-    public static final String PROGRESS_IDENTIFIER = "progress";
-    public static final String HIGH_POINTER_IDENTIFIER = "high";
-    public static final String LOW_POINTER_IDENTIFIER = "low";
+    public static final String BASE_IDENTIFIER = "ScGauge_Base";
+    public static final String NOTCHES_IDENTIFIER = "ScGauge_Notches";
+    public static final String WRITER_IDENTIFIER = "ScGauge_Writer";
+    public static final String PROGRESS_IDENTIFIER = "ScGauge_Progress";
+    public static final String HIGH_POINTER_IDENTIFIER = "ScGauge_Pointer_High";
+    public static final String LOW_POINTER_IDENTIFIER = "ScGauge_Pointer_Low";
 
 
     /****************************************************************************************
@@ -74,13 +74,13 @@ public abstract class ScGauge extends ScDrawer implements
     private int[] mProgressColors;
     private ScFeature.ColorsMode mProgressColorsMode;
 
-    private float mNotchsSize;
-    private int[] mNotchsColors;
-    private ScFeature.ColorsMode mNotchsColorsMode;
-    private int mNotchsCount;
-    private float mNotchsLength;
-    private ScNotchs.NotchPositions mNotchsPosition;
-    private boolean mSnapToNotchs;
+    private float mNotchesSize;
+    private int[] mNotchesColors;
+    private ScFeature.ColorsMode mNotchesColorsMode;
+    private int mNotchesCount;
+    private float mNotchesLength;
+    private ScNotches.NotchPositions mNotchesPosition;
+    private boolean mSnapToNotches;
 
     private String[] mTextTokens;
     private float mTextSize;
@@ -167,17 +167,17 @@ public abstract class ScGauge extends ScDrawer implements
             feature.setColorsMode(this.mProgressColorsMode);
         }
 
-        // Notchs
-        if (feature instanceof ScNotchs &&
-                tag.equalsIgnoreCase(ScGauge.NOTCHS_IDENTIFIER)) {
+        // Notches
+        if (feature instanceof ScNotches &&
+                tag.equalsIgnoreCase(ScGauge.NOTCHES_IDENTIFIER)) {
             // Cast and fill
-            ScNotchs notchs = (ScNotchs) feature;
-            notchs.setLength(this.mNotchsLength);
-            notchs.setCount(this.mNotchsCount);
-            notchs.getPainter().setStrokeWidth(this.mNotchsSize);
-            notchs.setColors(this.mNotchsColors);
-            notchs.setColorsMode(this.mNotchsColorsMode);
-            notchs.setPosition(this.mNotchsPosition);
+            ScNotches notches = (ScNotches) feature;
+            notches.setLength(this.mNotchesLength);
+            notches.setCount(this.mNotchesCount);
+            notches.getPainter().setStrokeWidth(this.mNotchesSize);
+            notches.setColors(this.mNotchesColors);
+            notches.setColorsMode(this.mNotchesColorsMode);
+            notches.setPosition(this.mNotchesPosition);
         }
 
         // Writer
@@ -228,13 +228,13 @@ public abstract class ScGauge extends ScDrawer implements
      * @param percentage the start percentage value
      * @return the percentage value close the notch
      */
-    private float snapToNotchs(float percentage) {
+    private float snapToNotches(float percentage) {
         // Check for empty value
-        if (this.mNotchsCount == 0.0f) return percentage;
+        if (this.mNotchesCount == 0.0f) return percentage;
         if (this.mPathMeasure.getLength() == 0.0f) return 0.0f;
 
         // Calc the percentage step delta and return the closed value
-        float step = 100 / this.mNotchsCount;
+        float step = 100 / this.mNotchesCount;
         return Math.round(percentage / step) * step;
     }
 
@@ -325,32 +325,32 @@ public abstract class ScGauge extends ScDrawer implements
         this.mProgressColorsMode = ScFeature.ColorsMode.values()[progressColorsMode];
 
         //--------------------------------------------------
-        // NOTCHS
+        // NOTCHES
 
-        this.mNotchsSize = attrArray.getDimension(
-                R.styleable.ScComponents_scc_notchs_size, this.dipToPixel(ScGauge.DEFAULT_STROKE_SIZE));
-        this.mNotchsCount = attrArray.getInt(
-                R.styleable.ScComponents_scc_notchs, 0);
-        this.mNotchsLength = attrArray.getDimension(
-                R.styleable.ScComponents_scc_notchs_length, this.mStrokeSize * 2);
-        this.mSnapToNotchs = attrArray.getBoolean(
-                R.styleable.ScComponents_scc_snap_to_notchs, false);
-        this.mNotchsColors = this
-                .slipToColors(attrArray.getString(R.styleable.ScComponents_scc_notchs_colors));
+        this.mNotchesSize = attrArray.getDimension(
+                R.styleable.ScComponents_scc_notches_size, this.dipToPixel(ScGauge.DEFAULT_STROKE_SIZE));
+        this.mNotchesCount = attrArray.getInt(
+                R.styleable.ScComponents_scc_notches, 0);
+        this.mNotchesLength = attrArray.getDimension(
+                R.styleable.ScComponents_scc_notches_length, this.mStrokeSize * 2);
+        this.mSnapToNotches = attrArray.getBoolean(
+                R.styleable.ScComponents_scc_snap_to_notches, false);
+        this.mNotchesColors = this
+                .slipToColors(attrArray.getString(R.styleable.ScComponents_scc_notches_colors));
 
-        int notchsColor = attrArray.getColor(
-                R.styleable.ScComponents_scc_notchs_color, ScGauge.DEFAULT_STROKE_COLOR);
-        if (this.mNotchsColors == null) {
-            this.mNotchsColors = new int[]{notchsColor};
+        int notchesColor = attrArray.getColor(
+                R.styleable.ScComponents_scc_notches_color, ScGauge.DEFAULT_STROKE_COLOR);
+        if (this.mNotchesColors == null) {
+            this.mNotchesColors = new int[]{notchesColor};
         }
 
-        int notchsColorsMode = attrArray.getInt(
-                R.styleable.ScComponents_scc_notchs_colors_mode, ScFeature.ColorsMode.GRADIENT.ordinal());
-        this.mNotchsColorsMode = ScFeature.ColorsMode.values()[notchsColorsMode];
+        int notchesColorsMode = attrArray.getInt(
+                R.styleable.ScComponents_scc_notches_colors_mode, ScFeature.ColorsMode.GRADIENT.ordinal());
+        this.mNotchesColorsMode = ScFeature.ColorsMode.values()[notchesColorsMode];
 
-        int notchsPosition = attrArray.getInt(
-                R.styleable.ScComponents_scc_notchs_position, ScNotchs.NotchPositions.MIDDLE.ordinal());
-        this.mNotchsPosition = ScNotchs.NotchPositions.values()[notchsPosition];
+        int notchesPosition = attrArray.getInt(
+                R.styleable.ScComponents_scc_notches_position, ScNotches.NotchPositions.MIDDLE.ordinal());
+        this.mNotchesPosition = ScNotches.NotchPositions.values()[notchesPosition];
 
         //--------------------------------------------------
         // TEXT
@@ -411,11 +411,11 @@ public abstract class ScGauge extends ScDrawer implements
         // Disable the hardware acceleration as have problem with the shader
         this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
-        // Check for snap to notchs the new degrees value
-        if (this.mSnapToNotchs) {
-            // Get the current value and round at the closed notchs value
-            this.mHighValue = this.snapToNotchs(this.mHighValue);
-            this.mLowValue = this.snapToNotchs(this.mLowValue);
+        // Check for snap to notches the new degrees value
+        if (this.mSnapToNotches) {
+            // Get the current value and round at the closed notches value
+            this.mHighValue = this.snapToNotches(this.mHighValue);
+            this.mLowValue = this.snapToNotches(this.mLowValue);
         }
 
         // Define the touch threshold
@@ -432,9 +432,9 @@ public abstract class ScGauge extends ScDrawer implements
         base.setTag(ScGauge.BASE_IDENTIFIER);
         this.featureSetter(base);
 
-        ScNotchs notchs = (ScNotchs) this.addFeature(ScNotchs.class);
-        notchs.setTag(ScGauge.NOTCHS_IDENTIFIER);
-        this.featureSetter(notchs);
+        ScNotches notches = (ScNotches) this.addFeature(ScNotches.class);
+        notches.setTag(ScGauge.NOTCHES_IDENTIFIER);
+        this.featureSetter(notches);
 
         ScCopier progress = (ScCopier) this.addFeature(ScCopier.class);
         progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
@@ -499,10 +499,10 @@ public abstract class ScGauge extends ScDrawer implements
         // Check the limits
         value = ScGauge.valueRangeLimit(value, 0, 100);
 
-        // Check for snap to notchs the new degrees value.
-        if (this.mSnapToNotchs) {
-            // Round at the closed notchs value
-            value = this.snapToNotchs(value);
+        // Check for snap to notches the new degrees value.
+        if (this.mSnapToNotches) {
+            // Round at the closed notches value
+            value = this.snapToNotches(value);
         }
 
         // Choice the value and the animation
@@ -587,7 +587,7 @@ public abstract class ScGauge extends ScDrawer implements
         if (this.mOnDrawListener != null) {
             if (feature instanceof ScCopier) ((ScCopier) feature).setOnDrawListener(this);
             if (feature instanceof ScPointer) ((ScPointer) feature).setOnDrawListener(this);
-            if (feature instanceof ScNotchs) ((ScNotchs) feature).setOnDrawListener(this);
+            if (feature instanceof ScNotches) ((ScNotches) feature).setOnDrawListener(this);
             if (feature instanceof ScWriter) ((ScWriter) feature).setOnDrawListener(this);
         }
     }
@@ -619,12 +619,12 @@ public abstract class ScGauge extends ScDrawer implements
         state.putFloat("mProgressSize", this.mProgressSize);
         state.putIntArray("mProgressColors", this.mProgressColors);
         state.putInt("mProgressColorsMode", this.mProgressColorsMode.ordinal());
-        state.putFloat("mNotchsSize", this.mNotchsSize);
-        state.putIntArray("mNotchsColors", this.mNotchsColors);
-        state.putInt("mNotchsColorsMode", this.mNotchsColorsMode.ordinal());
-        state.putInt("mNotchsCount", this.mNotchsCount);
-        state.putFloat("mNotchsLength", this.mNotchsLength);
-        state.putBoolean("mSnapToNotchs", this.mSnapToNotchs);
+        state.putFloat("mNotchesSize", this.mNotchesSize);
+        state.putIntArray("mNotchesColors", this.mNotchesColors);
+        state.putInt("mNotchesColorsMode", this.mNotchesColorsMode.ordinal());
+        state.putInt("mNotchesCount", this.mNotchesCount);
+        state.putFloat("mNotchesLength", this.mNotchesLength);
+        state.putBoolean("mSnapToNotches", this.mSnapToNotches);
         state.putStringArray("mTextTokens", this.mTextTokens);
         state.putFloat("mTextSize", this.mTextSize);
         state.putIntArray("mTextColors", this.mTextColors);
@@ -661,12 +661,12 @@ public abstract class ScGauge extends ScDrawer implements
         this.mProgressSize = savedState.getFloat("mProgressSize");
         this.mProgressColors = savedState.getIntArray("mProgressColors");
         this.mProgressColorsMode = ScFeature.ColorsMode.values()[savedState.getInt("mProgressColorsMode")];
-        this.mNotchsSize = savedState.getFloat("mNotchsSize");
-        this.mNotchsColors = savedState.getIntArray("mNotchsColors");
-        this.mNotchsColorsMode = ScFeature.ColorsMode.values()[savedState.getInt("mNotchsColorsMode")];
-        this.mNotchsCount = savedState.getInt("mNotchsCount");
-        this.mNotchsLength = savedState.getFloat("mNotchsLength");
-        this.mSnapToNotchs = savedState.getBoolean("mSnapToNotchs");
+        this.mNotchesSize = savedState.getFloat("mNotchesSize");
+        this.mNotchesColors = savedState.getIntArray("mNotchesColors");
+        this.mNotchesColorsMode = ScFeature.ColorsMode.values()[savedState.getInt("mNotchesColorsMode")];
+        this.mNotchesCount = savedState.getInt("mNotchesCount");
+        this.mNotchesLength = savedState.getFloat("mNotchesLength");
+        this.mSnapToNotches = savedState.getBoolean("mSnapToNotches");
         this.mTextTokens = savedState.getStringArray("mTextTokens");
         this.mTextSize = savedState.getFloat("mTextSize");
         this.mTextColors = savedState.getIntArray("mTextColors");
@@ -734,8 +734,8 @@ public abstract class ScGauge extends ScDrawer implements
      * <p>
      * The passed class reference must implement the ScFeature interface and will be filled
      * with the setting default params of this object by the type.
-     * For example if instance a ScNotchs the notchs count will be auto settle to the defined
-     * getNotchsCount method.
+     * For example if instance a ScNotches the notches count will be auto settle to the defined
+     * getNotchesCount method.
      * <p>
      * The new feature instantiate will linked to the gauge on draw listener.
      * If you will create the feature with another method you must manage the on draw listener by
@@ -835,7 +835,7 @@ public abstract class ScGauge extends ScDrawer implements
      * @param info the notch info
      */
     @Override
-    public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+    public void onBeforeDrawNotch(ScNotches.NotchInfo info) {
         // Forward the calling on local listener
         if (this.mOnDrawListener != null) {
             this.mOnDrawListener.onBeforeDrawNotch(info);
@@ -1170,7 +1170,7 @@ public abstract class ScGauge extends ScDrawer implements
 
 
     /****************************************************************************************
-     * Notchs
+     * Notches
      */
 
     /**
@@ -1179,8 +1179,8 @@ public abstract class ScGauge extends ScDrawer implements
      * @return the size in pixel
      */
     @SuppressWarnings("unused")
-    public float getNotchsSize() {
-        return this.mNotchsSize;
+    public float getNotchesSize() {
+        return this.mNotchesSize;
     }
 
     /**
@@ -1189,111 +1189,111 @@ public abstract class ScGauge extends ScDrawer implements
      * @param value the new size in pixel
      */
     @SuppressWarnings("unused")
-    public void setNotchsSize(float value) {
+    public void setNotchesSize(float value) {
         // Check if value is changed
-        if (this.mNotchsSize != value) {
+        if (this.mNotchesSize != value) {
             // Store the new value and refresh the component
-            this.mNotchsSize = value;
+            this.mNotchesSize = value;
             this.invalidate();
         }
     }
 
     /**
-     * Return the notchs colors
+     * Return the notches colors
      *
      * @return the colors
      */
     @SuppressWarnings("unused")
-    public int[] getNotchsColors() {
-        return this.mNotchsColors;
+    public int[] getNotchesColors() {
+        return this.mNotchesColors;
     }
 
     /**
-     * Set the notchs colors
+     * Set the notches colors
      *
      * @param value the new colors
      */
     @SuppressWarnings("unused")
-    public void setNotchsColors(int[] value) {
+    public void setNotchesColors(int[] value) {
         // Check is values has changed
-        if (!Arrays.equals(this.mNotchsColors, value)) {
+        if (!Arrays.equals(this.mNotchesColors, value)) {
             // Store the new value and refresh the component
-            this.mNotchsColors = value;
+            this.mNotchesColors = value;
             this.invalidate();
         }
     }
 
     /**
-     * Return the current notchs filling colors mode.
+     * Return the current notches filling colors mode.
      *
      * @return the current mode
      */
     @SuppressWarnings("unused")
-    public ScFeature.ColorsMode getNotchsColorsMode() {
-        return this.mNotchsColorsMode;
+    public ScFeature.ColorsMode getNotchesColorsMode() {
+        return this.mNotchesColorsMode;
     }
 
     /**
-     * Set the current notchs filling colors mode.
+     * Set the current notches filling colors mode.
      *
      * @param value the new mode
      */
     @SuppressWarnings("unused")
-    public void setNotchsColorsMode(ScFeature.ColorsMode value) {
+    public void setNotchesColorsMode(ScFeature.ColorsMode value) {
         // Check is values has changed
-        if (this.mNotchsColorsMode != value) {
+        if (this.mNotchesColorsMode != value) {
             // Save the new value and refresh
-            this.mNotchsColorsMode = value;
+            this.mNotchesColorsMode = value;
             this.requestLayout();
         }
     }
 
     /**
-     * Return the notchs count
+     * Return the notches count
      *
      * @return the count
      */
     @SuppressWarnings("unused")
-    public int getNotchs() {
-        return this.mNotchsCount;
+    public int getNotches() {
+        return this.mNotchesCount;
     }
 
     /**
-     * Set the notchs count
+     * Set the notches count
      *
      * @param value the new value
      */
     @SuppressWarnings("unused")
-    public void setNotchs(int value) {
+    public void setNotches(int value) {
         // Check if value is changed
-        if (this.mNotchsCount != value) {
+        if (this.mNotchesCount != value) {
             // Fix the new value
-            this.mNotchsCount = value;
+            this.mNotchesCount = value;
             this.invalidate();
         }
     }
 
     /**
-     * Return the notchs length
+     * Return the notches length
      *
      * @return the length
      */
     @SuppressWarnings("unused")
-    public float getNotchsLength() {
-        return this.mNotchsLength;
+    public float getNotchesLength() {
+        return this.mNotchesLength;
     }
 
     /**
-     * Set the notchs length
+     * Set the notches length
      *
      * @param value the new value in pixel
      */
     @SuppressWarnings("unused")
-    public void setNotchsLength(float value) {
+    public void setNotchesLength(float value) {
         // Check if value is changed
-        if (this.mNotchsLength != value) {
+        if (this.mNotchesLength != value) {
             // Fix the new value
-            this.mNotchsLength = value;
+            this.mNotchesLength = value;
             this.invalidate();
         }
     }
@@ -1304,8 +1304,8 @@ public abstract class ScGauge extends ScDrawer implements
      * @return the status
      */
     @SuppressWarnings("unused")
-    public boolean getSnapToNotchs() {
-        return this.mSnapToNotchs;
+    public boolean getSnapToNotches() {
+        return this.mSnapToNotches;
     }
 
     /**
@@ -1314,11 +1314,11 @@ public abstract class ScGauge extends ScDrawer implements
      * @param value the status
      */
     @SuppressWarnings("unused")
-    public void setSnapToNotchs(boolean value) {
+    public void setSnapToNotches(boolean value) {
         // Check if the value is changed
-        if (this.mSnapToNotchs != value) {
+        if (this.mSnapToNotches != value) {
             // Fix the trigger
-            this.mSnapToNotchs = value;
+            this.mSnapToNotches = value;
 
             // Recall the set value method for apply the new setting
             this.setHighValue(this.getHighValue());
@@ -1327,26 +1327,26 @@ public abstract class ScGauge extends ScDrawer implements
     }
 
     /**
-     * Return the notchs position respect the path.
+     * Return the notches position respect the path.
      *
      * @return the position
      */
     @SuppressWarnings("unused")
-    public ScNotchs.NotchPositions getNotchsPosition() {
-        return this.mNotchsPosition;
+    public ScNotches.NotchPositions getNotchesPosition() {
+        return this.mNotchesPosition;
     }
 
     /**
-     * Set the notchs position respect the path.
+     * Set the notches position respect the path.
      *
      * @param value the position
      */
     @SuppressWarnings("unused")
-    public void setNotchsPosition(ScNotchs.NotchPositions value) {
+    public void setNotchesPosition(ScNotches.NotchPositions value) {
         // Check if the value is changed
-        if (this.mNotchsPosition != value) {
+        if (this.mNotchesPosition != value) {
             // Fix the trigger
-            this.mNotchsPosition = value;
+            this.mNotchesPosition = value;
             this.requestLayout();
         }
     }
@@ -1747,7 +1747,7 @@ public abstract class ScGauge extends ScDrawer implements
          *
          * @param info the notch info
          */
-        void onBeforeDrawNotch(ScNotchs.NotchInfo info);
+        void onBeforeDrawNotch(ScNotches.NotchInfo info);
 
         /**
          * Called before draw the pointer.

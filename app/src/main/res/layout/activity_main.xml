@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:sc="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -11,63 +10,24 @@
     android:weightSum="1">
 
     <FrameLayout
-        android:layout_width="280dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
         android:background="#000000">
 
-        <com.sccomponents.widgets.ScArcGauge
+        <com.sccomponents.widgets.ScArcGauge xmlns:sc="http://schemas.android.com/apk/res-auto"
             android:id="@+id/gauge"
-            xmlns:sc="http://schemas.android.com/apk/res-auto"
-            android:layout_width="240dp"
-            android:layout_height="150dp"
-            android:padding="10dp"
-            sc:scc_angle_start="-180"
-            sc:scc_angle_sweep="135"
-            sc:scc_stroke_size="2dp"
-            sc:scc_stroke_colors="white|white|white|white|white|white|red|red"
-            sc:scc_stroke_colors_mode="solid"
-            sc:scc_progress_size="15dp"
-            sc:scc_notchs="8"
-            sc:scc_notchs_size="2dp"
-            sc:scc_notchs_color="#ffffff"
-            sc:scc_notchs_position="inside"
-            sc:scc_text_tokens="0|40|80|120|160|200|240|280"
-            sc:scc_text_color="#ffffff"
-            sc:scc_text_size="12dp"
-            sc:scc_text_position="inside"
-            sc:scc_text_unbend="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="20dp"
+            android:paddingTop="40dp"
+            sc:scc_angle_start="-150"
+            sc:scc_angle_sweep="80"
+            sc:scc_progress_size="2dp"
+            sc:scc_progress_colors="#7FE1EE|#7FE1EE|#7FE1EE|#248CAA|#248CAA"
             />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="right"
-            android:layout_gravity="bottom|right"
-            android:layout_marginRight="10dp"
-            android:padding="10dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/counter"
-                android:textColor="#ffffff"
-                android:textSize="44dp"
-                android:textStyle="bold"
-                android:text="0"
-                android:gravity="center"
-                />
-
-            <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#ffffff"
-            android:textSize="20dp"
-            android:text="km/h"
-            android:gravity="center"
-            />
-
-        </LinearLayout>
 
     </FrameLayout>
 

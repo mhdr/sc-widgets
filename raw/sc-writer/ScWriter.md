@@ -79,7 +79,7 @@ Properties list: `point`, `index`, `text`, `distance`, `angle`, `unbend`, `color
 <br />
 <br />
 
-- **Normal and pressed**<br />
+- **Normal flow**<br />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-writer/1.jpg" align="right" />
 ```java
     // Dimensions
