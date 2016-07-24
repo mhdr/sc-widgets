@@ -404,7 +404,7 @@ public class ScWriter extends ScFeature {
     /**
      * Return the string tokens alignment respect the path.
      *
-     * @return the notchs alignment
+     * @return the notches alignment
      */
     @SuppressWarnings("unused")
     public TokenPositions getPosition() {
@@ -414,7 +414,7 @@ public class ScWriter extends ScFeature {
     /**
      * Set the string tokens alignment respect the path.
      *
-     * @param value the notchs alignment
+     * @param value the notches alignment
      */
     @SuppressWarnings("unused")
     public void setPosition(TokenPositions value) {

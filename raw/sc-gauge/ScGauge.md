@@ -7,8 +7,8 @@ The path is generic and must be defined in a inherited class.
 This class start with a standard configuration of features as follow:
 - **One copier** (inherited from the [ScCopier](../sc-drawer/ScCopier.md))<br />
 The base drawing following the path defined in the owner without changes. 
-- **One notchs** manager (inherited from the [ScNotchs](../sc-notchs/ScNotchs.md))<br />
-To create the _notchs_ that will following the path defined in the owner. 
+- **One notches** manager (inherited from the [ScNotches](../sc-notches/ScNotches.md))<br />
+To create the _notches_ that will following the path defined in the owner. 
 - **One writer** manager (inherited from the [ScWriter](../sc-writer/ScWriter.md))<br />
 To write _text_ tokens on the path defined in the owner.
 - **One copier** (inherited from the [ScCopier](../sc-copier/ScCopier.md))<br />
@@ -17,7 +17,7 @@ To create the _progress_ effect.
 In case of _input_ enabled can define the low and high value by the user interaction on the pointers.
  
 In this class are exposed many methods to drive the most used properties from the code or directly from the XML.
-To manage the features will recognized from the class type and its tag so changing, for example, the color of notchs you will change the color of all notchs tagged.
+To manage the features will recognized from the class type and its tag so changing, for example, the color of notches you will change the color of all notches tagged.
 This is useful when you have a custom features configuration that use one more of feature per type. 
 All the custom features added without a defined tag should be managed by the user by himself.
 <br />
@@ -34,7 +34,7 @@ If you decide to expose some property for manage the path you can use the **prot
 #### Constants
 
 - **static final String BASE_IDENTIFIER**
-- **static final String NOTCHS_IDENTIFIER**
+- **static final String NOTCHES_IDENTIFIER**
 - **static final String WRITER_IDENTIFIER**
 - **static final String PROGRESS_IDENTIFIER**
 - **static final String HIGH_POINTER_IDENTIFIER**
@@ -88,26 +88,26 @@ Set the current progress high value in percentage from the path start or respect
 - **get/setLowValue**  -> `float` value, default `0`<br />
 Set the current progress low value in percentage from the path start or respect a range of values.
 
-- **get/setNotchsSize**  -> `float` value, default `3dp`<br />
+- **get/setNotchesSize**  -> `float` value, default `3dp`<br />
 Define the notch stroke width.<br />
 The value must be passed in pixel.
 
-- **get/setNotchsColors**  -> `int[]` value, default `Color.BLACK`<br />
-The colors of notchs stroke.
+- **get/setNotchesColors**  -> `int[]` value, default `Color.BLACK`<br />
+The colors of notches stroke.
 
-- **get/setNotchsColorsMode**  -> `ScFeature.ColorsMode` value, default `GRADIENT`<br />
-The notchs filling colors mode.
+- **get/setNotchesColorsMode**  -> `ScFeature.ColorsMode` value, default `GRADIENT`<br />
+The notches filling colors mode.
 
-- **get/setNotchs**  -> `int` value, default `0`<br />
-The number of the notchs.
+- **get/setNotches**  -> `int` value, default `0`<br />
+The number of the notches.
 
-- **get/setNotchsLength**  -> `float` value, default `0`<br />
-Define the notchs line length.
+- **get/setNotchesLength**  -> `float` value, default `0`<br />
+Define the notches line length.
 
-- **get/setNotchsPosition**  -> `ScNotchs.NotchPositions` value, default `MIDDLE`<br />
-Set the notchs position respect the path
+- **get/setNotchesPosition**  -> `ScNotches.NotchPositions` value, default `MIDDLE`<br />
+Set the notches position respect the path
 
-- **get/setSnapToNotchs**  -> `boolean` value, default `false`<br />
+- **get/setSnapToNotches**  -> `boolean` value, default `false`<br />
 Define if the progress values (low and high) will be rounded to the closed notch.
 
 - **get/setTextTokens**  -> `String[]` value, default `null`<br />
@@ -166,7 +166,7 @@ Called when the high or the low value changed.
 - **void onBeforeDrawCopy(ScCopier.CopyInfo info)**<br />
 Called before draw the path copy.
 
-- **onBeforeDrawNotch(ScNotchs.NotchInfo info)**<br />
+- **onBeforeDrawNotch(ScNotches.NotchInfo info)**<br />
 Called before draw the single notch.
 
 - **onBeforeDrawPointer(ScPointer.PointerInfo info)**<br />
@@ -192,14 +192,14 @@ Called before draw the single text token.
         <attr name="scc_progress_colors" format="string" />
         <attr name="scc_progress_colors_mode"/>
         <attr name="scc_value" format="float" />
-        <attr name="scc_notchs_size" format="dimension" />
-        <attr name="scc_notchs_color" format="color" />
-        <attr name="scc_notchs_colors" format="string" />
-        <attr name="scc_notchs_colors_mode"/>
-        <attr name="scc_notchs" format="integer" />
-        <attr name="scc_notchs_length" format="float" />
-        <attr name="scc_notchs_position"/>
-        <attr name="scc_snap_to_notchs" format="boolean" />
+        <attr name="scc_notches_size" format="dimension" />
+        <attr name="scc_notches_color" format="color" />
+        <attr name="scc_notches_colors" format="string" />
+        <attr name="scc_notches_colors_mode"/>
+        <attr name="scc_notches" format="integer" />
+        <attr name="scc_notches_length" format="float" />
+        <attr name="scc_notches_position"/>
+        <attr name="scc_snap_to_notches" format="boolean" />
         <attr name="scc_text_size" format="dimension" />
         <attr name="scc_text_color" format="color" />
         <attr name="scc_text_colors" format="string" />

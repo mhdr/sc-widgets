@@ -21,14 +21,14 @@
         <attr name="scc_pointer_colors" format="string"/>
         <attr name="scc_pointer_colors_mode"/>
         <attr name="scc_halo_size" format="dimension"/>
-        <attr name="scc_notchs_size" format="dimension"/>
-        <attr name="scc_notchs_color" format="color"/>
-        <attr name="scc_notchs_colors" format="string"/>
-        <attr name="scc_notchs_colors_mode"/>
-        <attr name="scc_notchs" format="integer"/>
-        <attr name="scc_notchs_length" format="dimension"/>
-        <attr name="scc_notchs_position"/>
-        <attr name="scc_snap_to_notchs" format="boolean"/>
+        <attr name="scc_notches_size" format="dimension"/>
+        <attr name="scc_notches_color" format="color"/>
+        <attr name="scc_notches_colors" format="string"/>
+        <attr name="scc_notches_colors_mode"/>
+        <attr name="scc_notches" format="integer"/>
+        <attr name="scc_notches_length" format="dimension"/>
+        <attr name="scc_notches_position"/>
+        <attr name="scc_snap_to_notches" format="boolean"/>
         <attr name="scc_text_tokens" format="string"/>
         <attr name="scc_text_size" format="dimension"/>
         <attr name="scc_text_color" format="color"/>
@@ -73,7 +73,7 @@
         <enum name="gradient" value="1"/>
     </attr>
 
-    <attr name="scc_notchs_colors_mode" format="enum">
+    <attr name="scc_notches_colors_mode" format="enum">
         <enum name="solid" value="0"/>
         <enum name="gradient" value="1"/>
     </attr>
@@ -88,7 +88,7 @@
         <enum name="gradient" value="1"/>
     </attr>
 
-    <attr name="scc_notchs_position" format="enum">
+    <attr name="scc_notches_position" format="enum">
         <enum name="inside" value="0"/>
         <enum name="middle" value="1"/>
         <enum name="outside" value="2"/>

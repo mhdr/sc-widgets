@@ -34,10 +34,10 @@ You can download the indicator image used below from [**HERE**](indicator-06.png
             sc:scc_angle_sweep="180"
             sc:scc_stroke_size="40dp"
             sc:scc_stroke_colors="#03A409|#FFF506|#EB0100"
-            sc:scc_notchs="10"
-            sc:scc_notchs_size="1dp"
-            sc:scc_notchs_length="20dp"
-            sc:scc_notchs_color="#4e4e4e"
+            sc:scc_notches="10"
+            sc:scc_notches_size="1dp"
+            sc:scc_notches_length="20dp"
+            sc:scc_notches_color="#4e4e4e"
             sc:scc_text_align="center"/>
 
         <ImageView
@@ -99,7 +99,7 @@ You can download the indicator image used below from [**HERE**](indicator-06.png
         }
 
         @Override
-        public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+        public void onBeforeDrawNotch(ScNotches.NotchInfo info) {
             // Hide the first and the last
             info.visible = info.index > 0 && info.index < info.source.getCount();
         }
@@ -140,11 +140,11 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
             sc:scc_angle_start="135"
             sc:scc_angle_sweep="270"
             sc:scc_stroke_size="10dp"
-            sc:scc_notchs="80"
-            sc:scc_notchs_size="1dp"
-            sc:scc_notchs_length="10dp"
-            sc:scc_notchs_color="#000000"
-            sc:scc_notchs_position="inside"
+            sc:scc_notches="80"
+            sc:scc_notches_size="1dp"
+            sc:scc_notches_length="10dp"
+            sc:scc_notches_color="#000000"
+            sc:scc_notches_position="inside"
             sc:scc_progress_size="3dp"
             sc:scc_text_position="inside"
             sc:scc_path_touchable="true"/>
@@ -233,11 +233,11 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
         }
 
         @Override
-        public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+        public void onBeforeDrawNotch(ScNotches.NotchInfo info) {
             // Move the offset
             info.offset = -info.length / 2;
 
-            // Check for module highlight the notchs than have module 5 and 10
+            // Check for module highlight the notches than have module 5 and 10
             if (info.index % 10 == 0) {
                 info.size = 6;
             } else if (info.index % 5 != 0) {
@@ -259,7 +259,7 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
 
         @Override
         public void onBeforeDrawToken(ScWriter.TokenInfo info) {
-            // Center on the notchs
+            // Center on the notches
             Rect bounds = new Rect();
             info.source.getPainter().getTextBounds(info.text, 0, info.text.length(), bounds);
             info.offset.x = - (bounds.width() / 2) - 1;
@@ -337,11 +337,11 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
 
     // Take in mind that when you tagged a feature after this feature inherit the principal
     // characteristic of the identifier.
-    // For example in the case of the BASE_IDENTIFIER the feature notchs (always) will be
+    // For example in the case of the BASE_IDENTIFIER the feature notches (always) will be
     // settle as the color and stroke size settle for the base (in xml or via code).
 
-    // Create the base notchs.
-    ScNotchs base = (ScNotchs) gauge.addFeature(ScNotchs.class);
+    // Create the base notches.
+    ScNotches base = (ScNotches) gauge.addFeature(ScNotches.class);
     base.setTag(ScGauge.BASE_IDENTIFIER);
     base.setCount(40);
     base.setLength(gauge.dipToPixel(18));
@@ -349,14 +349,14 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
     // Note that I will create two progress because to one will add the blur and to the other
     // will be add the emboss effect.
 
-    // Create the progress notchs.
-    ScNotchs progressBlur = (ScNotchs) gauge.addFeature(ScNotchs.class);
+    // Create the progress notches.
+    ScNotches progressBlur = (ScNotches) gauge.addFeature(ScNotches.class);
     progressBlur.setTag(ScGauge.PROGRESS_IDENTIFIER);
     progressBlur.setCount(40);
     progressBlur.setLength(gauge.dipToPixel(18));
 
-    // Create the progress notchs.
-    ScNotchs progressEmboss = (ScNotchs) gauge.addFeature(ScNotchs.class);
+    // Create the progress notches.
+    ScNotches progressEmboss = (ScNotches) gauge.addFeature(ScNotches.class);
     progressEmboss.setTag(ScGauge.PROGRESS_IDENTIFIER);
     progressEmboss.setCount(40);
     progressEmboss.setLength(gauge.dipToPixel(18));
@@ -454,23 +454,23 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
 
     // Take in mind that when you tagged a feature after this feature inherit the principal
     // characteristic of the identifier.
-    // For example in the case of the BASE_IDENTIFIER the feature notchs (always) will be
+    // For example in the case of the BASE_IDENTIFIER the feature notches (always) will be
     // settle as the color and stroke size settle for the base (in xml or via code).
 
-    // Create the base notchs.
-    ScNotchs base = (ScNotchs) gauge.addFeature(ScNotchs.class);
+    // Create the base notches.
+    ScNotches base = (ScNotches) gauge.addFeature(ScNotches.class);
     base.setTag(ScGauge.BASE_IDENTIFIER);
     base.setCount(40);
-    base.setPosition(ScNotchs.NotchPositions.INSIDE);
+    base.setPosition(ScNotches.NotchPositions.INSIDE);
 
     // Note that I will create two progress because to one will add the blur and to the other
     // will be add the emboss effect.
 
-    // Create the progress notchs.
-    ScNotchs progress = (ScNotchs) gauge.addFeature(ScNotchs.class);
+    // Create the progress notches.
+    ScNotches progress = (ScNotches) gauge.addFeature(ScNotches.class);
     progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
     progress.setCount(40);
-    progress.setPosition(ScNotchs.NotchPositions.INSIDE);
+    progress.setPosition(ScNotches.NotchPositions.INSIDE);
 
     // Set the value
     gauge.setHighValue(12000, 0, 13000);
@@ -493,7 +493,7 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
         }
 
         @Override
-        public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+        public void onBeforeDrawNotch(ScNotches.NotchInfo info) {
             // Set the length of the notch
             info.source.setLength(gauge.dipToPixel(info.index + 5));
         }
@@ -533,10 +533,10 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
             sc:scc_stroke_colors="white|white|white|white|white|white|red|red"
             sc:scc_stroke_colors_mode="solid"
             sc:scc_progress_size="15dp"
-            sc:scc_notchs="8"
-            sc:scc_notchs_size="2dp"
-            sc:scc_notchs_color="#ffffff"
-            sc:scc_notchs_position="inside"
+            sc:scc_notches="8"
+            sc:scc_notches_size="2dp"
+            sc:scc_notches_color="#ffffff"
+            sc:scc_notches_position="inside"
             sc:scc_text_tokens="0|40|80|120|160|200|240|280"
             sc:scc_text_color="#ffffff"
             sc:scc_text_size="12dp"
@@ -588,7 +588,7 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
 
     // Bring on top
     gauge.bringOnTop(ScGauge.BASE_IDENTIFIER);
-    gauge.bringOnTop(ScGauge.NOTCHS_IDENTIFIER);
+    gauge.bringOnTop(ScGauge.NOTCHES_IDENTIFIER);
 
     // Set the value
     gauge.setHighValue(180, 0, 320);
@@ -616,7 +616,7 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
         }
 
         @Override
-        public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+        public void onBeforeDrawNotch(ScNotches.NotchInfo info) {
             // Set the length of the notch
             info.length = info.index == 0 || info.index == info.source.getCount() ?
                     gauge.dipToPixel(15) : gauge.dipToPixel(5);

@@ -1,5 +1,5 @@
-# ScNotchs
-Create a feature that draw a series of notchs following the base path.
+# ScNotches
+Create a feature that draw a series of notches following the base path.
 
 You can define the line characteristic by setting the inner painter.
 Many other characteristics can be change before drawing the single notch linking the dedicated listener.
@@ -10,11 +10,11 @@ This class inherit all its properties from the [ScFeature](../sc-feature/ScFeatu
 
 #### Public Methods
 
-- **float snapToNotchs(float value)**<br />
+- **float snapToNotches(float value)**<br />
 Round the value near the closed notch.
 
 - **void setDividePathInContours(boolean value)**<br />
-By default the class will draw the n notchs on each contours that compose the current path.<br />
+By default the class will draw the n notches on each contours that compose the current path.<br />
 If settle on false the class will consider the path as a unique path.
 
 - **void setOnDrawListener(OnDrawListener listener)**<br />
@@ -25,19 +25,19 @@ Link the listener.
 #### Getter and Setter
 
 - **get/setCount**  -> `int` value, default `0`<br />
-Set or get the notchs count.
+Set or get the notches count.
 
 - **get/setLength**  -> `float` value, default `0`<br />
-Set or get the notchs length.<br />
+Set or get the notches length.<br />
 The value must be passed in pixel.
 
 - **get/setType**  -> `NotchTypes` value, default `NotchTypes.LINE`<br />
 Possibly values by enum: `LINE`, `CIRCLE`, `CIRCLE_FILLED`<br />
-Set or get the notchs type
+Set or get the notches type
 
 - **get/setPosition**  -> `NotchPositions` value, default `NotchPositions.MIDDLE`<br />
 Possibly values by enum: `INSIDE`, `MIDDLE`, `OUTSIDE`<br />
-Set or get the notchs alignment respect the path.
+Set or get the notches alignment respect the path.
 <br />
 <br />
 
@@ -75,8 +75,8 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 <br />
 
-- **Create a bezier line path and the notchs on it.**<br />
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/1.jpg" align="right" />
+- **Create a bezier line path and the notches on it.**<br />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notches/1.jpg" align="right" />
 ```java
     // Dimensions
     int padding = 24;
@@ -102,11 +102,11 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
     path.quadTo(drawArea.centerX(), drawArea.bottom, drawArea.right, drawArea.bottom);
 
     // Feature
-    ScNotchs notchs = new ScNotchs(path);
-    notchs.getPainter().setStrokeWidth(4);
-    notchs.setCount(20);
-    notchs.setLength(14);
-    notchs.draw(canvas);
+    ScNotches notches = new ScNotches(path);
+    notches.getPainter().setStrokeWidth(4);
+    notches.setCount(20);
+    notches.setLength(14);
+    notches.draw(canvas);
 
     // Add the bitmap to the container
     imageContainer.setImageBitmap(bitmap);
@@ -115,38 +115,38 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 
 - **Circle contour type**<br />
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/2.jpg" align="right" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notches/2.jpg" align="right" />
 ```java
     ...
     // Feature
-    ScNotchs notchs = new ScNotchs(path);
-    notchs.getPainter().setStrokeWidth(2);
-    notchs.setCount(20);
-    notchs.setLength(14);
-    notchs.setType(ScNotchs.NotchTypes.CIRCLE);
-    notchs.draw(canvas);
+    ScNotches notches = new ScNotches(path);
+    notches.getPainter().setStrokeWidth(2);
+    notches.setCount(20);
+    notches.setLength(14);
+    notches.setType(ScNotches.NotchTypes.CIRCLE);
+    notches.draw(canvas);
     ...
 ```
 <br />
 <br />
 
 - **Circle filled type**<br />
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/3.jpg" align="right" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notches/3.jpg" align="right" />
 ```java
     ...
     // Feature
-    ScNotchs notchs = new ScNotchs(path);
-    notchs.setCount(20);
-    notchs.setLength(14);
-    notchs.setType(ScNotchs.NotchTypes.CIRCLE_FILLED);
-    notchs.draw(canvas);
+    ScNotches notches = new ScNotches(path);
+    notches.setCount(20);
+    notches.setLength(14);
+    notches.setType(ScNotches.NotchTypes.CIRCLE_FILLED);
+    notches.draw(canvas);
     ...
 ```
 <br />
 <br />
 
-- **Play with colors and notchs info structure**<br />
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/4.jpg" align="right" />
+- **Play with colors and notches info structure**<br />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notches/4.jpg" align="right" />
 ```java
     ...
     // Create a line path
@@ -155,30 +155,30 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
     path.lineTo(drawArea.right, drawArea.centerY());
 
     // Feature
-    ScNotchs notchs = new ScNotchs(path);
-    notchs.getPainter().setStrokeWidth(4);
-    notchs.setColors(Color.GREEN, Color.YELLOW, Color.RED);
-    notchs.setCount(24);
-    notchs.setLength(30);
-    notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
+    ScNotches notches = new ScNotches(path);
+    notches.getPainter().setStrokeWidth(4);
+    notches.setColors(Color.GREEN, Color.YELLOW, Color.RED);
+    notches.setCount(24);
+    notches.setLength(30);
+    notches.setOnDrawListener(new ScNotches.OnDrawListener() {
         @Override
-        public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+        public void onBeforeDrawNotch(ScNotches.NotchInfo info) {
             // Set the length and the position
             float ratio = info.index / info.source.getCount();
             info.length = info.source.getLength() * ratio + 10;
             info.offset = - (info.length / 2) * (1 - ratio);
             info.align = info.index % 2 == 0 ?
-                ScNotchs.NotchPositions.INSIDE: ScNotchs.NotchPositions.OUTSIDE;
+                ScNotches.NotchPositions.INSIDE: ScNotches.NotchPositions.OUTSIDE;
         }
     });
-    notchs.draw(canvas);
+    notches.draw(canvas);
     ...
 ```
 <br />
 <br />
 
 - **Complex path and play with the points distance from path start**<br />
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/5.jpg" align="right" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notches/5.jpg" align="right" />
 ```java
     // Dimensions
     int padding = 24;
@@ -210,12 +210,12 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
     }
 
     // Feature
-    ScNotchs notchs = new ScNotchs(path);
-    notchs.setCount(30);
-    notchs.setType(ScNotchs.NotchTypes.CIRCLE_FILLED);
-    notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
+    ScNotches notches = new ScNotches(path);
+    notches.setCount(30);
+    notches.setType(ScNotches.NotchTypes.CIRCLE_FILLED);
+    notches.setOnDrawListener(new ScNotches.OnDrawListener() {
         @Override
-        public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+        public void onBeforeDrawNotch(ScNotches.NotchInfo info) {
             // Set the length
             info.length = info.index;
             // Calculate a new distance and the relative point on the path
@@ -223,7 +223,7 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
             info.point = info.source.getPoint(distance);
         }
     });
-    notchs.draw(canvas);
+    notches.draw(canvas);
 
     // Add the bitmap to the container
     imageContainer.setImageBitmap(bitmap);
@@ -232,7 +232,7 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 
 - **Multiple contours path managing**<br />
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notchs/6.jpg" align="right" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notches/6.jpg" align="right" />
 ```java
     ...
     // Create path with two contours
@@ -244,20 +244,20 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
     path.quadTo(drawArea.right, drawArea.bottom, drawArea.centerX(), drawArea.bottom);
 
     // Feature
-    ScNotchs notchs = new ScNotchs(path);
-    notchs.setColors(Color.LTGRAY, Color.BLACK);
-    notchs.getPainter().setStrokeWidth(4);
-    notchs.setCount(10);
-    notchs.setPosition(ScNotchs.NotchPositions.INSIDE);
-    notchs.setDividePathInContours(false);
-    notchs.setOnDrawListener(new ScNotchs.OnDrawListener() {
+    ScNotches notches = new ScNotches(path);
+    notches.setColors(Color.LTGRAY, Color.BLACK);
+    notches.getPainter().setStrokeWidth(4);
+    notches.setCount(10);
+    notches.setPosition(ScNotches.NotchPositions.INSIDE);
+    notches.setDividePathInContours(false);
+    notches.setOnDrawListener(new ScNotches.OnDrawListener() {
         @Override
-        public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+        public void onBeforeDrawNotch(ScNotches.NotchInfo info) {
             info.length = 10 + info.index * 5;
             info.size = 3 + info.index;
         }
     });
-    notchs.draw(canvas);
+    notches.draw(canvas);
     ...
 ```
 <br />

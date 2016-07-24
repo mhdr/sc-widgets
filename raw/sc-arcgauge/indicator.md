@@ -100,10 +100,10 @@ You can download the indicator image used below from [**HERE**](indicator-02.png
             sc:scc_progress_size="30dp"
             sc:scc_stroke_color="#ffffff"
             sc:scc_stroke_size="30dp"
-            sc:scc_notchs="3"
-            sc:scc_notchs_length="32dp"
-            sc:scc_notchs_size="6dp"
-            sc:scc_notchs_color="#354051"
+            sc:scc_notches="3"
+            sc:scc_notches_length="32dp"
+            sc:scc_notches_size="6dp"
+            sc:scc_notches_color="#354051"
             sc:scc_text_tokens="1000|2000|3000"
             sc:scc_text_align="left"
             sc:scc_text_position="middle"
@@ -146,9 +146,9 @@ You can download the indicator image used below from [**HERE**](indicator-02.png
     indicator.setPivotX(30f);
     indicator.setPivotY(30f);
 
-    // As the progress feature by default the last to be draw I must bring the notchs feature
+    // As the progress feature by default the last to be draw I must bring the notches feature
     // on top.
-    gauge.bringOnTop(ScGauge.NOTCHS_IDENTIFIER);
+    gauge.bringOnTop(ScGauge.NOTCHES_IDENTIFIER);
 
     // If you set the value from the xml that not produce an event so I will change the
     // value from code.
@@ -401,7 +401,7 @@ You can download the indicator image used below from [**HERE**](indicator-05.png
         }
 
         @Override
-        public void onBeforeDrawNotch(ScNotchs.NotchInfo info) {
+        public void onBeforeDrawNotch(ScNotches.NotchInfo info) {
             // Do nothing
         }
 

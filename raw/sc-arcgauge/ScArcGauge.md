@@ -76,8 +76,8 @@ Values over the limits will be normalized to the limit.
         sc:scc_stroke_size="6dp"
         sc:scc_progress_size="4dp"
         sc:scc_value="45"
-        sc:scc_notchs="8"
-        sc:scc_notchs_length="10dp"
+        sc:scc_notches="8"
+        sc:scc_notches_length="10dp"
         sc:scc_text_tokens="01|02|03|04|05|06|07|08"
         sc:scc_pointer_radius="10dp"
         />
@@ -100,11 +100,11 @@ Press on the picture linked below to see the demonstration.
 [![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/i-03.jpg)](indicator.md)
 [![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/i-04.jpg)](indicator.md)
 
-[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-01.jpg)](notchs.md)
-[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-02single.jpg)](notchs.md)
-[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-03.jpg)](notchs.md)
-[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-04.jpg)](notchs.md)
-[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-05.jpg)](notchs.md)
+[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-01.jpg)](notches.md)
+[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-02single.jpg)](notches.md)
+[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-03.jpg)](notches.md)
+[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-04.jpg)](notches.md)
+[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-05.jpg)](notches.md)
 <br />
 <br />
 
