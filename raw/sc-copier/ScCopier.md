@@ -33,7 +33,7 @@ Link the listener.
 **void onBeforeDrawCopy(CopyInfo info)**<br />
 Called before draw the path copy.<br />
 Note that changing the `info` properties you will change the copy drawing.<br />
-Properties list: `scale`, `offset`.
+Properties list: `scale`, `offset`, `rotate`.
 <br />
 <br />
 
