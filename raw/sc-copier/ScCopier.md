@@ -7,8 +7,8 @@ The class is a basic class and not expose only one proprietary method and all th
 <br />
 <br />
 
-> **KNOWN ISSUES**
-> When you using the more than one color the class produce a **bitmap shader** and apply it on the painter.<br />
+> **KNOWN ISSUES**<br />
+> When you using multiple colors the class will produce a **bitmap shader** and apply it on the painter.<br />
 > If you will use to scale the path before draw (`onBeforeDrawCopy`), being the shader a `Bitmap`, the stroke width will scaled too.<br />
 > This issue can be solved drawing the colors gradient directly on the canvas but in this case will lost the possibility to override the shader in the future.
 >

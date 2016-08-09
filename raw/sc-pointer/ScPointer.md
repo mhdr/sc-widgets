@@ -72,7 +72,7 @@ If assign a bitmap the default drawing will be bypassed and the new bitmap will 
 <br />
 
 - **Normal and pressed**<br />
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/1.jpg" align="right" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-pointer/1.jpg" align="right" />
 ```java
     // Dimensions
     int padding = 24;
@@ -120,7 +120,7 @@ If assign a bitmap the default drawing will be bypassed and the new bitmap will 
 <br />
 
 - **Play with colors.**<br />
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-pointer/2.jpg" align="right" />
 If you define a colors sequence the pointer will assume the gradient color by its position respect the path.
 ```java
     ...
@@ -146,7 +146,7 @@ If you define a colors sequence the pointer will assume the gradient color by it
 <br />
 
 - **Custom bitmap.**<br />
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/3.jpg" align="right" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-pointer/3.jpg" align="right" />
 ```java
     ...
     // Preload the bitmap
