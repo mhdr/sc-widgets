@@ -31,7 +31,7 @@ Set the halo width in pixel.
 - **get/setHaloAlpha**  -> `int` value `(0..255)`, default `DEFAULT_HALO_ALPHA`<br />
 Set the halo alpha .
 
-- **get/setHaloAlpha**  -> `boolean` value, default `false`<br />
+- **get/setPressed**  -> `boolean` value, default `false`<br />
 Set the pointer status.
 <br />
 <br />
