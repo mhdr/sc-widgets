@@ -18,7 +18,7 @@ import java.util.Arrays;
  * The most important of this feature is that can decide the path segment to draw.
  *
  * @author Samuele Carassai
- * @version 1.0.0
+ * @version 1.0.1
  * @since 2016-05-26
  */
 public class ScCopier extends ScFeature {
