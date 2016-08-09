@@ -106,6 +106,9 @@ public class ScCopier extends ScFeature {
             canvas.restore();
         }
 
+        // Check for rounded stroke
+        if (isRoundedStroke) this.mPaint.setStrokeCap(Paint.Cap.ROUND);
+
         // Return the new bitmap
         return bitmap;
     }
