@@ -13,7 +13,7 @@ The class is a basic class and not expose only one proprietary method and all th
 > This issue can be solved drawing the colors gradient directly on the canvas but in this case will lost the possibility to override the shader in the future.
 >
 > Generally the shader have problem to work proper with the hardware-accelerate enable.<br />
-> So maybe better to disable it when you use more that one colors otherwise you could be have a unexpected visual result.<br />
+> So maybe better to disable it when you use more that one colors otherwise you could be have a unexpected visual result:
 > `this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);`<br />
 > Please note that the `ScGauge` **disable it by default**.
 
