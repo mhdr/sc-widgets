@@ -55,6 +55,7 @@ This is a very simple sliding panel manager.<br />
 Respect to others components same this it follow the parent alignment.
 Put the component inside a RelativeLayout, give an alignment and the panel slide from.
 <br />
+<br />
 
 
 # Some examples from **[ScArcGauge](raw/sc-arcgauge/ScArcGauge.md)**
@@ -77,12 +78,14 @@ Put the component inside a RelativeLayout, give an alignment and the panel slide
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-04.jpg" height="120px" />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-05.jpg" height="120px" />
 <br />
+<br />
 
 
 # Some examples from **[ScLinearGauge](raw/sc-lineargauge/ScLinearGauge.md)**
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/f-01.jpg" width="300px" />
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/f-02.jpg" width="300px" />
+<br />
 <br />
 
 
@@ -93,6 +96,8 @@ Now the base is, still raw and improvable, for this every "fork" or help it is w
 
 The road-map now is to create a specialized class for draw linear gauges (ScLineGauge) and some examples.
 After do that I would like to create a series of preset classes that can be used without write "code" but always but still offering to the advanced users to go deep in the code.
+<br />
+<br />
 
 
 # Usage
@@ -116,6 +121,8 @@ dependencies {
     compile 'com.github.paroca72:sc-widgets:2.1.0'
 }
 ```
+<br />
+<br />
 
 
 #License
