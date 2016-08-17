@@ -49,6 +49,11 @@
         <attr name="scc_handle_size" format="dimension"/>
         <attr name="scc_offset" format="dimension"/>
         <attr name="scc_hide_onclose" format="boolean"/>
+        <attr name="scc_left" format="float" />
+        <attr name="scc_top" format="float" />
+        <attr name="scc_bottom" format="float" />
+        <attr name="scc_right" format="float" />
+        <attr name="scc_rounded_line" format="boolean" />
     </declare-styleable>
 
     <attr name="scc_fill_area" format="enum">

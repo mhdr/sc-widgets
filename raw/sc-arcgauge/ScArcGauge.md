@@ -56,7 +56,7 @@ Values over the limits will be normalized to the limit.
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/1.jpg" align="right" />
 - **Basic**
 ```xml
-    <com.sccomponents.widgets.ScArc
+    <com.sccomponents.widgets.ScArcGauge
         android:layout_width="300dp"
         android:layout_height="300dp"
         android:padding="10dp"

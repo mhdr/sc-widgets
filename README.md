@@ -30,6 +30,10 @@ Manage a generic gauge.<br />
 This class is studied to be an "helper class" to facilitate the user to create a gauge.
 This class extend the [ScDrawer](raw/sc-drawer/ScDrawer.md) class.
 
+- **[ScLinearGauge](raw/sc-lineargauge/ScLinearGauge.md)**<br />
+This class is a specialized to create a linear gauge.<br />
+This class extend the [ScGauge](raw/sc-gauge/ScGauge.md) class.
+
 - **[ScNotches](raw/sc-notches/ScNotches.md)**<br />
 Create a feature that draw a series of notches following the base path.<br />
 This class inherit all its properties from the [ScFeature](raw/sc-feature/ScFeature.md).

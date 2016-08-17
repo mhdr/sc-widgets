@@ -18,7 +18,7 @@ import java.util.Arrays;
  * The most important of this feature is that can decide the path segment to draw.
  *
  * @author Samuele Carassai
- * @version 1.0.1
+ * @version 1.0.2
  * @since 2016-05-26
  */
 public class ScCopier extends ScFeature {
@@ -190,7 +190,7 @@ public class ScCopier extends ScFeature {
             return;
 
         // Check the number of colors for create the shader if requested
-        if (this.mColors != null && this.mColors.length > 0) {
+        if (this.mColors != null && this.mColors.length > 1) {
             // Check if need to create the shader bitmap
             if (this.mForceCreateShader) {
                 // Create the bitmap

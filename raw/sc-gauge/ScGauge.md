@@ -175,6 +175,10 @@ If the method set the bitmap inside the info object the default drawing will be 
 
 - **onBeforeDrawToken(ScWriter.TokenInfo info)**<br />
 Called before draw the single text token.
+
+- **setRoundedLine(boolean value)**<br />
+Set if the line style cap is set on rounded or not.<br />
+Please note than once set all the features, old and new, will be with this property settle by the passed value.
 <br />
 <br />
 
@@ -213,6 +217,7 @@ Called before draw the single text token.
         <attr name="scc_pointer_colors" format="string" />
         <attr name="scc_pointer_colors_mode"/>
         <attr name="scc_halo_size" format="dimension" />
+        <attr name="scc_rounded_line" format="boolean" />
     </declare-styleable>
 ```
 <br />

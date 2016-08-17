@@ -18,12 +18,12 @@ import java.util.List;
 
 /**
  * Manage a generic gauge.
- * <p>
+ * <p/>
  * This class is studied to be an "helper class" to facilitate the user to create a gauge.
  * The path is generic and the class start with a standard configuration of features.
  * One base (inherited from the ScDrawer), one notches manager, one writer manager, one copier to
  * create the progress effect and two pointer for manage the user touch input.
- * <p>
+ * <p/>
  * Here are exposed many methods to drive the common feature from the code or directly by the XML.
  * The features are recognized from the class by its tag so changing, for example, the color of
  * notches you will change the color of all notches tagged.
@@ -31,7 +31,7 @@ import java.util.List;
  * type. All the custom added features not tagged should be managed by the user by himself.
  *
  * @author Samuele Carassai
- * @version 1.0.0
+ * @version 1.0.3
  * @since 2016-05-26
  */
 public abstract class ScGauge extends ScDrawer implements
@@ -97,6 +97,8 @@ public abstract class ScGauge extends ScDrawer implements
     private boolean mPointerLowVisible;
     private boolean mPointerHighVisible;
 
+    private Boolean mRoundedLineCap;
+
 
     /****************************************************************************************
      * Privates variable
@@ -149,6 +151,12 @@ public abstract class ScGauge extends ScDrawer implements
 
         // Hold the tag
         String tag = feature.getTag();
+
+        // Check for rounded cap line style
+        if (this.mRoundedLineCap != null) {
+            feature.getPainter()
+                    .setStrokeCap(this.mRoundedLineCap ? Paint.Cap.ROUND : Paint.Cap.BUTT);
+        }
 
         // Base
         if (tag.equalsIgnoreCase(ScGauge.BASE_IDENTIFIER)) {
@@ -251,7 +259,7 @@ public abstract class ScGauge extends ScDrawer implements
     /**
      * Split a string in a series of colors.
      */
-    private int[] slipToColors(String source) {
+    private int[] splitToColors(String source) {
         // Check for empty values
         if (source == null || source.isEmpty()) return null;
 
@@ -292,7 +300,7 @@ public abstract class ScGauge extends ScDrawer implements
         this.mStrokeSize = attrArray.getDimension(
                 R.styleable.ScComponents_scc_stroke_size, this.dipToPixel(ScGauge.DEFAULT_STROKE_SIZE));
         this.mStrokeColors = this
-                .slipToColors(attrArray.getString(R.styleable.ScComponents_scc_stroke_colors));
+                .splitToColors(attrArray.getString(R.styleable.ScComponents_scc_stroke_colors));
 
         int strokeColor = attrArray.getColor(
                 R.styleable.ScComponents_scc_stroke_color, ScGauge.DEFAULT_STROKE_COLOR);
@@ -310,7 +318,7 @@ public abstract class ScGauge extends ScDrawer implements
         this.mProgressSize = attrArray.getDimension(
                 R.styleable.ScComponents_scc_progress_size, this.dipToPixel(ScGauge.DEFAULT_PROGRESS_SIZE));
         this.mProgressColors = this
-                .slipToColors(attrArray.getString(R.styleable.ScComponents_scc_progress_colors));
+                .splitToColors(attrArray.getString(R.styleable.ScComponents_scc_progress_colors));
         this.mHighValue = attrArray.getFloat(
                 R.styleable.ScComponents_scc_value, 0.0f);
 
@@ -336,7 +344,7 @@ public abstract class ScGauge extends ScDrawer implements
         this.mSnapToNotches = attrArray.getBoolean(
                 R.styleable.ScComponents_scc_snap_to_notches, false);
         this.mNotchesColors = this
-                .slipToColors(attrArray.getString(R.styleable.ScComponents_scc_notches_colors));
+                .splitToColors(attrArray.getString(R.styleable.ScComponents_scc_notches_colors));
 
         int notchesColor = attrArray.getColor(
                 R.styleable.ScComponents_scc_notches_color, ScGauge.DEFAULT_STROKE_COLOR);
@@ -358,7 +366,7 @@ public abstract class ScGauge extends ScDrawer implements
         this.mTextSize = attrArray.getDimension(
                 R.styleable.ScComponents_scc_text_size, this.dipToPixel(ScGauge.DEFAULT_TEXT_SIZE));
         this.mTextColors = this
-                .slipToColors(attrArray.getString(R.styleable.ScComponents_scc_text_colors));
+                .splitToColors(attrArray.getString(R.styleable.ScComponents_scc_text_colors));
         this.mTextUnbend = attrArray.getBoolean(
                 R.styleable.ScComponents_scc_text_unbend, false);
 
@@ -388,7 +396,7 @@ public abstract class ScGauge extends ScDrawer implements
         this.mPointerRadius = attrArray.getDimension(
                 R.styleable.ScComponents_scc_pointer_radius, 0.0f);
         this.mPointerColors = this
-                .slipToColors(attrArray.getString(R.styleable.ScComponents_scc_pointer_colors));
+                .splitToColors(attrArray.getString(R.styleable.ScComponents_scc_pointer_colors));
         this.mPointerHaloWidth = attrArray.getDimension(
                 R.styleable.ScComponents_scc_halo_size, ScGauge.DEFAULT_HALO_SIZE);
 
@@ -401,6 +409,16 @@ public abstract class ScGauge extends ScDrawer implements
         int pointerColorsMode = attrArray.getInt(
                 R.styleable.ScComponents_scc_pointer_colors_mode, ScFeature.ColorsMode.GRADIENT.ordinal());
         this.mPointerColorsMode = ScFeature.ColorsMode.values()[pointerColorsMode];
+
+        //--------------------------------------------------
+        // COMMON
+
+        // Rounded line cap style
+        if (attrArray.hasValue(R.styleable.ScComponents_scc_rounded_line)) {
+            this.mRoundedLineCap = attrArray.getBoolean(R.styleable.ScComponents_scc_rounded_line, false);
+        } else {
+            this.mRoundedLineCap = null;
+        }
 
         //--------------------------------------------------
         // INTERNAL
@@ -731,12 +749,12 @@ public abstract class ScGauge extends ScDrawer implements
     /**
      * Add one feature to this drawer.
      * This particular overload instantiate a new object from the class reference passed.
-     * <p>
+     * <p/>
      * The passed class reference must implement the ScFeature interface and will be filled
      * with the setting default params of this object by the type.
      * For example if instance a ScNotches the notches count will be auto settle to the defined
      * getNotchesCount method.
-     * <p>
+     * <p/>
      * The new feature instantiate will linked to the gauge on draw listener.
      * If you will create the feature with another method you must manage the on draw listener by
      * yourself or attach it to the gauge at a later time using the proper method.
@@ -898,6 +916,38 @@ public abstract class ScGauge extends ScDrawer implements
         float delta = max - min;
         // Return the value
         return (delta * (percentage / 100)) + min;
+    }
+
+
+    /****************************************************************************************
+     * Common
+     */
+
+    /**
+     * Return if the line style cap is set on rounded or not
+     *
+     * @return if rounded or not
+     */
+    @SuppressWarnings("unused")
+    public boolean getRoundedLine() {
+        return this.mRoundedLineCap != null && this.mRoundedLineCap;
+    }
+
+    /**
+     * Set if the line style cap is set on rounded or not.
+     * Please note than once set all the features, old and new, will be with this property settle
+     * by the passed value.
+     *
+     * @param value if rounded or not
+     */
+    @SuppressWarnings("unused")
+    public void setRoundedLine(boolean value) {
+        // Check for changed value
+        if (this.mRoundedLineCap == null || this.mRoundedLineCap != value) {
+            // Set the new value and refresh
+            this.mRoundedLineCap = value;
+            this.invalidate();
+        }
     }
 
 

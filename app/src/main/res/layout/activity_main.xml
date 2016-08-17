@@ -9,24 +9,39 @@
     android:padding="10dp"
     android:weightSum="1">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:background="#ECECEA"
+        android:padding="10dp"
+        android:orientation="vertical">
 
-        <com.sccomponents.widgets.ScArcGauge
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/counter"
+            android:textColor="#5B5B5A"
+            android:textSize="24dp" />
+
+        <com.sccomponents.widgets.ScLinearGauge
             xmlns:sc="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/circle"
+            android:id="@+id/line"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            sc:scc_angle_start="270"
-            sc:scc_angle_sweep="360"
-            android:padding="10dp"
-            sc:scc_progress_colors="#9effcd"
-            sc:scc_progress_size="10dp"
-            sc:scc_stroke_color="#f5f5f5"
-            sc:scc_stroke_size="10dp"/>
+            android:paddingBottom="20dp"
+            android:paddingTop="20dp"
+            sc:scc_bottom="0"
+            sc:scc_progress_colors="#3589F6"
+            sc:scc_progress_size="6dp"
+            sc:scc_stroke_color="#ABCDED"
+            sc:scc_stroke_size="6dp"
+            sc:scc_top="0"
+            sc:scc_pointer_radius="10dp"
+            sc:scc_pointer_colors="#3589F6"
+            sc:scc_path_touchable="true"
+            />
 
-    </FrameLayout>
+    </LinearLayout>
 
 </LinearLayout>
 

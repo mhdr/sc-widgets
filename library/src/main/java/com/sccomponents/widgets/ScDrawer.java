@@ -23,7 +23,7 @@ import java.util.List;
  * Define the way to draw a path on a View's canvas
  *
  * @author Samuele Carassai
- * @version 1.0.0
+ * @version 1.0.2
  * @since 2016-05-26
  */
 public abstract class ScDrawer extends ScWidget {
@@ -211,7 +211,7 @@ public abstract class ScDrawer extends ScWidget {
     private RectF getVirtualArea(int width, int height) {
         // Check for empty values
         RectF pathBounds = this.mPathMeasure.getBounds();
-        if (pathBounds == null || pathBounds.isEmpty()) return new RectF();
+        if (pathBounds == null) return new RectF();
 
         // Create the starting area
         RectF area = new RectF(0, 0, width, height);
@@ -222,7 +222,7 @@ public abstract class ScDrawer extends ScWidget {
             area.offset(-pathBounds.left, 0);
 
             // Find the horizontal scale and apply it
-            float xScale = (float) width / pathBounds.width();
+            float xScale = pathBounds.width() == 0.0f ? 0.0f : (float) width / pathBounds.width();
             area.left *= xScale;
             area.right *= xScale;
         }
@@ -233,7 +233,7 @@ public abstract class ScDrawer extends ScWidget {
             area.offset(0, -pathBounds.top);
 
             // Find the vertical scale and apply it
-            float yScale = (float) height / pathBounds.height();
+            float yScale = pathBounds.height() == 0.0f ? 0.0f : (float) height / pathBounds.height();
             area.top *= yScale;
             area.bottom *= yScale;
         }
@@ -250,14 +250,14 @@ public abstract class ScDrawer extends ScWidget {
      */
     private PointF getScale(RectF source, RectF destination) {
         // Check for empty values
-        if (source == null || source.isEmpty() ||
-                destination == null || destination.isEmpty()) return new PointF();
+        if (source == null || destination == null) return new PointF();
 
         // Calculate the scale
-        return new PointF(
-                source.width() / destination.width(),
-                source.height() / destination.height()
-        );
+        float scaleX = destination.width() == 0.0f ? 0.0f : source.width() / destination.width();
+        float scaleY = destination.height() == 0.0f ? 0.0f : source.height() / destination.height();
+
+        // Calculate the scale
+        return new PointF(scaleX, scaleY);
     }
 
     /**
@@ -370,8 +370,7 @@ public abstract class ScDrawer extends ScWidget {
     @Override
     protected void onDraw(Canvas canvas) {
         // Check for empty values
-        if (this.mPath == null ||
-                (this.mDrawArea == null || this.mDrawArea.isEmpty())) return;
+        if (this.mPath == null || this.mDrawArea == null) return;
 
         // Select the drawing mode by the case
         switch (this.mFillingMode) {
@@ -451,8 +450,13 @@ public abstract class ScDrawer extends ScWidget {
 
         // Adjust the point
         // TODO: on stretch wrong the point
-        float x = (event.getX() - this.getPaddingLeft() - this.mVirtualArea.left) / this.mAreaScale.x;
-        float y = (event.getY() - this.getPaddingTop() - this.mVirtualArea.top) / this.mAreaScale.y;
+        float x = 0;
+        float y = 0;
+
+        if (this.mAreaScale.x != 0)
+            x = (event.getX() - this.getPaddingLeft() - this.mVirtualArea.left) / this.mAreaScale.x;
+        if (this.mAreaScale.y != 0)
+            y = (event.getY() - this.getPaddingTop() - this.mVirtualArea.top) / this.mAreaScale.y;
 
         // Get the nearest point on the path from the touch of the user and calculate the distance
         // from the path start. Note that if the path is already pressed the threshold will be
