@@ -32,7 +32,7 @@ Values over the limits will be normalized to the limit.
 ####### XML using
 
 ```xml
-    <com.sccomponents.widgets.ScArc
+    <com.sccomponents.widgets.ScArcGauge
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:padding="10dp"

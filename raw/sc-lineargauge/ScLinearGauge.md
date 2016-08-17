@@ -32,7 +32,7 @@ The bottom bounds in percentage.
 ---
 ####### XML using
 ```xml
-    <com.sccomponents.widgets.ScArc
+    <com.sccomponents.widgets.ScLinearGauge
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:padding="10dp"
@@ -44,8 +44,10 @@ The bottom bounds in percentage.
 ```xml
     <declare-styleable name="ScComponents">
         ...
-        <attr name="scc_angle_start" format="float" />
-        <attr name="scc_angle_sweep" format="float" />
+        <attr name="scc_left" format="float" />
+        <attr name="scc_top" format="float" />
+        <attr name="scc_right" format="float" />
+        <attr name="scc_bottom" format="float" />
     </declare-styleable>
 ```
 
