@@ -153,6 +153,10 @@ Return the low pointer visibility.
 - **get/setPointerHighVisibility**  -> `float` value, default `true`<br />
 Return the high pointer visibility.
 
+- **get/setRoundedLine(boolean value)**  -> `boolean` value, default `false`<br />
+Set if the line style cap is set on rounded or not.<br />
+Please note than once set all the features, old and new, will be with this property settle by the passed value.
+
 <br />
 <br />
 
@@ -176,9 +180,6 @@ If the method set the bitmap inside the info object the default drawing will be 
 - **onBeforeDrawToken(ScWriter.TokenInfo info)**<br />
 Called before draw the single text token.
 
-- **setRoundedLine(boolean value)**<br />
-Set if the line style cap is set on rounded or not.<br />
-Please note than once set all the features, old and new, will be with this property settle by the passed value.
 <br />
 <br />
 
