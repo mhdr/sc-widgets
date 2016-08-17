@@ -81,8 +81,8 @@ Put the component inside a RelativeLayout, give an alignment and the panel slide
 
 # Some examples from **[ScLinearGauge](raw/sc-lineargauge/ScLinearGauge.md)**
 
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/f-01.jpg" height="120px" />
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/f-02.jpg" height="120px" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/f-01.jpg" width="300px" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/f-02.jpg" width="300px" />
 <br />
 
 
