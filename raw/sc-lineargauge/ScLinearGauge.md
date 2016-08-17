@@ -53,8 +53,8 @@ The bottom bounds in percentage.
 ---
 ####### Let's play
 
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/1.jpg" align="right" />
 - **Basic**
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/1.jpg" align="right" />
 ```xml
     <com.sccomponents.widgets.ScLinearGauge
         android:layout_width="300dp"
@@ -63,8 +63,8 @@ The bottom bounds in percentage.
         android:background="#f5f5f5"/>
 ```
 
-<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/2.jpg" align="right" />
 - **All feature in basic mode**
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/2.jpg" align="right" />
 ```xml
     <com.sccomponents.widgets.ScLinearGauge
         android:layout_width="300dp"

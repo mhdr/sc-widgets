@@ -79,6 +79,13 @@ Put the component inside a RelativeLayout, give an alignment and the panel slide
 <br />
 
 
+# Some examples from **[ScLinearGauge](raw/sc-lineargauge/ScLinearGauge.md)**
+
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/f-01.jpg" height="120px" />
+<img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/f-02.jpg" height="120px" />
+<br />
+
+
 # The idea
 
 The idea was to create a base (solid) class that help the user to design more quickly every type of gauges.
