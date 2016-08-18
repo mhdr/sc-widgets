@@ -12,7 +12,7 @@ import com.sccomponents.utils.ScPathMeasure;
  * Create a series of notches that follow a path
  *
  * @author Samuele Carassai
- * @version 2.0.0
+ * @version 2.0.1
  * @since 2016-05-30
  */
 public class ScNotches extends ScFeature {
@@ -215,7 +215,8 @@ public class ScNotches extends ScFeature {
             info.contour = contour;
             info.index = index;
             info.distance = distance;
-            info.visible = info.distance >= startLimit && info.distance <= endLimit;
+            info.visible = (this.mStartPercentage == 0.0f || info.distance >= startLimit) &&
+                    (this.mEndPercentage == 100.0f || info.distance <= endLimit);
             info.color = this.getGradientColor(distance, measure.getLength());
 
             // Check if the point exists

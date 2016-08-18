@@ -91,6 +91,8 @@ Press on the picture linked below to see the demonstration.
 
 [![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/f-01.jpg)](flat.md)
 [![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/f-02.jpg)](flat.md)
+[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/n-01.jpg)](flat.md)
+[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/n-02.jpg)](flat.md)
 
 <br />
 <br />

@@ -106,6 +106,166 @@ So this example as been only a demonstration of the most used configurations.
         }
     });
 ```
+
+---
+####### Example 3
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/n-02.jpg"> 
+```xml
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="300dp"
+        android:background="#f5f5f5"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <com.sccomponents.widgets.ScLinearGauge xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/line"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingBottom="10dp"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:paddingTop="10dp"
+            sc:scc_bottom="0"
+            sc:scc_left="0"
+            sc:scc_right="0"
+            sc:scc_stroke_size="10dp"
+            sc:scc_stroke_color="#dcdcdc"
+            sc:scc_progress_size="10dp"
+            sc:scc_progress_colors="#67ce5c|#E23D3D"
+            sc:scc_top="100" />
+
+    </LinearLayout>
+```
+
+```java
+    // Find the components
+    final ScLinearGauge gauge = (ScLinearGauge) this.findViewById(R.id.line);
+    assert gauge != null;
+
+    // Remove all features
+    gauge.removeAllFeatures();
+
+    // Take in mind that when you tagged a feature after this feature inherit the principal
+    // characteristic of the identifier.
+    // For example in the case of the BASE_IDENTIFIER the feature notches (always) will be
+    // settle as the color and stroke size settle for the base (in xml or via code).
+
+    // Create the base notches.
+    ScNotches base = (ScNotches) gauge.addFeature(ScNotches.class);
+    base.setTag(ScGauge.BASE_IDENTIFIER);
+    base.setCount(20);
+    base.setLength(gauge.dipToPixel(18));
+
+    // Note that I will create two progress because to one will add the blur and to the other
+    // will be add the emboss effect.
+
+    // Create the progress notches.
+    ScNotches progressBlur = (ScNotches) gauge.addFeature(ScNotches.class);
+    progressBlur.setTag(ScGauge.PROGRESS_IDENTIFIER);
+    progressBlur.setCount(20);
+    progressBlur.setLength(gauge.dipToPixel(18));
+
+    // Create the progress notches.
+    ScNotches progressEmboss = (ScNotches) gauge.addFeature(ScNotches.class);
+    progressEmboss.setTag(ScGauge.PROGRESS_IDENTIFIER);
+    progressEmboss.setCount(20);
+    progressEmboss.setLength(gauge.dipToPixel(18));
+
+    // Blur filter
+    BlurMaskFilter blur = new BlurMaskFilter(5.0f, BlurMaskFilter.Blur.SOLID);
+    progressBlur.getPainter().setMaskFilter(blur);
+
+    // Emboss filter
+    EmbossMaskFilter emboss = new EmbossMaskFilter(new float[]{0.0f, 1.0f, 0.5f}, 0.8f, 3.0f, 0.5f);
+    progressEmboss.getPainter().setMaskFilter(emboss);
+
+    // Set the value
+    gauge.setHighValue(75);
+```
+
+
+---
+####### Example 4
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/n-01.jpg"> 
+```xml
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="300dp"
+        android:background="#ECECEA"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <com.sccomponents.widgets.ScLinearGauge xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/line"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingBottom="10dp"
+            android:paddingLeft="50dp"
+            android:paddingRight="20dp"
+            android:paddingTop="10dp"
+            sc:scc_bottom="0"
+            sc:scc_left="0"
+            sc:scc_notches="8"
+            sc:scc_notches_color="#313131"
+            sc:scc_progress_colors="#3589F6"
+            sc:scc_progress_size="6dp"
+            sc:scc_right="0"
+            sc:scc_stroke_size="0dp"
+            sc:scc_text_align="left"
+            sc:scc_text_position="outside"
+            sc:scc_text_tokens="0|50|100"
+            sc:scc_text_unbend="true"
+            sc:scc_top="100" />
+
+    </LinearLayout>
+```
+
+```java
+    // Find the components
+    final ScLinearGauge gauge = (ScLinearGauge) this.findViewById(R.id.line);
+    assert gauge != null;
+
+    // Set the last token on the end of path
+    final ScWriter writer = (ScWriter) gauge.findFeature(ScGauge.WRITER_IDENTIFIER);
+    writer.setLastTokenOnEnd(true);
+    
+    // Set the value
+    gauge.setHighValue(25);
+
+    // Before draw
+    gauge.setOnDrawListener(new ScGauge.OnDrawListener() {
+        @Override
+        public void onBeforeDrawCopy(ScCopier.CopyInfo info) {
+            // NOP
+        }
+
+        @Override
+        public void onBeforeDrawNotch(ScNotches.NotchInfo info) {
+            // The notch length
+            info.length = gauge.dipToPixel(info.index % 4 == 0 ? 20 : 10);
+        }
+
+        @Override
+        public void onBeforeDrawPointer(ScPointer.PointerInfo info) {
+            // NOP
+        }
+
+        @Override
+        public void onBeforeDrawToken(ScWriter.TokenInfo info) {
+            // Get the text bounds
+            Rect bounds = new Rect();
+            info.source.getPainter().getTextBounds(info.text, 0, info.text.length(), bounds);
+
+            // Zero angle
+            info.angle = 0.0f;
+            info.offset.x = -50 - bounds.width();
+            info.offset.y = bounds.height() / 2;
+        }
+    });
+```
 <br />
 <br />
 

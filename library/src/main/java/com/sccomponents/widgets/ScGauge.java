@@ -528,7 +528,6 @@ public abstract class ScGauge extends ScDrawer implements
         ValueAnimator animator = treatLowValue ? this.mLowValueAnimator : this.mHighValueAnimator;
 
         // Limits
-        // TODO: not work for inverted values (example negative sweep angle)
         if (treatLowValue && value > this.mHighValue) value = this.mHighValue;
         if (!treatLowValue && value < this.mLowValue) value = this.mLowValue;
 

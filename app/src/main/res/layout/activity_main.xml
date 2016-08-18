@@ -10,36 +10,33 @@
     android:weightSum="1">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="300dp"
         android:background="#ECECEA"
-        android:padding="10dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="10dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/counter"
-            android:textColor="#5B5B5A"
-            android:textSize="24dp" />
-
-        <com.sccomponents.widgets.ScLinearGauge
-            xmlns:sc="http://schemas.android.com/apk/res-auto"
+        <com.sccomponents.widgets.ScLinearGauge xmlns:sc="http://schemas.android.com/apk/res-auto"
             android:id="@+id/line"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="20dp"
-            android:paddingTop="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingBottom="10dp"
+            android:paddingLeft="50dp"
+            android:paddingRight="20dp"
+            android:paddingTop="10dp"
             sc:scc_bottom="0"
+            sc:scc_left="0"
+            sc:scc_notches="8"
+            sc:scc_notches_color="#313131"
             sc:scc_progress_colors="#3589F6"
             sc:scc_progress_size="6dp"
-            sc:scc_stroke_color="#ABCDED"
-            sc:scc_stroke_size="6dp"
-            sc:scc_top="0"
-            sc:scc_pointer_radius="10dp"
-            sc:scc_pointer_colors="#3589F6"
-            sc:scc_path_touchable="true"
-            />
+            sc:scc_right="0"
+            sc:scc_stroke_size="0dp"
+            sc:scc_text_align="left"
+            sc:scc_text_position="outside"
+            sc:scc_text_tokens="0|50|100"
+            sc:scc_text_unbend="true"
+            sc:scc_top="100" />
 
     </LinearLayout>
 

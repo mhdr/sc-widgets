@@ -2,6 +2,7 @@ package com.sccomponents.widgets.demo;
 
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
@@ -13,6 +14,7 @@ import com.sccomponents.widgets.ScGauge;
 import com.sccomponents.widgets.ScLinearGauge;
 import com.sccomponents.widgets.ScNotches;
 import com.sccomponents.widgets.ScPointer;
+import com.sccomponents.widgets.ScWidget;
 import com.sccomponents.widgets.ScWriter;
 
 
@@ -28,20 +30,43 @@ public class MainActivity extends AppCompatActivity {
         final ScLinearGauge gauge = (ScLinearGauge) this.findViewById(R.id.line);
         assert gauge != null;
 
-        final TextView counter = (TextView) this.findViewById(R.id.counter);
-        assert counter != null;
+        // Set the last token on the end of path
+        final ScWriter writer = (ScWriter) gauge.findFeature(ScGauge.WRITER_IDENTIFIER);
+        writer.setLastTokenOnEnd(true);
 
         // Set the value
-        gauge.setHighValue(75);
+        gauge.setHighValue(25);
 
-        // Each time I will change the value I must write it inside the counter text.
-        gauge.setOnEventListener(new ScGauge.OnEventListener() {
+        // Before draw
+        gauge.setOnDrawListener(new ScGauge.OnDrawListener() {
             @Override
-            public void onValueChange(float lowValue, float highValue) {
-                counter.setText("Value: " + (int) highValue + "%");
+            public void onBeforeDrawCopy(ScCopier.CopyInfo info) {
+                // NOP
+            }
+
+            @Override
+            public void onBeforeDrawNotch(ScNotches.NotchInfo info) {
+                // The notch length
+                info.length = gauge.dipToPixel(info.index % 4 == 0 ? 20 : 10);
+            }
+
+            @Override
+            public void onBeforeDrawPointer(ScPointer.PointerInfo info) {
+                // NOP
+            }
+
+            @Override
+            public void onBeforeDrawToken(ScWriter.TokenInfo info) {
+                // Get the text bounds
+                Rect bounds = new Rect();
+                info.source.getPainter().getTextBounds(info.text, 0, info.text.length(), bounds);
+
+                // Zero angle
+                info.angle = 0.0f;
+                info.offset.x = -50 - bounds.width();
+                info.offset.y = bounds.height() / 2;
             }
         });
-
     }
 
 }

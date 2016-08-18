@@ -13,7 +13,7 @@ import com.sccomponents.utils.ScPathMeasure;
  * Write some token texts on the linked path.
  *
  * @author Samuele Carassai
- * @version 1.0.0
+ * @version 1.0.1
  * @since 2016-05-26
  */
 public class ScWriter extends ScFeature {
@@ -267,7 +267,7 @@ public class ScWriter extends ScFeature {
         this.mPaintClone.setColor(info.color);
 
         // Draw by the case
-        if (this.mUnbend) {
+        if (info.unbend) {
             // Unbend
             this.drawUnbend(canvas, info, (float) Math.toDegrees(point[3]));
 
