@@ -94,10 +94,13 @@ Put the component inside a RelativeLayout, give an alignment and the panel slide
 # The idea
 
 The idea was to create a base (solid) class that help the user to design more quickly every type of gauges.
-Now the base is, still raw and improvable, for this every "fork" or help it is welcome.
+Now the base is, still raw and improvable, for this every **fork** or help is welcome.
 
-The road-map now is to create a specialized class for draw linear gauges (ScLineGauge) and some examples.
-After do that I would like to create a series of preset classes that can be used without write "code" but always but still offering to the advanced users to go deep in the code.
+I would like to have some help to produce some examples of vary design of gauges, using the existing ScArcGauge and ScLinearGauge, or creating new classes specialized.
+If you start to use this framework you will note that the possibility is very infinite and can be funny to create and publishing new gauge design.
+If we can increase the number of the example the final users could be use it without the effort to create it from zero and customizing the example by the case.
+
+**Every suggestions are welcome.**
 <br />
 <br />
 
