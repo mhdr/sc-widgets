@@ -3,7 +3,7 @@ This class is a specialized to create a linear gauge.
 
 The line coordinates start (left, top) and end (right, bottom) is always intended as percentage of the container. 
 By default start is (0%, 0%) and end (100%, 100%).
-Values major of 0% will be normalized to 0% and the same for value major of 100% will be normalized to 100%.
+Values minor of 0% will be normalized to 0% and the same for value major of 100% will be normalized to 100%.
 
 Please consider that one horizontal line in a path have height equal to 0, same for the vertical.
 So if you using the `wrap_content` layout mode you will see the line only playing with the padding.
