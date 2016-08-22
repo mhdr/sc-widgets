@@ -61,11 +61,6 @@ Given a percentage return back the relative distance from the path start.
 Set the drawing limits (in percentage).<br />
 The assignment will do only if the values is different from infinity.
 
-- **int getGradientColor(float distance)**<br />
-Get the current gradient color by a ratio dependently about the distance from the starting of path, the colors array and the mode to draw.<br />
-The algorithm to calculate the color will vary by the current `ColorsMode` setting.
-If the colors are not defined will be returned the current color of painter.
-
 - **PointF getPoint(float distance)**<br />
 Return a point on path given the distance from the path start.
 
@@ -75,6 +70,7 @@ Get the angle in degrees of the tangent to a point on the path given the distanc
 - **int getGradientColor(float distance, float length)**<br />
 **int getGradientColor(float distance)**<br />
 Get the current gradient color by a ratio dependently about the distance from the starting of path, the colors array and the mode to draw.
+The algorithm to calculate the color will vary by the current `ColorsMode` setting.
 If the colors are not defined will be returned the current color of painter.
 <br />
 <br />
