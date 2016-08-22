@@ -12,6 +12,9 @@ This class inherit all its properties from the [ScFeature](../sc-feature/ScFeatu
 
 #### Public methods
 
+- **float getDistance()**<br />
+Get the distance of the pointer from the start of path.
+
 - **void setOnDrawListener(OnDrawListener listener)**<br />
 Link the listener.
 <br />

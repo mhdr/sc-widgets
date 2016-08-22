@@ -23,7 +23,7 @@ import java.util.List;
  * Define the way to draw a path on a View's canvas
  *
  * @author Samuele Carassai
- * @version 1.0.2
+ * @version 1.0.3
  * @since 2016-05-26
  */
 public abstract class ScDrawer extends ScWidget {
@@ -317,7 +317,9 @@ public abstract class ScDrawer extends ScWidget {
      * @param yOffset the vertical offset
      */
     private void setForDraw(Canvas canvas, float xOffset, float yOffset) {
-        // Scale and move the path
+        // Create a copy of the original path because need to move the offset or scale the
+        // path and not want lost the original one values.
+        this.mCopyPath.set(this.mPath);
         this.scalePath(this.mCopyPath, this.mAreaScale.x, this.mAreaScale.y);
         this.mCopyPath.offset(
                 xOffset + this.getPaddingLeft(),
@@ -341,7 +343,9 @@ public abstract class ScDrawer extends ScWidget {
         canvas.translate(this.getPaddingLeft(), this.getPaddingTop());
         canvas.scale(this.mAreaScale.x, this.mAreaScale.y);
 
-        // Translate the path
+        // Create a copy of the original path because need to move the offset or scale the
+        // path and not want lost the original one values.
+        this.mCopyPath.set(this.mPath);
         this.mCopyPath.offset(
                 -this.mPathMeasure.getBounds().left,
                 -this.mPathMeasure.getBounds().top
@@ -406,9 +410,7 @@ public abstract class ScDrawer extends ScWidget {
         this.mPath = this.createPath(width - widthGlobalPadding, height - heightGlobalPadding);
         this.mPathMeasure.setPath(this.mPath, false);
 
-        // Create a copy of the original path.
-        // I need to move the offset or scale the path and not want lost the original one values.
-        this.mCopyPath.set(this.mPath);
+        // The path could be changed so I must force the feattures to refresh the path info.
         this.mFeaturesMustBeRefresh = true;
 
         // If have some dimension to wrap will use the path boundaries for have the right

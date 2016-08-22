@@ -37,12 +37,10 @@ So this example as been only a demonstration of the most used configurations.
             android:layout_height="wrap_content"
             android:paddingBottom="10dp"
             android:paddingTop="10dp"
-            sc:scc_bottom="0"
             sc:scc_progress_colors="#3589F6"
             sc:scc_progress_size="6dp"
             sc:scc_stroke_color="#ABCDED"
             sc:scc_stroke_size="6dp"
-            sc:scc_top="0"
             sc:scc_value="75" />
 
     </LinearLayout>
@@ -74,12 +72,10 @@ So this example as been only a demonstration of the most used configurations.
             android:layout_height="wrap_content"
             android:paddingBottom="20dp"
             android:paddingTop="20dp"
-            sc:scc_bottom="0"
             sc:scc_progress_colors="#3589F6"
             sc:scc_progress_size="6dp"
             sc:scc_stroke_color="#ABCDED"
             sc:scc_stroke_size="6dp"
-            sc:scc_top="0"
             sc:scc_pointer_radius="10dp"
             sc:scc_pointer_colors="#3589F6"
             sc:scc_path_touchable="true" />
@@ -127,14 +123,11 @@ So this example as been only a demonstration of the most used configurations.
             android:paddingLeft="30dp"
             android:paddingRight="30dp"
             android:paddingTop="10dp"
-            sc:scc_bottom="0"
-            sc:scc_left="0"
-            sc:scc_right="0"
+            sc:scc_orientation="vertical"
             sc:scc_stroke_size="10dp"
             sc:scc_stroke_color="#dcdcdc"
             sc:scc_progress_size="10dp"
-            sc:scc_progress_colors="#67ce5c|#E23D3D"
-            sc:scc_top="100" />
+            sc:scc_progress_colors="#67ce5c|#E23D3D" />
 
     </LinearLayout>
 ```
@@ -206,19 +199,16 @@ So this example as been only a demonstration of the most used configurations.
             android:paddingLeft="50dp"
             android:paddingRight="20dp"
             android:paddingTop="10dp"
-            sc:scc_bottom="0"
-            sc:scc_left="0"
+            sc:scc_orientation="vertical"
             sc:scc_notches="8"
             sc:scc_notches_color="#313131"
             sc:scc_progress_colors="#3589F6"
             sc:scc_progress_size="6dp"
-            sc:scc_right="0"
             sc:scc_stroke_size="0dp"
             sc:scc_text_align="left"
             sc:scc_text_position="outside"
             sc:scc_text_tokens="0|50|100"
-            sc:scc_text_unbend="true"
-            sc:scc_top="100" />
+            sc:scc_text_unbend="true" />
 
     </LinearLayout>
 ```
@@ -263,6 +253,95 @@ So this example as been only a demonstration of the most used configurations.
             info.angle = 0.0f;
             info.offset.x = -50 - bounds.width();
             info.offset.y = bounds.height() / 2;
+        }
+    });
+```
+
+---
+####### Example 5
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/n-03.jpg"> 
+```xml
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="300dp"
+        android:background="#ECECEA"
+        android:padding="10dp">
+
+        <com.sccomponents.widgets.ScLinearGauge xmlns:sc="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/line"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingBottom="20dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="50dp"
+            android:paddingTop="20dp"
+            sc:scc_notches="300"
+            sc:scc_notches_colors="#67ce5c|#f2f200|#e23d3d"
+            sc:scc_notches_length="10dp"
+            sc:scc_notches_position="inside"
+            sc:scc_notches_size="2dp"
+            sc:scc_orientation="vertical"
+            sc:scc_text_tokens="100%"
+            sc:scc_text_unbend="true"
+            sc:scc_text_align="left"
+            sc:scc_path_touchable="true" />
+
+    </FrameLayout>
+```
+
+```java
+    // Find the components
+    final ScLinearGauge gauge = (ScLinearGauge) this.findViewById(R.id.line);
+    assert gauge != null;
+
+    // Create a drawable
+    final Bitmap indicator = BitmapFactory.decodeResource(this.getResources(), R.drawable.indicator);
+
+    // Set the values.
+    gauge.setHighValue(75);
+    gauge.setPathTouchThreshold(40);
+
+    // Event
+    gauge.setOnDrawListener(new ScGauge.OnDrawListener() {
+        @Override
+        public void onBeforeDrawCopy(ScCopier.CopyInfo info) {
+            // NOP
+        }
+
+        @Override
+        public void onBeforeDrawNotch(ScNotches.NotchInfo info) {
+            // Calculate the length
+            float min = 10.0f;
+            float max = 40.0f;
+            float current = min + (max - min) * (info.index / (float) gauge.getNotches());
+
+            // Apply
+            info.length = gauge.dipToPixel(current);
+        }
+
+        @Override
+        public void onBeforeDrawPointer(ScPointer.PointerInfo info) {
+            // Check if the pointer if the high pointer
+            if (info.source.getTag() == ScGauge.HIGH_POINTER_IDENTIFIER) {
+                // Adjust the offset
+                info.offset.x = -indicator.getWidth() / 2;
+                info.offset.y = -indicator.getHeight() / 2 - gauge.getStrokeSize();
+                // Assign the bitmap to the pointer info structure
+                info.bitmap = indicator;
+            }
+        }
+
+        @Override
+        public void onBeforeDrawToken(ScWriter.TokenInfo info) {
+            // Set angle and text
+            info.angle = 0.0f;
+            info.text = Math.round(gauge.getHighValue()) + "%";
+
+            // Set the position
+            float distance = info.source.getDistance(gauge.getHighValue());
+            info.offset.x = 20;
+            info.offset.y = -distance + 20;
         }
     });
 ```

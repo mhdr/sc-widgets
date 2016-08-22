@@ -2,11 +2,11 @@
 This class is a specialized to create a linear gauge.
 
 The line coordinates start (left, top) and end (right, bottom) is always intended as percentage of the container. 
-By default start is (0%, 0%) and end (100%, 100%).
+By default the orientation is horizontal: start (0%, 0%) and end (100%, 0%).
 Values major of 0% will be normalized to 0% and the same for value major of 100% will be normalized to 100%.
 
 Please consider that one horizontal line in a path have height equal to 0, same for the vertical.
-So if you using the `wrap_content` layout mode you will see the line only playing with the padding.
+So if you using the `wrap_content` layout mode you will see the line only playing with the padding management.
 
 This class extend the [ScGauge](../sc-gauge/ScGauge.md) class.<br />
 This class inherit all its properties from the [ScGauge](../sc-feature/ScGauge.md) so please take a look to the related documentation.
@@ -18,14 +18,20 @@ This class inherit all its properties from the [ScGauge](../sc-feature/ScGauge.m
 - **get/getLeftBounds**  -> `float` value, default `0`<br />
 The left bounds in percentage.
 
-- **get/getTopBounds**  -> `float` value, default `100`<br />
+- **get/getTopBounds**  -> `float` value, default `0`<br />
 The top bounds in percentage.
 
-- **get/getRightBounds**  -> `float` value, default `0`<br />
+- **get/getRightBounds**  -> `float` value, default `100`<br />
 The right bounds in percentage.
 
-- **get/getBottomBounds**  -> `float` value, default `100`<br />
+- **get/getBottomBounds**  -> `float` value, default `0`<br />
 The bottom bounds in percentage.
+
+- **get/setOrientation**  -> `Orientation` value, default `HORIZONTAL`<br />
+Set the current orientation.<br />
+Set the value to "horizontal" it the same to set top and bottom at the same value.<br />
+Set the value to "vertical" it the same to set left and right at the same value.<br />
+Set the value to "custom" no have visible effect.<br />
 <br />
 <br />
 
@@ -62,7 +68,12 @@ The bottom bounds in percentage.
         android:layout_width="300dp"
         android:layout_height="300dp"
         android:padding="10dp"
-        android:background="#f5f5f5"/>
+        android:background="#f5f5f5" 
+        sc:scc_left="0" 
+        sc:scc_top="0" 
+        sc:scc_right="100" 
+        sc:scc_bottom="100" 
+        />
 ```
 
 - **All feature in basic mode**
@@ -73,6 +84,10 @@ The bottom bounds in percentage.
         android:layout_height="300dp"
         android:padding="30dp"
         android:background="#f5f5f5"
+        sc:scc_left="0" 
+        sc:scc_top="0" 
+        sc:scc_right="100" 
+        sc:scc_bottom="100" 
         sc:scc_stroke_size="6dp"
         sc:scc_progress_size="4dp"
         sc:scc_value="45"
@@ -93,6 +108,7 @@ Press on the picture linked below to see the demonstration.
 [![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/f-02.jpg)](flat.md)
 [![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/n-01.jpg)](flat.md)
 [![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/n-02.jpg)](flat.md)
+[![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/n-03.jpg)](flat.md)
 
 <br />
 <br />

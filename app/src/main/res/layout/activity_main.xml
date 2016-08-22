@@ -9,36 +9,32 @@
     android:padding="10dp"
     android:weightSum="1">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="300dp"
         android:background="#ECECEA"
-        android:orientation="vertical"
         android:padding="10dp">
 
         <com.sccomponents.widgets.ScLinearGauge xmlns:sc="http://schemas.android.com/apk/res-auto"
             android:id="@+id/line"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:paddingBottom="10dp"
-            android:paddingLeft="50dp"
-            android:paddingRight="20dp"
-            android:paddingTop="10dp"
-            sc:scc_bottom="0"
-            sc:scc_left="0"
-            sc:scc_notches="8"
-            sc:scc_notches_color="#313131"
-            sc:scc_progress_colors="#3589F6"
-            sc:scc_progress_size="6dp"
-            sc:scc_right="0"
-            sc:scc_stroke_size="0dp"
-            sc:scc_text_align="left"
-            sc:scc_text_position="outside"
-            sc:scc_text_tokens="0|50|100"
+            android:paddingBottom="20dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="50dp"
+            android:paddingTop="20dp"
+            sc:scc_notches="300"
+            sc:scc_notches_colors="#67ce5c|#f2f200|#e23d3d"
+            sc:scc_notches_length="10dp"
+            sc:scc_notches_position="inside"
+            sc:scc_notches_size="2dp"
+            sc:scc_orientation="vertical"
+            sc:scc_text_tokens="100%"
             sc:scc_text_unbend="true"
-            sc:scc_top="100" />
+            sc:scc_text_align="left"
+            sc:scc_path_touchable="true" />
 
-    </LinearLayout>
+    </FrameLayout>
 
 </LinearLayout>
 

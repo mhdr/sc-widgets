@@ -12,10 +12,25 @@ import android.util.AttributeSet;
  * Draw a line
  *
  * @author Samuele Carassai
- * @version 1.0.0
+ * @version 1.1.0
  * @since 2016-08-16
  */
 public class ScLinearGauge extends ScGauge {
+
+    /****************************************************************************************
+     * Enumerators
+     */
+
+    /**
+     * The mode to building the painter shader.
+     */
+    @SuppressWarnings("unuse")
+    public enum Orientation {
+        CUSTOM,
+        HORIZONTAL,
+        VERTICAL
+    }
+
 
     /****************************************************************************************
      * Private attributes
@@ -49,6 +64,22 @@ public class ScLinearGauge extends ScGauge {
      */
 
     /**
+     * Reflect the current orientation on the path bounds limit.
+     */
+    private void internalSetOrientation(Orientation orientation) {
+        // Check the case
+        switch (orientation) {
+            case HORIZONTAL:
+                this.mBounds = new RectF(0.0f, 0.0f, 100.0f, 0.0f);
+                break;
+
+            case VERTICAL:
+                this.mBounds = new RectF(0.0f, 100.0f, 0.0f, 0.0f);
+                break;
+        }
+    }
+
+    /**
      * Init the component.
      * Retrieve all attributes with the default values if needed.
      * Check the values for internal use and create the painters.
@@ -69,7 +100,7 @@ public class ScLinearGauge extends ScGauge {
         float left = attrArray.getFloat(R.styleable.ScComponents_scc_left, 0.0f);
         float top = attrArray.getFloat(R.styleable.ScComponents_scc_top, 0.0f);
         float right = attrArray.getFloat(R.styleable.ScComponents_scc_right, 100.0f);
-        float bottom = attrArray.getFloat(R.styleable.ScComponents_scc_bottom, 100.0f);
+        float bottom = attrArray.getFloat(R.styleable.ScComponents_scc_bottom, 0.0f);
 
         // Check the value
         left = ScWidget.valueRangeLimit(left, 0.0f, 100.0f);
@@ -79,6 +110,11 @@ public class ScLinearGauge extends ScGauge {
 
         // Create the boundaries in percentage
         this.mBounds = new RectF(left, top, right, bottom);
+
+        // Predefined orientation
+        int orientation = attrArray.getInt(
+                R.styleable.ScComponents_scc_orientation, Orientation.CUSTOM.ordinal());
+        this.internalSetOrientation(Orientation.values()[orientation]);
 
         // Recycle
         attrArray.recycle();
@@ -98,10 +134,10 @@ public class ScLinearGauge extends ScGauge {
     @Override
     protected Path createPath(int width, int height) {
         // Calculate the left, top and right, bottom location by percentage
-        float left = (this.mBounds.left / 100) * width;
-        float top = (this.mBounds.top / 100) * height;
-        float right = (this.mBounds.right / 100) * width;
-        float bottom = (this.mBounds.bottom / 100) * height;
+        float left = (this.mBounds.left / 100.0f) * (float) width;
+        float top = (this.mBounds.top / 100.0f) * (float) height;
+        float right = (this.mBounds.right / 100.0f) * (float) width;
+        float bottom = (this.mBounds.bottom / 100.0f) * (float) height;
 
         // Create the path
         Path path = new Path();
@@ -274,6 +310,39 @@ public class ScLinearGauge extends ScGauge {
         if (this.mBounds.bottom != value) {
             // Store the new value
             this.mBounds.bottom = value;
+            this.requestLayout();
+        }
+    }
+
+    /**
+     * Return the current orientation
+     *
+     * @return the orientation
+     */
+    @SuppressWarnings("unused")
+    public Orientation getOrientation() {
+        // Check for horizontal
+        if (this.mBounds.top == this.mBounds.bottom) return Orientation.HORIZONTAL;
+        // Check for vertical
+        if (this.mBounds.left == this.mBounds.right) return Orientation.VERTICAL;
+        // Custom
+        return Orientation.CUSTOM;
+    }
+
+    /**
+     * Set the current orientation.
+     * Set the value to "horizontal" it the same to set top and bottom at the same value.
+     * Set the value to "vertical" it the same to set left and right at the same value.
+     * Set the value to "custom" no have visible effect.
+     *
+     * @param value of the bottom bounds in percentage
+     */
+    @SuppressWarnings("unused")
+    public void setOrientation(Orientation value) {
+        // Check if value is changed
+        if (this.getOrientation() != value) {
+            // Store the new value
+            this.internalSetOrientation(value);
             this.requestLayout();
         }
     }

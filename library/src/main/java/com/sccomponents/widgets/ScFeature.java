@@ -10,13 +10,13 @@ import com.sccomponents.utils.ScPathMeasure;
 
 /**
  * Create a feature to draw on a given path.
- * <p/>
+ * <p>
  * The feature is independent and can be used with any path.
  * Is enough to instantiate it passing the path object and call the draw function passing the
  * canvas where draw.
  * The original design of this class was for link it with the ScDrawer to have a base drawer (the
  * ScDrawer linked) and many features applicable to it.
- * <p/>
+ * <p>
  * The "feature" base class essentially do nothing.
  * For draw something, hence for specialize the feature, you need to override the onDraw method.
  * The base class provides only a common set of methods to display something on the path as the
@@ -24,7 +24,7 @@ import com.sccomponents.utils.ScPathMeasure;
  * class.
  *
  * @author Samuele Carassai
- * @version 1.0.0
+ * @version 1.0.1
  * @since 2016-05-26
  */
 public class ScFeature {
@@ -204,6 +204,21 @@ public class ScFeature {
     }
 
     /**
+     * Given a percentage return back the relative distance from the path start.
+     *
+     * @param percentage the percentage
+     * @return the distance
+     */
+    @SuppressWarnings("unused")
+    public float getDistance(float percentage) {
+        // Check percentage
+        if (percentage > 100.0f) percentage = 100.0f;
+        if (percentage < 0.0f) percentage = 0.0f;
+        // Return
+        return this.mPathMeasure.getLength() * percentage / 100.0f;
+    }
+
+    /**
      * Get the angle in degrees of the tangent to a point on the path given the distance from
      * the start of path.
      *
@@ -300,6 +315,7 @@ public class ScFeature {
     public int getGradientColor(float distance) {
         return this.getGradientColor(distance, this.mPathLength);
     }
+
 
     /****************************************************************************************
      * Public properties

@@ -54,6 +54,9 @@ Move the pointer on the tangent defined by the angle.
 Translate a point considering the angle (in degrees) and the offset (x, y).<br />
 Move the pointer on the tangent defined by the angle by the x value and move the pointer on the perpendicular defined by the angle by the y value.
 
+- **float getDistance(float percentage)**<br />
+Given a percentage return back the relative distance from the path start.
+
 - **void setLimits(float start, float end)**<br />
 Set the drawing limits (in percentage).<br />
 The assignment will do only if the values is different from infinity.

@@ -54,6 +54,7 @@
         <attr name="scc_bottom" format="float" />
         <attr name="scc_right" format="float" />
         <attr name="scc_rounded_line" format="boolean" />
+        <attr name="scc_orientation" />
     </declare-styleable>
 
     <attr name="scc_fill_area" format="enum">
@@ -109,6 +110,12 @@
         <enum name="left" value="0"/>
         <enum name="center" value="1"/>
         <enum name="right" value="2"/>
+    </attr>
+
+    <attr name="scc_orientation" format="enum">
+        <enum name="custom" value="0" />
+        <enum name="horizontal" value="1" />
+        <enum name="vertical" value="2" />
     </attr>
 
 </resources>

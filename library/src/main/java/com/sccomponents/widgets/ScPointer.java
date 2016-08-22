@@ -203,6 +203,22 @@ public class ScPointer extends ScFeature {
 
 
     /****************************************************************************************
+     * Public methods
+     */
+
+    /**
+     * Get the distance of the pointer from the start of path.
+     *
+     * @return the distance
+     */
+    @SuppressWarnings("unused")
+    public float getDistance() {
+        float distance = (this.mPathLength * this.mPointerPosition) / 100;
+        return ScWidget.valueRangeLimit(distance, 0.0f, this.mPathLength);
+    }
+
+
+    /****************************************************************************************
      * Public properties
      */
 
