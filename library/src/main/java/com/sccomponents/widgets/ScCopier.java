@@ -1,6 +1,5 @@
 package com.sccomponents.widgets;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
@@ -182,7 +181,6 @@ public class ScCopier extends ScFeature {
      *
      * @param canvas where draw
      */
-    @SuppressLint("DrawAllocation")
     @Override
     protected void onDraw(Canvas canvas) {
         //Check the domain

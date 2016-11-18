@@ -592,6 +592,7 @@ public abstract class ScGauge extends ScDrawer implements
         // If here mean that the pointer is untagged.
         // I will move the pointer to the new position but I will not change no values.
         pointer.setPosition(value);
+        this.invalidate();
     }
 
     /**
@@ -708,14 +709,14 @@ public abstract class ScGauge extends ScDrawer implements
     protected void onDraw(Canvas canvas) {
         // Cycle all features
         for (ScFeature feature : this.findFeatures(null, null)) {
-            // Apply the setting
+            // Setter
             this.featureSetter(feature);
+        }
 
-            // Check if have a selected pointer
-            if (this.mSelectedPointer != null) {
-                // Set the current status
-                this.mSelectedPointer.setPressed(this.isPressed());
-            }
+        // Check if have a selected pointer
+        if (this.mSelectedPointer != null) {
+            // Set the current status
+            this.mSelectedPointer.setPressed(this.isPressed());
         }
 
         // Call the base drawing method

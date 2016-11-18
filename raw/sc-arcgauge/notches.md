@@ -77,9 +77,9 @@ You can download the indicator image used below from [**HERE**](indicator-06.png
     for (int index = 0; index < 10; index++) {
         tokens[index] = Integer.toString((index + 1) * 10);
     }
+    gauge.setTextTokens(tokens);
 
     ScWriter writer = (ScWriter) gauge.findFeature(ScGauge.WRITER_IDENTIFIER);
-    writer.setTokens(tokens);
     writer.setTokenOffset(0.0f, -40.0f);
 
     // Each time I will change the value I must write it inside the counter text.
@@ -187,23 +187,22 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
     gauge.setPathTouchThreshold(40);
 
     // Set colors of the base
-    final ScFeature base = gauge.findFeature(ScGauge.BASE_IDENTIFIER);
-    base.setColors(
+    gauge.setColors(
             Color.parseColor("#15B7FF"), Color.parseColor("#15B7FF"),
             Color.parseColor("#98CA06"), Color.parseColor("#98CA06"),
             Color.parseColor("#98CA06"), Color.parseColor("#98CA06"),
             Color.parseColor("#98CA06"), Color.parseColor("#DC1E10")
     );
-    base.setFillingColors(ScFeature.ColorsMode.SOLID);
+    gauge.setStrokeColorsMode(ScFeature.ColorsMode.SOLID);
 
     // Writer
     String[] tokens = new String[9];
     for (int index = 0; index < 9; index++) {
         tokens[index] = Integer.toString(index * 5 - 10);
     }
+    gauge.setTextTokens(tokens);
 
     ScWriter writer = (ScWriter) gauge.findFeature(ScGauge.WRITER_IDENTIFIER);
-    writer.setTokens(tokens);
     writer.setLastTokenOnEnd(true);
 
     // Each time I will change the value I must write it inside the counter text.

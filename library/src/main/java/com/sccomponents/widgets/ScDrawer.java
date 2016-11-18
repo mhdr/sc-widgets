@@ -463,10 +463,8 @@ public abstract class ScDrawer extends ScWidget {
         // Get the nearest point on the path from the touch of the user and calculate the distance
         // from the path start. Note that if the path is already pressed the threshold will be
         // infinite.
-        float distance = this.mPathMeasure.getDistance(
-                x, y,
-                this.mPathIsTouched ? Float.POSITIVE_INFINITY : this.mPathTouchThreshold
-        );
+        float threshold = this.mPathIsTouched ? Float.POSITIVE_INFINITY : this.mPathTouchThreshold;
+        float distance = this.mPathMeasure.getDistance(x, y, threshold);
 
         // Select case by action type
         switch (event.getAction()) {

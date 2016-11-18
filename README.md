@@ -34,6 +34,9 @@ This class extend the [ScDrawer](raw/sc-drawer/ScDrawer.md) class.
 This class is a specialized to create a linear gauge.<br />
 This class extend the [ScGauge](raw/sc-gauge/ScGauge.md) class.
 
+- **[ScPathMeasure](raw/sc-pathmeasure/ScPathMeasure.md)**<br />
+Extend the PathMeasure because the original class not consider the contours in its totality.
+
 - **[ScNotches](raw/sc-notches/ScNotches.md)**<br />
 Create a feature that draw a series of notches following the base path.<br />
 This class inherit all its properties from the [ScFeature](raw/sc-feature/ScFeature.md).
@@ -124,7 +127,7 @@ Add the dependency
 ```java
 dependencies {
     ...
-    compile 'com.github.paroca72:sc-widgets:2.1.2'
+    compile 'com.github.paroca72:sc-widgets:2.1.3'
 }
 ```
 <br />

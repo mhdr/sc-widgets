@@ -170,8 +170,7 @@ So this example as been only a demonstration of the most used configurations.
     assert gauge != null;
 
     // Low pointer visibility
-    ScFeature lowPointer = gauge.findFeature(ScGauge.LOW_POINTER_IDENTIFIER);
-    lowPointer.setVisible(true);
+    gauge.setPointerLowVisibility(true);
 
     // Clear the pointers halo
     gauge.setPointerHaloWidth(0.0f);
@@ -260,7 +259,7 @@ Note that the `scc_path_touchable` is enable so you can drag the pointers.
 
     // Clear the pointers halo and make visible the low one
     gauge.setPointerHaloWidth(0.0f);
-    gauge.setPointerLowVisibility(true)
+    gauge.setPointerLowVisibility(true);
 
     // Set the values.
     // Note that the low cannot be over the high so you must set always for second because

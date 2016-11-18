@@ -295,16 +295,15 @@ You can download the indicator image used below from [**HERE**](indicator-04.png
     // value from code.
     gauge.setHighValue(60);
 
-    // Get the base feature
-    ScFeature base = gauge.findFeature(ScGauge.BASE_IDENTIFIER);
-    base.setColors(
+    // Set the base colors feature
+    gauge.setStrokeColors(
             Color.parseColor("#97B329"), Color.parseColor("#A9CB2A"),
             Color.parseColor("#D4E935"), Color.parseColor("#F1DD31"),
             Color.parseColor("#FBCB2E"), Color.parseColor("#F3A328"),
             Color.parseColor("#F18C23"), Color.parseColor("#F3341E"),
             Color.parseColor("#F51319")
     );
-    base.setFillingColors(ScFeature.ColorsMode.SOLID);
+    gauge.setStrokeColorsMode(ScFeature.ColorsMode.SOLID);
 
     // Each time I will change the value I must write it inside the counter text.
     gauge.setOnEventListener(new ScGauge.OnEventListener() {
@@ -375,8 +374,7 @@ You can download the indicator image used below from [**HERE**](indicator-05.png
     gauge.setHighValue(30);
 
     // Get the base feature
-    final ScFeature base = gauge.findFeature(ScGauge.BASE_IDENTIFIER);
-    base.setColors(
+    gauge.setStrokeColors(
             Color.parseColor("#079900"), Color.parseColor("#079900"),
             Color.parseColor("#F0F501"), Color.parseColor("#F0F501"),
             Color.parseColor("#F6C713"), Color.parseColor("#F6C713"),
