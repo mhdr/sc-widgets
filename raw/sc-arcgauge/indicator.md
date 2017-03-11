@@ -296,12 +296,12 @@ You can download the indicator image used below from [**HERE**](indicator-04.png
     gauge.setHighValue(60);
 
     // Set the base colors feature
-    gauge.setStrokeColors(
+    gauge.setStrokeColors(new int[] {
             Color.parseColor("#97B329"), Color.parseColor("#A9CB2A"),
             Color.parseColor("#D4E935"), Color.parseColor("#F1DD31"),
             Color.parseColor("#FBCB2E"), Color.parseColor("#F3A328"),
             Color.parseColor("#F18C23"), Color.parseColor("#F3341E"),
-            Color.parseColor("#F51319")
+            Color.parseColor("#F51319")}
     );
     gauge.setStrokeColorsMode(ScFeature.ColorsMode.SOLID);
 
