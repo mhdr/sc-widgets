@@ -3,6 +3,7 @@ package com.sccomponents.widgets;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -84,7 +85,6 @@ public class ScCopier extends ScFeature {
         for (int distance = 0; distance < this.mPathLength; distance++) {
             // Get the point and adjust the for the stroke size
             point = this.mPathMeasure.getPosTan(distance);
-            point[0] += halfStroke;
 
             // Trigger for index position and get the color
             boolean isFirstOrLast = distance == 0 || distance == this.mPathLength - 1;
@@ -100,8 +100,8 @@ public class ScCopier extends ScFeature {
             // To avoid this issue the point (square) will be rotate of the tangent angle
             // before to write it on the canvas.
             canvas.save();
-            canvas.rotate((float) Math.toDegrees(point[3]), point[0] - halfStroke, point[1]);
-            canvas.drawPoint(point[0], point[1], this.mPaint);
+            canvas.rotate((float) Math.toDegrees(point[3]), point[0], point[1]);
+            canvas.drawPoint(point[0] + halfStroke, point[1], this.mPaint);
             canvas.restore();
         }
 

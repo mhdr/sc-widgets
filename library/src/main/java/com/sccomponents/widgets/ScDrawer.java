@@ -590,7 +590,7 @@ public abstract class ScDrawer extends ScWidget {
         if (!this.mFeatures.contains(feature)) {
             // Add the feature and refresh the component
             this.mFeatures.add(feature);
-            this.invalidate();
+            this.forceLayout();
         }
     }
 
@@ -635,7 +635,7 @@ public abstract class ScDrawer extends ScWidget {
         if (this.mFeatures != null && this.mFeatures.contains(feature)) {
             // Remove and return true
             boolean result = this.mFeatures.remove(feature);
-            this.invalidate();
+            this.forceLayout();
             return result;
         }
         // Else return false
@@ -651,7 +651,7 @@ public abstract class ScDrawer extends ScWidget {
         if (this.mFeatures != null) {
             // Remove all and refresh the component
             this.mFeatures.clear();
-            this.invalidate();
+            this.forceLayout();
         }
     }
 
