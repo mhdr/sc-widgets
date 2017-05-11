@@ -1056,7 +1056,7 @@ public abstract class ScGauge extends ScDrawer implements
         if (this.mProgressSize != value) {
             // Store the new value
             this.mProgressSize = value;
-            this.invalidate();
+            this.forceLayout();
         }
     }
 
@@ -1244,7 +1244,7 @@ public abstract class ScGauge extends ScDrawer implements
         if (this.mNotchesSize != value) {
             // Store the new value and refresh the component
             this.mNotchesSize = value;
-            this.invalidate();
+            this.forceLayout();
         }
     }
 
@@ -1319,7 +1319,7 @@ public abstract class ScGauge extends ScDrawer implements
         if (this.mNotchesCount != value) {
             // Fix the new value
             this.mNotchesCount = value;
-            this.invalidate();
+            this.forceLayout();
         }
     }
 
