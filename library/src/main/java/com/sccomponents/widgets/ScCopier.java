@@ -3,17 +3,13 @@ package com.sccomponents.widgets;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
-import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.Shader;
-import android.text.TextUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
