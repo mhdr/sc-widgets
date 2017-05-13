@@ -222,7 +222,7 @@ public abstract class ScDrawer extends ScWidget {
             area.offset(-pathBounds.left, 0);
 
             // Find the horizontal scale and apply it
-            float xScale = pathBounds.width() == 0.0f ? 0.0f : (float) width / pathBounds.width();
+            float xScale = pathBounds.width() <= 0.01f ? 0.0f : (float) width / pathBounds.width();
             area.left *= xScale;
             area.right *= xScale;
         }
@@ -233,7 +233,7 @@ public abstract class ScDrawer extends ScWidget {
             area.offset(0, -pathBounds.top);
 
             // Find the vertical scale and apply it
-            float yScale = pathBounds.height() == 0.0f ? 0.0f : (float) height / pathBounds.height();
+            float yScale = pathBounds.height() <= 0.01f ? 0.0f : (float) height / pathBounds.height();
             area.top *= yScale;
             area.bottom *= yScale;
         }
