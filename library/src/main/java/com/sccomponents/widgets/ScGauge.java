@@ -738,7 +738,7 @@ public abstract class ScGauge extends ScDrawer implements
             this.mLowValue = (float) animation.getAnimatedValue();
 
         // Refresh
-        this.forceLayout();
+        this.invalidate();
 
         // Manage the listener
         if (this.mOnEventListener != null) {
@@ -801,7 +801,7 @@ public abstract class ScGauge extends ScDrawer implements
     protected void onPathRelease() {
         // Super and refresh
         super.onPathRelease();
-        this.forceLayout();
+        this.invalidate();
     }
 
     /**
@@ -946,7 +946,7 @@ public abstract class ScGauge extends ScDrawer implements
         if (this.mRoundedLineCap == null || this.mRoundedLineCap != value) {
             // Set the new value and refresh
             this.mRoundedLineCap = value;
-            this.forceLayout();
+            this.invalidate();
         }
     }
 
@@ -1056,7 +1056,7 @@ public abstract class ScGauge extends ScDrawer implements
         if (this.mProgressSize != value) {
             // Store the new value
             this.mProgressSize = value;
-            this.forceLayout();
+            this.invalidate();
         }
     }
 
@@ -1244,7 +1244,7 @@ public abstract class ScGauge extends ScDrawer implements
         if (this.mNotchesSize != value) {
             // Store the new value and refresh the component
             this.mNotchesSize = value;
-            this.forceLayout();
+            this.invalidate();
         }
     }
 
@@ -1319,7 +1319,7 @@ public abstract class ScGauge extends ScDrawer implements
         if (this.mNotchesCount != value) {
             // Fix the new value
             this.mNotchesCount = value;
-            this.forceLayout();
+            this.invalidate();
         }
     }
 
@@ -1344,7 +1344,7 @@ public abstract class ScGauge extends ScDrawer implements
         if (this.mNotchesLength != value) {
             // Fix the new value
             this.mNotchesLength = value;
-            this.forceLayout();
+            this.invalidate();
         }
     }
 
@@ -1425,7 +1425,7 @@ public abstract class ScGauge extends ScDrawer implements
     public void setTextTokens(String[] value) {
         // Fix the trigger
         this.mTextTokens = value;
-        this.forceLayout();
+        this.invalidate();
     }
 
     /**
@@ -1449,7 +1449,7 @@ public abstract class ScGauge extends ScDrawer implements
         if (this.mTextSize != value) {
             // Fix the trigger
             this.mTextSize = value;
-            this.forceLayout();
+            this.invalidate();
         }
     }
 
@@ -1607,7 +1607,7 @@ public abstract class ScGauge extends ScDrawer implements
             // Fix the trigger
             this.mPointerRadius = value;
             this.fixTouchOnPathThreshold();
-            this.forceLayout();
+            this.invalidate();
         }
     }
 
@@ -1689,7 +1689,7 @@ public abstract class ScGauge extends ScDrawer implements
             // Fix the trigger
             this.mPointerHaloWidth = value;
             this.fixTouchOnPathThreshold();
-            this.forceLayout();
+            this.invalidate();
         }
     }
 
@@ -1716,7 +1716,7 @@ public abstract class ScGauge extends ScDrawer implements
         if (this.mPointerLowVisible != value) {
             // Fix the trigger
             this.mPointerLowVisible = value;
-            this.forceLayout();
+            this.invalidate();
         }
     }
 
@@ -1743,7 +1743,7 @@ public abstract class ScGauge extends ScDrawer implements
         if (this.mPointerHighVisible != value) {
             // Fix the trigger
             this.mPointerHighVisible = value;
-            this.forceLayout();
+            this.invalidate();
         }
     }
 

@@ -8,9 +8,12 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.Shader;
+import android.text.TextUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -28,7 +31,7 @@ public class ScCopier extends ScFeature {
      */
 
     private Path mSegment;
-    private Bitmap mGradientBitmap;
+    private BitmapShader mShader;
     private boolean mForceCreateShader;
 
     private OnDrawListener mOnDrawListener;
@@ -66,7 +69,7 @@ public class ScCopier extends ScFeature {
      *
      * @return the bitmap
      */
-    private Bitmap createColoredBitmap() {
+    public Bitmap createColoredBitmap() {
         // Create the bitmap using the path boundaries and retrieve the canvas where draw
         RectF bounds = this.mPathMeasure.getBounds();
         Bitmap bitmap = Bitmap.createBitmap(
@@ -106,7 +109,8 @@ public class ScCopier extends ScFeature {
         }
 
         // Check for rounded stroke
-        if (isRoundedStroke) this.mPaint.setStrokeCap(Paint.Cap.ROUND);
+        if (isRoundedStroke)
+            this.mPaint.setStrokeCap(Paint.Cap.ROUND);
 
         // Return the new bitmap
         return bitmap;
@@ -125,13 +129,6 @@ public class ScCopier extends ScFeature {
         // Extract the segment to draw
         this.mSegment.reset();
         this.mPathMeasure.getSegment(startDistance, endDistance, this.mSegment, true);
-
-        // Create the shader
-        BitmapShader shader = null;
-        if (this.mGradientBitmap != null) {
-            shader = new BitmapShader(
-                    this.mGradientBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-        }
 
         // Check the listener
         if (this.mOnDrawListener != null) {
@@ -155,19 +152,22 @@ public class ScCopier extends ScFeature {
             matrix.postRotate(info.rotate, xCenter, yCenter);
 
             // Apply the matrix on the shader
-            if (shader != null) shader.setLocalMatrix(matrix);
+            if (this.mShader != null)
+                this.mShader.setLocalMatrix(matrix);
+
             // Apply the matrix on the segment
             this.mSegment.transform(matrix);
         }
 
-        // Apply the shader to the painter
-        this.mPaint.setShader(shader);
-
         // Draw only a path segment if the canvas is not null and the painter allow to draw
         if (canvas != null && this.mPaint != null &&
                 (this.mPaint.getStyle() != Paint.Style.STROKE || this.mPaint.getStrokeWidth() > 0)) {
+            // Create a paint clone and set the shader
+            Paint clone = new Paint(this.mPaint);
+            clone.setShader(this.mShader);
+
             // Draw the segment on the canvas
-            canvas.drawPath(this.mSegment, this.mPaint);
+            canvas.drawPath(this.mSegment, clone);
         }
     }
 
@@ -193,13 +193,16 @@ public class ScCopier extends ScFeature {
             if (this.mForceCreateShader) {
                 // Create the bitmap
                 this.mForceCreateShader = false;
-                this.mGradientBitmap = this.createColoredBitmap();
+                this.mShader = new BitmapShader(
+                        this.createColoredBitmap(),
+                        Shader.TileMode.CLAMP,
+                        Shader.TileMode.CLAMP
+                );
             }
 
-        } else {
+        } else
             // Reset the shader
-            this.mGradientBitmap = null;
-        }
+            this.mShader = null;
 
         // Draw a copy
         this.drawCopy(canvas);

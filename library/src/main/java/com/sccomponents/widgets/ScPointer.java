@@ -2,9 +2,11 @@ package com.sccomponents.widgets;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.PorterDuff;
 
 /**
  * Draw a pointer on the path at certain distance from the path starting.

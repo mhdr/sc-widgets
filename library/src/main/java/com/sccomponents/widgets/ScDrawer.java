@@ -591,6 +591,7 @@ public abstract class ScDrawer extends ScWidget {
             // Add the feature and refresh the component
             this.mFeatures.add(feature);
             this.forceLayout();
+            this.invalidate();
         }
     }
 
@@ -636,6 +637,7 @@ public abstract class ScDrawer extends ScWidget {
             // Remove and return true
             boolean result = this.mFeatures.remove(feature);
             this.forceLayout();
+            this.invalidate();
             return result;
         }
         // Else return false
@@ -652,6 +654,7 @@ public abstract class ScDrawer extends ScWidget {
             // Remove all and refresh the component
             this.mFeatures.clear();
             this.forceLayout();
+            this.invalidate();
         }
     }
 
