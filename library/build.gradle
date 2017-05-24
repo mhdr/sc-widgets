@@ -4,13 +4,13 @@ apply plugin: 'maven'
 group='com.github.Paroca72'
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 25
     buildToolsVersion '25.0.0'
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 232
-        versionName '2.1.5'
+        versionCode 240
+        versionName '2.2.0'
         multiDexEnabled true
     }
     buildTypes {
@@ -25,5 +25,4 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.github.paroca72:sc-utils:1.2.7'
 }

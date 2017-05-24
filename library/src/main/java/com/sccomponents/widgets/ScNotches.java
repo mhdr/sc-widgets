@@ -5,8 +5,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 
-import com.sccomponents.utils.ScPathMeasure;
-
 
 /**
  * Create a series of notches that follow a path
