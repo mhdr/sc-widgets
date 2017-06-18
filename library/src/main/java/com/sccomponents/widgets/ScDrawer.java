@@ -277,6 +277,26 @@ public abstract class ScDrawer extends ScWidget {
         source.transform(matrix);
     }
 
+    /**
+     * Calculate an threshold for convenience considering all the pointer on the path.
+     *
+     * @return The auto calculate threshold
+     */
+    private float getAutoPathTouchThreshold() {
+        // Get all the pointers on the path
+        List<ScFeature> pointers = this.findFeatures(ScPointer.class, null);
+        float threshold = 0;
+
+        // Cycle all the pointer and get the max radius
+        for (ScFeature pointer : pointers) {
+            // Get the current radius and compare
+            float radius = ((ScPointer) pointer).getRadius();
+            if (radius > threshold)
+                threshold = radius;
+        }
+        return threshold;
+    }
+
 
     /****************************************************************************************
      * Draw methods
@@ -457,6 +477,10 @@ public abstract class ScDrawer extends ScWidget {
             x = (event.getX() - this.getPaddingLeft() - this.mVirtualArea.left) / this.mAreaScale.x;
         if (this.mAreaScale.y != 0)
             y = (event.getY() - this.getPaddingTop() - this.mVirtualArea.top) / this.mAreaScale.y;
+
+        // Fix the threshold if not defined by the user
+        if (this.mPathTouchThreshold == 0)
+            this.mPathTouchThreshold = this.getAutoPathTouchThreshold();
 
         // Get the nearest point on the path from the touch of the user and calculate the distance
         // from the path start. Note that if the path is already pressed the threshold will be

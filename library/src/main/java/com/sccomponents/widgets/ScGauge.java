@@ -574,7 +574,7 @@ public abstract class ScGauge extends ScDrawer implements
      */
     private void setValueByPointer(float value, ScPointer pointer) {
         // Check for the low value
-        if (pointer != null &&
+        if (pointer != null && pointer.getTag() != null &&
                 pointer.getTag().equalsIgnoreCase(ScGauge.LOW_POINTER_IDENTIFIER)) {
             // Set and exit
             this.setGenericValue(value, true);
@@ -583,7 +583,7 @@ public abstract class ScGauge extends ScDrawer implements
 
         // Check for the high value
         if (pointer == null ||
-                pointer.getTag().equalsIgnoreCase(ScGauge.HIGH_POINTER_IDENTIFIER)) {
+                (pointer.getTag() != null && pointer.getTag().equalsIgnoreCase(ScGauge.HIGH_POINTER_IDENTIFIER))) {
             // Set and exit
             this.setGenericValue(value, false);
             return;
