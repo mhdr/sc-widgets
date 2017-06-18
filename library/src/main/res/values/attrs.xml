@@ -20,6 +20,7 @@
         <attr name="scc_pointer_color" format="color"/>
         <attr name="scc_pointer_colors" format="string"/>
         <attr name="scc_pointer_colors_mode"/>
+        <attr name="scc_pointer_select_mode"/>
         <attr name="scc_halo_size" format="dimension"/>
         <attr name="scc_notches_size" format="dimension"/>
         <attr name="scc_notches_color" format="color"/>
@@ -87,6 +88,11 @@
     <attr name="scc_pointer_colors_mode" format="enum">
         <enum name="solid" value="0"/>
         <enum name="gradient" value="1"/>
+    </attr>
+
+    <attr name="scc_pointer_select_mode" format="enum">
+        <enum name="nearest" value="0"/>
+        <enum name="over" value="1"/>
     </attr>
 
     <attr name="scc_text_colors_mode" format="enum">

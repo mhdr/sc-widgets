@@ -63,6 +63,20 @@ public abstract class ScGauge extends ScDrawer implements
 
 
     /****************************************************************************************
+     * Enumerators
+     */
+
+    /**
+     * The mode to select a pointer.
+     */
+    @SuppressWarnings("unuse")
+    public enum PointerSelectMode {
+        NEAREST,
+        OVER
+    }
+
+
+    /****************************************************************************************
      * Privates attribute
      */
 
@@ -96,6 +110,7 @@ public abstract class ScGauge extends ScDrawer implements
     private float mPointerHaloWidth;
     private boolean mPointerLowVisible;
     private boolean mPointerHighVisible;
+    private PointerSelectMode mPointerSelectMode;
 
     private Boolean mRoundedLineCap;
 
@@ -410,6 +425,10 @@ public abstract class ScGauge extends ScDrawer implements
                 R.styleable.ScComponents_scc_pointer_colors_mode, ScFeature.ColorsMode.GRADIENT.ordinal());
         this.mPointerColorsMode = ScFeature.ColorsMode.values()[pointerColorsMode];
 
+        int pointerSelectMode = attrArray.getInt(
+                R.styleable.ScComponents_scc_pointer_select_mode, PointerSelectMode.NEAREST.ordinal());
+        this.mPointerSelectMode = PointerSelectMode.values()[pointerSelectMode];
+
         //--------------------------------------------------
         // COMMON
 
@@ -542,10 +561,10 @@ public abstract class ScGauge extends ScDrawer implements
     /**
      * Get the nearest pointer considering the passed distance from the path start.
      *
-     * @param distance from the path start
+     * @param percentage from the path start
      * @return the nearest pointer
      */
-    private ScPointer findNearestPointer(float distance) {
+    private ScPointer findNearestPointer(float percentage) {
         // Get all pointers
         List<ScFeature> pointers = this.findFeatures(ScPointer.class, null);
         ScPointer nearest = null;
@@ -558,12 +577,41 @@ public abstract class ScGauge extends ScDrawer implements
             if (!current.getVisible() || current.getRadius() == 0.0f) continue;
             // If the nearest is null assign the first pointer to it
             if (nearest == null ||
-                    Math.abs(distance - nearest.getPosition()) > Math.abs(distance - current.getPosition())) {
+                    Math.abs(percentage - nearest.getPosition()) > Math.abs(percentage - current.getPosition()))
                 nearest = current;
-            }
         }
         // Return the nearest pointer if found
         return nearest;
+    }
+
+    /**
+     * Find the pointer positioned over this distance
+     *
+     * @param distance from the path start
+     * @return the over pointer
+     */
+    private ScPointer findOverPointer(float distance) {
+        // Get all pointers
+        List<ScFeature> pointers = this.findFeatures(ScPointer.class, null);
+
+        // Cycle all pointers found
+        for (ScFeature pointer : pointers) {
+            // Cast to current pointer
+            ScPointer current = (ScPointer) pointer;
+            // Check if the pointer is visible
+            if (!current.getVisible()) continue;
+
+            // Transform a distance in percentage to pixel
+            float percentage = current.getPosition();
+            float currentDistance = ScGauge.percentageToValue(percentage, 0, this.mPathMeasure.getLength());
+
+            // If the nearest is null assign the first pointer to it
+            if (currentDistance >= distance - current.getRadius() &&
+                    currentDistance <= distance + current.getRadius())
+                return current;
+        }
+        // Return null if not found
+        return null;
     }
 
     /**
@@ -588,6 +636,10 @@ public abstract class ScGauge extends ScDrawer implements
             this.setGenericValue(value, false);
             return;
         }
+
+        // Check for snap to notches the new degrees value.
+        if (this.mSnapToNotches)
+            value = this.snapToNotches(value);
 
         // If here mean that the pointer is untagged.
         // I will move the pointer to the new position but I will not change no values.
@@ -787,8 +839,16 @@ public abstract class ScGauge extends ScDrawer implements
     protected void onPathTouch(float distance) {
         // Select the nearest pointer and set the value
         float percentage = this.findPercentage(distance, 0, this.mPathMeasure.getLength());
-        this.mSelectedPointer = this.findNearestPointer(percentage);
-        this.setValueByPointer(percentage, this.mSelectedPointer);
+        this.mSelectedPointer = null;
+
+        if (this.mPointerSelectMode == PointerSelectMode.NEAREST)
+            this.mSelectedPointer = this.findNearestPointer(percentage);
+
+        if (this.mPointerSelectMode == PointerSelectMode.OVER)
+            this.mSelectedPointer = this.findOverPointer(distance);
+
+        if (this.mSelectedPointer != null)
+            this.setValueByPointer(percentage, this.mSelectedPointer);
 
         // Super
         super.onPathTouch(distance);
@@ -1732,7 +1792,7 @@ public abstract class ScGauge extends ScDrawer implements
     }
 
     /**
-     * Set the high pointer visibility..
+     * Set the high pointer visibility.
      * By default is true.
      *
      * @param value the pointer visibility
@@ -1744,6 +1804,30 @@ public abstract class ScGauge extends ScDrawer implements
             // Fix the trigger
             this.mPointerHighVisible = value;
             this.invalidate();
+        }
+    }
+
+    /**
+     * Get the pointer selection mode.
+     *
+     * @return the selection mode
+     */
+    @SuppressWarnings("unused")
+    public PointerSelectMode getPointerSelectMode() {
+        return this.mPointerSelectMode;
+    }
+
+    /**
+     * Set the pointer selection mode.
+     *
+     * @param value the selection mode
+     */
+    @SuppressWarnings("unused")
+    public void setPointerSelectMode(PointerSelectMode value) {
+        // Check if value is changed
+        if (this.mPointerSelectMode != value) {
+            // Fix the trigger
+            this.mPointerSelectMode = value;
         }
     }
 
