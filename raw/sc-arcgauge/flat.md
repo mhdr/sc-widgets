@@ -14,7 +14,9 @@ So this example as been only a demonstration of the most used configurations.
 ---
 ####### Example 1
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-01.jpg"> 
+
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-01.jpg">
+
 ```xml
     <FrameLayout
         android:layout_width="200dp"
@@ -85,7 +87,8 @@ So this example as been only a demonstration of the most used configurations.
 ---
 ####### Example 2
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-02.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-02.jpg">
+
 ```xml
     <FrameLayout
         android:layout_width="200dp"
@@ -138,7 +141,8 @@ So this example as been only a demonstration of the most used configurations.
 ---
 ####### Example 3
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-03.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-03.jpg">
+
 ```xml
     <FrameLayout
         android:layout_width="230dp"
@@ -181,8 +185,9 @@ So this example as been only a demonstration of the most used configurations.
 ####### Example 3
 Note that the `scc_path_touchable` is enable so you can drag the pointers.
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-04.jpg"> 
-```xml
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-04.jpg">
+
+```
     <FrameLayout
         android:layout_width="230dp"
         android:layout_height="wrap_content"

@@ -54,6 +54,7 @@ Values over the limits will be normalized to the limit.
 ####### Let's play
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/1.jpg" align="right" />
+
 - **Basic**
 ```xml
     <com.sccomponents.widgets.ScArcGauge
@@ -64,6 +65,7 @@ Values over the limits will be normalized to the limit.
 ```
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/2.jpg" align="right" />
+
 - **All feature in basic mode**
 ```xml
     <com.sccomponents.widgets.ScArcGauge

@@ -57,6 +57,7 @@ The bottom bounds in percentage.
 
 - **Basic**
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/1.jpg" align="right" />
+
 ```xml
     <com.sccomponents.widgets.ScLinearGauge
         android:layout_width="300dp"
@@ -67,6 +68,7 @@ The bottom bounds in percentage.
 
 - **All feature in basic mode**
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/2.jpg" align="right" />
+
 ```xml
     <com.sccomponents.widgets.ScLinearGauge
         android:layout_width="300dp"

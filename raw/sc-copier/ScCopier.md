@@ -62,8 +62,10 @@ Properties list: `scale`, `offset`, `rotate`.
 <br />
 <br />
 
-- **Create a bezier line and colorize it**<br />
+- **Create a bezier line and colorize it**
+
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/1.jpg" align="right" />
+
 ```java
     // Dimensions
     int padding = 24;
@@ -101,9 +103,11 @@ Properties list: `scale`, `offset`, `rotate`.
 <br />
 <br />
 
-- **Using `onBeforeDrawCopy` listener method.**<br />
-Refer to known issue listed above.<br />
+- **Using `onBeforeDrawCopy` listener method.**
+Refer to known issue listed above.
+
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-copier/2.jpg" align="right" />
+
 ```java
     ...
     // Feature

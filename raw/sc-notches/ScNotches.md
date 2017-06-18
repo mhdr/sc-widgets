@@ -75,8 +75,10 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 <br />
 
-- **Create a bezier line path and the notches on it.**<br />
+- **Create a bezier line path and the notches on it.**
+
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notches/1.jpg" align="right" />
+
 ```java
     // Dimensions
     int padding = 24;
@@ -114,8 +116,10 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 <br />
 
-- **Circle contour type**<br />
+- **Circle contour type**
+
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notches/2.jpg" align="right" />
+
 ```java
     ...
     // Feature
@@ -130,8 +134,10 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 <br />
 
-- **Circle filled type**<br />
+- **Circle filled type**
+
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notches/3.jpg" align="right" />
+
 ```java
     ...
     // Feature
@@ -145,8 +151,10 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 <br />
 
-- **Play with colors and notches info structure**<br />
+- **Play with colors and notches info structure**
+
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notches/4.jpg" align="right" />
+
 ```java
     ...
     // Create a line path
@@ -177,8 +185,10 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 <br />
 
-- **Complex path and play with the points distance from path start**<br />
+- **Complex path and play with the points distance from path start**
+
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notches/5.jpg" align="right" />
+
 ```java
     // Dimensions
     int padding = 24;
@@ -231,8 +241,10 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 <br />
 
-- **Multiple contours path managing**<br />
+- **Multiple contours path managing**
+
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-notches/6.jpg" align="right" />
+
 ```java
     ...
     // Create path with two contours

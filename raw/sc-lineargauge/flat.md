@@ -14,7 +14,8 @@ So this example as been only a demonstration of the most used configurations.
 ---
 ####### Example 1
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/f-01.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/f-01.jpg">
+
 ```xml
     <LinearLayout
         android:layout_width="match_parent"
@@ -49,7 +50,8 @@ So this example as been only a demonstration of the most used configurations.
 ---
 ####### Example 2
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/f-02.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/f-02.jpg">
+
 ```xml
     <LinearLayout
         android:layout_width="match_parent"
@@ -106,7 +108,8 @@ So this example as been only a demonstration of the most used configurations.
 ---
 ####### Example 3
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/n-02.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/n-02.jpg">
+
 ```xml
     <LinearLayout
         android:layout_width="wrap_content"
@@ -182,7 +185,8 @@ So this example as been only a demonstration of the most used configurations.
 ---
 ####### Example 4
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/n-01.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/n-01.jpg">
+
 ```xml
     <LinearLayout
         android:layout_width="wrap_content"
@@ -260,7 +264,8 @@ So this example as been only a demonstration of the most used configurations.
 ---
 ####### Example 5
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/n-03.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/n-03.jpg">
+
 ```xml
     <FrameLayout
         android:layout_width="wrap_content"

@@ -153,6 +153,9 @@ Return the low pointer visibility.
 - **get/setPointerHighVisibility**  -> `float` value, default `true`<br />
 Return the high pointer visibility.
 
+- **get/setPointerSelectMode**  -> `PointerSelectMode` value, default `NEAREST`<br />
+Set how the method to select a pointer.
+
 - **get/setRoundedLine(boolean value)**  -> `boolean` value, default `false`<br />
 Set if the line style cap is set on rounded or not.<br />
 Please note than once set all the features, old and new, will be with this property settle by the passed value.
@@ -216,7 +219,8 @@ Called before draw the single text token.
         <attr name="scc_pointer_radius" format="dimension" />
         <attr name="scc_pointer_color" format="color" />
         <attr name="scc_pointer_colors" format="string" />
-        <attr name="scc_pointer_colors_mode"/>
+        <attr name="scc_pointer_colors_mode" />
+        <attr name="scc_pointer_select_mode" />
         <attr name="scc_halo_size" format="dimension" />
         <attr name="scc_rounded_line" format="boolean" />
     </declare-styleable>

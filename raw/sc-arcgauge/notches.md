@@ -16,7 +16,8 @@ These example as been only a demonstration of the most used configurations and a
 ####### Example 1
 You can download the indicator image used below from [**HERE**](indicator-06.png).
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-01.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-01.jpg">
+
 ```xml
     <FrameLayout
         android:layout_width="300dp"
@@ -123,7 +124,8 @@ You can download the indicator image used below from [**HERE**](indicator-06.png
 ####### Example 2
 You can download the indicator image used below from [**HERE**](indicator-07.png).
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-02.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-02.jpg">
+
 ```xml
     <FrameLayout
         android:layout_width="300dp"
@@ -270,7 +272,8 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
 ---
 ####### Example 3
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-03.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-03.jpg">
+
 ```xml
     <FrameLayout
         android:layout_width="300dp"
@@ -385,7 +388,8 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
 ---
 ####### Example 4
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-04.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-04.jpg">
+
 ```xml
     <FrameLayout
         android:layout_width="300dp"
@@ -513,7 +517,8 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
 ---
 ####### Example 5
 
-<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-05.jpg"> 
+<img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-05.jpg">
+
 ```xml
     <FrameLayout
         android:layout_width="280dp"
