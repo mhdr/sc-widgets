@@ -253,11 +253,11 @@ public abstract class ScGauge extends ScDrawer implements
      */
     private float snapToNotches(float percentage) {
         // Check for empty value
-        if (this.mNotchesCount == 0.0f) return percentage;
-        if (this.mPathMeasure.getLength() == 0.0f) return 0.0f;
+        if (this.mNotchesCount == 0 ||
+                this.mPathMeasure.getLength() == 0.0f) return 0.0f;
 
         // Calc the percentage step delta and return the closed value
-        float step = 100 / this.mNotchesCount;
+        float step = 100.0f / this.mNotchesCount;
         return Math.round(percentage / step) * step;
     }
 
@@ -567,21 +567,34 @@ public abstract class ScGauge extends ScDrawer implements
     private ScPointer findNearestPointer(float percentage) {
         // Get all pointers
         List<ScFeature> pointers = this.findFeatures(ScPointer.class, null);
-        ScPointer nearest = null;
+        ScPointer nearestPointer = null;
+        float nearestValue = Float.MAX_VALUE;
 
         // Cycle all pointers found
         for (ScFeature pointer : pointers) {
             // Cast to current pointer
             ScPointer current = (ScPointer) pointer;
-            // Check if the pointer is visible
             if (!current.getVisible() || current.getRadius() == 0.0f) continue;
-            // If the nearest is null assign the first pointer to it
-            if (nearest == null ||
-                    Math.abs(percentage - nearest.getPosition()) > Math.abs(percentage - current.getPosition()))
-                nearest = current;
+
+            // Find the distance from the current pointer and the pressed point
+            float normalDistance = Math.abs(percentage - current.getPosition());
+            float inverseDistance = Math.abs(100 - percentage + current.getPosition());
+
+            // Check in the normal way
+            if (normalDistance < nearestValue) {
+                nearestValue = normalDistance;
+                nearestPointer = current;
+            }
+
+            // If the path is closed try to search in negative
+            if (this.mPathMeasure.isClosed())
+                if (inverseDistance < nearestValue) {
+                    nearestValue = inverseDistance;
+                    nearestPointer = current;
+                }
         }
         // Return the nearest pointer if found
-        return nearest;
+        return nearestPointer;
     }
 
     /**
@@ -598,17 +611,25 @@ public abstract class ScGauge extends ScDrawer implements
         for (ScFeature pointer : pointers) {
             // Cast to current pointer
             ScPointer current = (ScPointer) pointer;
-            // Check if the pointer is visible
             if (!current.getVisible()) continue;
 
-            // Transform a distance in percentage to pixel
+            // Transform a distance of the current pointer from percentage to pixel
             float percentage = current.getPosition();
-            float currentDistance = ScGauge.percentageToValue(percentage, 0, this.mPathMeasure.getLength());
+            float currentDistance = ScGauge
+                    .percentageToValue(percentage, 0, this.mPathMeasure.getLength());
 
             // If the nearest is null assign the first pointer to it
             if (currentDistance >= distance - current.getRadius() &&
                     currentDistance <= distance + current.getRadius())
                 return current;
+
+            // If the path is closed try to search in negative
+            if (this.mPathMeasure.isClosed()) {
+                float negative = distance - this.mPathMeasure.getLength();
+                if (currentDistance >= negative - current.getRadius() &&
+                        currentDistance <= negative + current.getRadius())
+                    return current;
+            }
         }
         // Return null if not found
         return null;
