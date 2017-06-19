@@ -29,7 +29,7 @@ Values over the limits will be normalized to the limit.
 <br />
 
 ---
-####### XML using
+###### XML using
 
 ```xml
     <com.sccomponents.widgets.ScArcGauge
@@ -40,7 +40,7 @@ Values over the limits will be normalized to the limit.
 ```
 
 
-####### XML Properties
+###### XML Properties
 ```xml
     <declare-styleable name="ScComponents">
         ...
@@ -51,7 +51,7 @@ Values over the limits will be normalized to the limit.
 
 
 ---
-####### Let's play
+###### Let's play
 
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/1.jpg" align="right" />
 
@@ -88,7 +88,7 @@ Values over the limits will be normalized to the limit.
 <br />
 
 ---
-####### Examples
+## Examples
 
 Press on the picture linked below to see the demonstration.
 

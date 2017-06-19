@@ -30,7 +30,7 @@ The bottom bounds in percentage.
 <br />
 
 ---
-####### XML using
+###### XML using
 ```xml
     <com.sccomponents.widgets.ScLinearGauge
         android:layout_width="200dp"
@@ -40,7 +40,7 @@ The bottom bounds in percentage.
 ```
 
 
-####### XML Properties
+###### XML Properties
 ```xml
     <declare-styleable name="ScComponents">
         ...
@@ -53,7 +53,7 @@ The bottom bounds in percentage.
 
 
 ---
-####### Let's play
+###### Let's play
 
 - **Basic**
 <img src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-lineargauge/1.jpg" align="right" />
@@ -87,7 +87,7 @@ The bottom bounds in percentage.
 <br />
 
 ---
-####### Examples
+## Examples
 
 Press on the picture linked below to see the demonstration.
 

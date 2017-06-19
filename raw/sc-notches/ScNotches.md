@@ -52,7 +52,7 @@ NotchInfo properties list: `size`, `length`, `color`, `index`, `offset`, `distan
 <br />
 
 ---
-####### Let's play
+###### Let's play
 
 - **Common examples xml**
 ```xml

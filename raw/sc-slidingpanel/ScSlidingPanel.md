@@ -12,7 +12,7 @@ Put the component inside a RelativeLayout, give an alignment and the panel slide
 > If the component have the alignParentBottom to true the panel sliding from bottom.
 
 
-###XML properties
+### XML properties
 - **scc_layout**               -> reference value: default 0 (load the xml content from resources)
 - **scc_start_open**           -> boolean value: default true
 - **scc_toggle_ontouch**       -> boolean value: default true
@@ -43,7 +43,7 @@ Put the component inside a RelativeLayout, give an alignment and the panel slide
 
 #Usage example
 
-###From xml
+### From xml
 ```xml
 <!-- Define the container -->
 <RelativeLayout
@@ -68,14 +68,14 @@ Put the component inside a RelativeLayout, give an alignment and the panel slide
 </RelativeLayout>
 ```
 
-###From code
+### From code
 ```java
 ScSlidingPanel scs = new ScSlidingPanel(this);
 ```
 
 
 
-#License
+# License
 <pre>
  Copyright 2015 Samuele Carassai
 

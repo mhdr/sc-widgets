@@ -13,7 +13,7 @@ These example as been only a demonstration of the most used configurations and a
 
 
 ---
-####### Example 1
+## Example 1
 You can download the indicator image used below from [**HERE**](indicator-06.png).
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-01.jpg">
@@ -121,7 +121,7 @@ You can download the indicator image used below from [**HERE**](indicator-06.png
 
 
 ---
-####### Example 2
+## Example 2
 You can download the indicator image used below from [**HERE**](indicator-07.png).
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-02.jpg">
@@ -270,7 +270,7 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
 
 
 ---
-####### Example 3
+## Example 3
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-03.jpg">
 
@@ -386,7 +386,7 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
 
 
 ---
-####### Example 4
+## Example 4
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-04.jpg">
 
@@ -515,7 +515,7 @@ You can download the indicator image used below from [**HERE**](indicator-07.png
 
 
 ---
-####### Example 5
+## Example 5
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/n-05.jpg">
 

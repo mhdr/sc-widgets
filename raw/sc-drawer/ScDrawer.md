@@ -109,7 +109,7 @@ This called only if before had a onTouch event.
 <br />
 
 ---
-####### XML Properties
+###### XML Properties
 ```xml
     <declare-styleable name="ScComponents">
         <attr name="scc_max_width" format="dimension" />
@@ -122,7 +122,7 @@ This called only if before had a onTouch event.
 <br />
 <br />
 
-####### Understanding the canvas and area filling
+###### Understanding the canvas and area filling
 
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-drawer/1.jpg)
 ![image](https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-drawer/2.jpg)

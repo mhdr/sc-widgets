@@ -56,7 +56,7 @@ Properties list: `point`, `index`, `text`, `distance`, `angle`, `unbend`, `color
 <br />
 
 ---
-####### Let's play
+###### Let's play
 
 - **Common xml configuration**
 ```xml

@@ -187,7 +187,7 @@ Called before draw the single text token.
 <br />
 
 ---
-####### XML Properties
+###### XML Properties
 ```xml
     <declare-styleable name="ScComponents">
         ...

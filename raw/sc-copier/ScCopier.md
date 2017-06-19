@@ -39,7 +39,7 @@ Properties list: `scale`, `offset`, `rotate`.
 
 
 ---
-####### Let's play
+###### Let's play
 
 - **Common xml configuration**
 ```xml

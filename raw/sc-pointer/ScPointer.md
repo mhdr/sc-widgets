@@ -51,7 +51,7 @@ If assign a bitmap the default drawing will be bypassed and the new bitmap will 
 <br />
 
 ---
-####### Let's play
+###### Let's play
 
 - **Common xml configuration**
 ```xml

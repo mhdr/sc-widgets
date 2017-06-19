@@ -12,7 +12,7 @@ So this example as been only a demonstration of the most used configurations.
 <br />
 
 ---
-####### Example 1
+## Example 1
 
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-01.jpg">
@@ -85,7 +85,7 @@ So this example as been only a demonstration of the most used configurations.
 
 
 ---
-####### Example 2
+## Example 2
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-02.jpg">
 
@@ -139,7 +139,7 @@ So this example as been only a demonstration of the most used configurations.
 
 
 ---
-####### Example 3
+## Example 3
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-03.jpg">
 
@@ -182,7 +182,7 @@ So this example as been only a demonstration of the most used configurations.
 
 
 ---
-####### Example 3
+## Example 4
 Note that the `scc_path_touchable` is enable so you can drag the pointers.
 
 <img align="right" src="https://github.com/Paroca72/sc-widgets/blob/master/raw/sc-arcgauge/f-04.jpg">
