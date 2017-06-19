@@ -127,7 +127,7 @@ Add the dependency
 ```java
 dependencies {
     ...
-    compile 'com.github.paroca72:sc-widgets:2.2.0'
+    compile 'com.github.paroca72:sc-widgets:2.3.0'
 }
 ```
 <br />
