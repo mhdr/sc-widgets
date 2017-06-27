@@ -253,8 +253,8 @@ public abstract class ScGauge extends ScDrawer implements
      */
     private float snapToNotches(float percentage) {
         // Check for empty value
-        if (this.mNotchesCount == 0 ||
-                this.mPathMeasure.getLength() == 0.0f) return 0.0f;
+        if (this.mNotchesCount == 0)
+            return 0.0f;
 
         // Calc the percentage step delta and return the closed value
         float step = 100.0f / this.mNotchesCount;
