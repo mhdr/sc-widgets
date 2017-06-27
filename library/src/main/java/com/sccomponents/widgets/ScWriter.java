@@ -163,9 +163,9 @@ public class ScWriter extends ScFeature {
 
         // Save the canvas status and rotate by the calculated tangent angle
         canvas.save();
-        canvas.rotate(info.angle, info.point.x, info.point.y);
 
         // Draw the straight text
+        canvas.rotate(info.angle, info.point.x, info.point.y);
         canvas.drawText(
                 info.text,
                 info.point.x + info.offset.x, info.point.y + info.offset.y,
@@ -249,7 +249,7 @@ public class ScWriter extends ScFeature {
         if (point == null) return;
 
         // Define the properties.
-        info.angle = (float) Math.toDegrees(this.mUnbend ? Math.toDegrees(point[3]) : 0.0f);
+        info.angle = this.mUnbend ? (float) Math.toDegrees(point[3]) : 0.0f;
         info.point = ScWriter.toPoint(point);
 
         // Check if have a liked listener
