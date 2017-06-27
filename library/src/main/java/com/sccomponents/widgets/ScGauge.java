@@ -258,7 +258,13 @@ public abstract class ScGauge extends ScDrawer implements
 
         // Calc the percentage step delta and return the closed value
         float step = 100.0f / this.mNotchesCount;
-        return Math.round(percentage / step) * step;
+        float value = Math.round(percentage / step) * step;
+
+        if (this.mPathMeasure != null && this.mPathMeasure.isClosed() &&
+                value >= 100)
+            return 0;
+        else
+            return value;
     }
 
     /**
