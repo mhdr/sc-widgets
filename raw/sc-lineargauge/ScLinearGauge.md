@@ -15,16 +15,16 @@ This class inherit all its properties from the [ScGauge](../sc-feature/ScGauge.m
 
 #### Getter and Setter
 
-- **get/getLeftBounds**  -> `float` value, default `0`<br />
+- **get/setLeftBounds**  -> `float` value, default `0`<br />
 The left bounds in percentage.
 
-- **get/getTopBounds**  -> `float` value, default `100`<br />
+- **get/setTopBounds**  -> `float` value, default `100`<br />
 The top bounds in percentage.
 
-- **get/getRightBounds**  -> `float` value, default `0`<br />
+- **get/setRightBounds**  -> `float` value, default `0`<br />
 The right bounds in percentage.
 
-- **get/getBottomBounds**  -> `float` value, default `100`<br />
+- **get/setBottomBounds**  -> `float` value, default `100`<br />
 The bottom bounds in percentage.
 <br />
 <br />
